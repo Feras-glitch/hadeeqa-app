@@ -10,13 +10,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.7' }
       - name: Accept SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
       - name: Copy web app into assets
         run: mkdir -p android/app/src/main/assets/www && cp web/index.html android/app/src/main/assets/www/index.html
       - name: Build debug APK
         working-directory: android
-        run: gradle --no-daemon assembleDebug
+        run: gradle --no-daemon --stacktrace assembleDebug 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
+      - name: Show error tail
+        if: failure()
+        working-directory: android
+        run: grep -nE "error|wrong|Exception|FAIL" build.log | head -40 || true
       - uses: actions/upload-artifact@v4
         with: { name: Hadeeqa-android-apk, path: android/app/build/outputs/apk/debug/app-debug.apk }
   windows:
