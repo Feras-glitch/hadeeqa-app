@@ -10,7 +10,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
-      - uses: android-actions/setup-android@v3
+      - name: Accept SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
       - name: Copy web app into assets
         run: mkdir -p android/app/src/main/assets/www && cp web/index.html android/app/src/main/assets/www/index.html
       - name: Build debug APK
@@ -35,6 +36,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: Hadeeqa-windows, path: electron/dist/*.exe }
   pages:
+    if: ${{ vars.ENABLE_PAGES == 'true' }}
     runs-on: ubuntu-latest
     permissions: { pages: write, id-token: write }
     environment:
