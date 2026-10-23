@@ -3,7 +3,7 @@
 import asyncio, json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from playwright.async_api import async_playwright
-from helpers import serve, new_page, view, solve_quiz, solve_fun, record_all, run_scene, answer_gate
+from helpers import serve, new_page, view, solve_quiz, solve_fun, record_all, run_scene, answer_gate, take_test, skip_pre, start_next_scene
 
 URL = serve(8790)
 ERR, FAIL = [], []
@@ -33,9 +33,23 @@ async def main():
         ev = pg.evaluate
 
         # ---------- دلال (المسار الأكبر) ----------
-        await pg.click('[data-k="dalal"]'); await pg.click('#pre')
-        for _ in range(10):
-            await pg.click('#tq .opt >> nth=0'); await pg.click('#nx')
+        await pg.click('[data-k="dalal"]'); await pg.wait_for_timeout(500)
+        ok('pre-test gate blocks the story', bool(await pg.query_selector('#pre')) and not await pg.query_selector('svg.garden'))
+        await pg.click('#pre'); await pg.wait_for_timeout(300)
+        ok('pre-test asks oral first (word shown, no options yet)', bool(await pg.query_selector('#tdk')) and not await pg.query_selector('#tq'))
+        # pause half-way and resume
+        for _ in range(7):
+            if await pg.query_selector('#tdk'): await pg.click('#tdk')
+            else: await pg.click('#tq .opt >> nth=0')
+            await pg.wait_for_timeout(600)
+        await pg.click('#tpause'); await pg.wait_for_timeout(400)
+        ok('paused test resumes where it stopped', 'أكمل (٧' in await view(pg))
+        await pg.click('#pre'); await pg.wait_for_timeout(300)
+        n = await take_test(pg)
+        pre = await ev("S.prog.tests.pre")
+        conds = await ev("Object.keys(S.prog.tests.pre.resp).map(id=>testItem(id).cond).reduce((a,c)=>(a[c]=(a[c]||0)+1,a),{})")
+        ok('dalal pre-test: 10 story + 10 control + 20 bonus words', conds == {'T': 10, 'C': 10, 'B': 20} and pre['done'], str(conds))
+        ok('no test word leaks into the family quiz', await ev("(()=>{const st=new Set();for(let r=0;r<400;r++){const q=quizQ(['dalal','farah','feras'][r%3],new Set());if(q&&q.q)st.add(q.q.s)}const T=[...TEST_T,...CONTROL,...TEST_B.flat()].map(x=>x.s);return !T.some(s=>st.has(s))})()"))
         await pg.click('#h'); await pg.wait_for_timeout(500)
         await nohs(pg, 'kid home C'); ok('kid home: garden', bool(await pg.query_selector('svg.garden')))
         ok('kid home: map has 10 stations', await ev("document.querySelectorAll('.mp-n').length") == 10)
@@ -54,8 +68,9 @@ async def main():
         await pg.wait_for_timeout(500)
         ok('all 10 magic effects play without error', not [e for e in ERR if 'magic' in e.lower() or 'decode' in e.lower()])
         await pg.click('#bk'); await pg.click('#homeBtn'); await pg.click('[data-k="dalal"]'); await pg.wait_for_timeout(400)
-        await pg.click('button[data-s] >> nth=0'); await pg.wait_for_timeout(400)
-        ok('scene 2 to celebration incl. magnifier', await run_scene(pg, hs=HS))
+        ok('one new scene a day: scene 2 waits for tomorrow', 'غدًا' in await view(pg))
+        await start_next_scene(pg)
+        ok('scene 2 to celebration incl. magnifier (parent unlocked)', await run_scene(pg, hs=HS))
         # remaining surprises, jumped to directly
         for sc, name in [(4, 'maze'), (5, 'size order'), (8, 'scratch')]:
             await ev(f"(async()=>{{S.prog.scene={sc};S.prog.step=2;await go('scene')}})()"); await pg.wait_for_timeout(500)
@@ -106,12 +121,12 @@ async def main():
         ok('bedtime closes cleanly', not await pg.query_selector('.ovl.bed') and await ev("S.view") == 'kid')
 
         # ---------- فرح (المسار الأوسط) ----------
-        await pg.click('#homeBtn'); await pg.click('[data-k="farah"]'); await pg.click('#preSkip'); await pg.wait_for_timeout(400)
+        await pg.click('#homeBtn'); await pg.click('[data-k="farah"]'); await skip_pre(pg)
         await pg.click('button[data-s] >> nth=0'); await pg.wait_for_timeout(400)
         ok('scene 1 (lane B) to celebration', await run_scene(pg, hs=HS))
 
         # ---------- كريم (المسار الأصغر) ----------
-        await pg.click('#homeBtn'); await pg.click('[data-k="kareem"]'); await pg.click('#preSkip'); await pg.wait_for_timeout(400)
+        await pg.click('#homeBtn'); await pg.click('[data-k="kareem"]'); await skip_pre(pg)
         await nohs(pg, 'kid home A'); ok('kareem: big picture start button', bool(await pg.query_selector('button[data-s] img, button[data-s] .ph')))
         ok('kareem: extras tucked under ⋯', bool(await pg.query_selector('details#more')))
         await pg.click('button[data-s] >> nth=0'); await pg.wait_for_timeout(400)
@@ -135,7 +150,7 @@ async def main():
         await nohs(pg, 'podium'); ok('quiz: 10 turns to podium', bool(await pg.query_selector('.pod')))
 
         # ---------- ولي الأمر ----------
-        await pg.click('#hm'); await pg.click('#pBtn'); await pg.wait_for_timeout(600)
+        await pg.click('#hm'); await pg.click('#pBtn'); await pg.wait_for_timeout(200); await answer_gate(pg); await pg.wait_for_timeout(600)
         await pg.select_option('#wotdSel', 'عَتِيق'); await pg.wait_for_timeout(200)
         await nohs(pg, 'parent'); ok('parent: word of day pinned', (await ev("sget('kv','wotd:o')"))['w'] == 'عَتِيق')
         await pg.click('details.card >> text=📜 اللفافة السرية ورسائلها')
@@ -153,11 +168,35 @@ async def main():
         # ---------- الاختبار البعدي + الترتيب ----------
         await ev("(async()=>{const p=await loadProg('dalal');for(let i=0;i<10;i++){p.done[i]=true;(p.doneT=p.doneT||{})[i]=Date.now()-15*864e5}await saveProg('dalal',p)})()")
         await pg.click('#homeBtn'); await pg.click('[data-k="dalal"]'); await pg.wait_for_timeout(400)
-        await pg.click('#postBtn')
-        for _ in range(10):
-            await pg.click('#tq .opt >> nth=0'); await pg.click('#nx')
+        await pg.click('#postBtn'); await pg.wait_for_timeout(300)
+        await take_test(pg)
         await pg.click('#h'); await pg.wait_for_timeout(300)
-        ok('post test stored', bool((await ev("loadProg('dalal')"))['tests'].get('post')))
+        ok('post test stored', (await ev("loadProg('dalal')"))['tests']['post']['done'] is True)
+        ok('delayed test announced in 14 days', '١٤ يوم' in await view(pg))
+        await ev("(async()=>{const p=await loadProg('dalal');p.tests.post.t-=15*864e5;await saveProg('dalal',p);await go('kid','dalal')})()"); await pg.wait_for_timeout(400)
+        await pg.click('#delayBtn'); await pg.wait_for_timeout(300); await take_test(pg); await pg.click('#h'); await pg.wait_for_timeout(300)
+        ok('delayed retention test stored', (await ev("loadProg('dalal')"))['tests']['delay']['done'] is True)
+
+        # ---------- التصحيح الأعمى والتقرير ----------
+        await pg.click('#homeBtn'); await pg.click('#pBtn'); await pg.wait_for_timeout(200); await answer_gate(pg); await pg.wait_for_timeout(700)
+        await nohs(pg, 'parent+assessment')
+        qn = await ev("oralQueue().then(q=>q.length)")
+        kinds = await ev("oralQueue().then(q=>[...new Set(q.map(x=>x.kind))].sort())")
+        ok('blind queue mixes pre + post + delay recordings', qn >= 15 and kinds == ['delay', 'post', 'pre'], f'{qn} items {kinds}')
+        await pg.click('#scOral'); await pg.wait_for_timeout(300)
+        vv = await view(pg); ok('scoring screen hides which test the answer came from', not any(k in vv for k in ['البداية', 'الختامي', 'التذكّر', 'pre', 'post']))
+        for i in range(qn):
+            await pg.click('[data-sc="%s"]' % ('2' if i % 3 else '1')); await pg.wait_for_timeout(120)
+        ok('all oral answers scored', await ev("oralQueue().then(q=>q.length)") == 0)
+        await pg.click('#bk'); await pg.wait_for_timeout(700)
+        card = await pg.inner_text('#view')
+        ok('report: story vs control words + net effect', 'كلمات المقارنة' in card and 'أثر التطبيق' in card and 'شفهي' in card)
+        ok('report: usage log (days, minutes, what the child opens)', 'أيام النشاط' in card)
+        async with pg.expect_download(timeout=30000) as d:
+            await pg.click('#csvBtn')
+        csv = open(await (await d.value).path(), encoding='utf-8-sig').read().splitlines()
+        ok('assessment CSV: one row per item per test', len(csv) - 1 == 3 * 40 and csv[0].startswith('kid,lane,test,item,cond'), f'{len(csv)-1} rows')
+        await pg.click('#homeBtn'); await pg.click('[data-k="dalal"]'); await pg.wait_for_timeout(400)
         await pg.click('[data-og="0,4"]')
         for i in range(5):
             await pg.click(f'[data-o="{i}"]'); await pg.wait_for_timeout(200)

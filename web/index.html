@@ -53,6 +53,8 @@ button:active{transform:scale(.97)} button:disabled{opacity:.45;cursor:not-allow
 canvas{width:100%;border:2px dashed var(--amb);border-radius:14px;background:#fff;touch-action:none;display:block}
 .wtap{display:flex;flex-wrap:wrap;gap:6px;direction:rtl} .wtap span{font-family:'Noto Naskh Arabic',serif;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:1.2rem;font-weight:600;cursor:pointer} .wtap span.err{background:var(--red0);border-color:#fca5a5;text-decoration:line-through}
 input,select,textarea{min-width:0;max-width:100%;box-sizing:border-box}
+.ast{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:6px}.ast th,.ast td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:center}.ast td:first-child{text-align:right;color:var(--mut)}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.pinpad button{min-height:56px;font-size:1.4rem}
 .toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,120px);background:#0f172a;color:#fff;padding:12px 18px;border-radius:14px;font-weight:800;z-index:99;transition:.25s;max-width:92vw;text-align:center;opacity:0;pointer-events:none}
 .toast.on{transform:translate(-50%,0);opacity:1}
 .small{font-size:.85rem;color:var(--mut);line-height:1.7}
@@ -136,13 +138,13 @@ let KIDS=[{id:'kareem',age:6,lane:'A'},{id:'farah',age:8,lane:'B'},{id:'dalal',a
 const laneOfAge=a=>a<=7?'A':a<=9?'B':'C';
 const roleOf=kid=>{const k=KIDS.find(x=>x.id===kid);if(!k)return kid;if(CH[kid]&&['kareem','farah','dalal'].includes(kid))return kid;return {A:'kareem',B:'farah',C:'dalal'}[k.lane]};
 /* إن وُجد ملف عائلة «واحة اللسان العربي» (kb-family-v1) تُقرأ منه أسماء الأطفال وأعمارهم بدل الثلاثة المثبّتين؛ شخصيات القصة تبقى كما هي */
-function initFamily(){try{const F=JSON.parse(localStorage.getItem('kb-family-v1')||'null');if(!F||!Array.isArray(F.kids)||!F.kids.length)return;const y=new Date().getFullYear();KIDS=F.kids.map(k=>{const age=k.by?Math.max(4,y-k.by):8;const id='kz_'+k.id;CH[id]={n:k.name,e:k.g==='f'?'👧':'👦',a:null,g:k.g==='f'?'f':'m'};return {id,age,lane:laneOfAge(age)}})}catch(e){}}
+function initFamily(){try{const F=JSON.parse(localStorage.getItem('kb-family-v1')||'null');if(!F||!Array.isArray(F.kids)||!F.kids.length)return;const y=new Date().getFullYear();KIDS=F.kids.map(k=>{const age=k.by?Math.max(4,y-k.by):8;const id='kz_'+k.id;CH[id]={n:String(k.name||'').replace(/[<>&"'`]/g,'').slice(0,24)||'طفل',e:k.g==='f'?'👧':'👦',a:null,g:k.g==='f'?'f':'m'};return {id,age,lane:laneOfAge(age)}})}catch(e){}}
 const SCENES=[
-{word:'مُورِقَة',root:'و ر ق',pattern:'مُفْعِلَة',meaning:'كثيرة الأوراق الخضراء',example:'بَعْدَ الْمَطَرِ صَارَتِ الشَّجَرَةُ الْيَابِسَةُ مُورِقَةً.',family:['وَرَقَة','أَوْرَاق','وَرَّاق'],intruder:'رَقِيق',
+{word:'مُورِقَة',root:'و ر ق',pattern:'مُفْعِلَة',meaning:'كثيرة الأوراق الخضراء',example:'بَعْدَ الْمَطَرِ صَارَتِ الشَّجَرَةُ الْعَارِيَةُ مُورِقَةً.',family:['وَرَقَة','أَوْرَاق','وَرَّاق'],intruder:'رَقِيق',
  narr:'وَقَفَتْ عَائِلَةُ فِرَاسٍ أَمَامَ بَوَّابَةِ الْحَدِيقَةِ الْكَبِيرَةِ، وَقَدْ أَحَاطَتْ بِهَا أَشْجَارٌ مُورِقَةٌ تَتَمَايَلُ أَغْصَانُهَا فِي الْهَوَاءِ.',
  lines:[{w:'dalal',t:'مَا أَجْمَلَ هَذِهِ الْأَشْجَارَ الْمُورِقَةَ! كَأَنَّهَا تُرَحِّبُ بِنَا.'},{w:'kareem',t:'أُرِيدُ أَنْ أَدْخُلَ الْآنَ!'}],
  q1:{s:'الشجرة المورقة شجرة:',o:[['كثيرة الأوراق',1],['كثيرة الثمار',0],['طويلة الجذع',0]]},
- q2:{s:'بَعْدَ الْمَطَرِ اكْتَسَتِ الْأَشْجَارُ أَوْرَاقًا جَدِيدَةً فَصَارَتْ ___',o:[['مُورِقَةً',1],['مُثْمِرَةً',0],['يَابِسَةً',0]]},
+ q2:{s:'سَقَى جَدِّي الشُّجَيْرَةَ كُلَّ يَوْمٍ، فَامْتَلَأَتْ أَغْصَانُهَا بِالْخُضْرَةِ وَصَارَتْ ___',o:[['مُورِقَةً',1],['يَابِسَةً',0],['مَكْسُورَةً',0]]},
  k:{ph:['🌳','🍎','🪵']}},
 {word:'يَتَفَحَّصُ',root:'ف ح ص',pattern:'يَتَفَعَّلُ',meaning:'ينظر في الشيء بدقة ليعرف ما فيه',example:'يَتَفَحَّصُ الطَّبِيبُ الصُّورَةَ قَبْلَ أَنْ يَتَكَلَّمَ.',family:['فَحَصَ','فَحْص','فَاحِص'],intruder:'فَرَح',
  narr:'تَقَدَّمَ بَابَا فِرَاسٌ بِحَذَرٍ، وَأَخَذَ يَتَفَحَّصُ آثَارَ أَقْدَامٍ غَرِيبَةٍ عَلَى التُّرَابِ.',
@@ -154,54 +156,54 @@ const SCENES=[
  narr:'الْتَقَطَتْ دَلَالُ زَهْرَةً مُلَوَّنَةً سَقَطَتْ عَلَى الْمَمَرِّ، وَقَدَّمَتْهَا لِأُمِّهَا، فَمَلَأَتِ الْبَهْجَةُ وُجُوهَ الْجَمِيعِ.',
  lines:[{w:'nour',t:'شُكْرًا يَا دَلَالُ! لَقَدْ أَدْخَلْتِ الْبَهْجَةَ إِلَى قَلْبِي.'},{w:'kareem',t:'وَأَنَا أَبْحَثُ عَنْ زَهْرَةٍ لِمَامَا!'}],
  q1:{s:'البهجة شعور بـ:',o:[['الفرح الظاهر',1],['الهدوء',0],['الدهشة',0]]},
- q2:{s:'اِبْتَسَمَ الْجَمِيعُ لِلْهَدِيَّةِ فَمَلَأَتِ الْبَيْتَ ___',o:[['بَهْجَةً',1],['ضَجِيجًا',0],['هُدُوءًا',0]]},
+ q2:{s:'عَادَ أَبِي مِنَ السَّفَرِ بِالْهَدَايَا، فَظَهَرَتِ ___ عَلَى وُجُوهِ الصِّغَارِ',o:[['الْبَهْجَةُ',1],['الْحَيْرَةُ',0],['التَّعَاسَةُ',0]]},
  k:{ph:['😄','📖','🥱']}},
-{word:'ضِفَاف',root:'ض ف ف',pattern:'فِعَال',meaning:'جوانب النهر أو البحيرة حيث تلتقي الأرض بالماء',example:'جَلَسَ الصَّيَّادُ عَلَى ضِفَافِ النَّهْرِ.',family:['ضِفَّة','ضِفَّتَانِ'],intruder:'ضَيْف',
+{word:'ضِفَاف',root:'ض ف ف',pattern:'فِعَال',meaning:'جوانب النهر أو البحيرة حيث تلتقي الأرض بالماء',example:'جَلَسَ الصَّيَّادُ عَلَى ضِفَافِ النَّهْرِ.',family:['ضِفَّة'],intruder:'ضَيْف',
  narr:'عِنْدَ بُحَيْرَةٍ صَغِيرَةٍ، لَمَحَ كَرِيمٌ ضِفْدَعًا أَخْضَرَ يَقْفِزُ عَلَى ضِفَافِ الْمَاءِ بَيْنَ الْأَعْشَابِ.',
  lines:[{w:'kareem',t:'ضِفْدَعٌ! ضِفْدَعٌ أَخْضَرُ!'},{w:'farah',t:'لَا تَقْتَرِبْ مِنَ الضِّفَافِ يَا كَرِيمُ، فَالتُّرَابُ هُنَاكَ مُبَلَّلٌ.'}],
  q1:{s:'ضفاف النهر هي:',o:[['جوانبه',1],['عمقه',0],['منبعه',0]]},
- q2:{s:'جَلَسَ الصَّيَّادُ عَلَى ___ النَّهْرِ',o:[['ضِفَافِ',1],['قَاعِ',0],['تَيَّارِ',0]]},
+ q2:{s:'سَارَ الْأَطْفَالُ عَلَى ___ النَّهْرِ يَجْمَعُونَ الْحَصَى',o:[['ضِفَافِ',1],['سَطْحِ',0],['أَمْوَاجِ',0]]},
  k:{ph:['🏞️','🌊','⛰️']}},
-{word:'مَتَاهَة',root:'ت و ه',pattern:'مَفْعَلَة',meaning:'مكان تتفرّع طرقه فيصعب الخروج منه',example:'دَخَلْنَا مَتَاهَةً مِنَ الْمَمَرَّاتِ فَلَمْ نَعْرِفِ الْمَخْرَجَ.',family:['تَاهَ','تَائِه','يَتِيهُ'],intruder:'تَمْر',
+{word:'مَتَاهَة',root:'ت و ه',pattern:'مَفْعَلَة',meaning:'مكان تتفرّع طرقه فيصعب الخروج منه',example:'دَخَلْنَا مَتَاهَةً مِنَ الْمَمَرَّاتِ فَلَمْ نَعْرِفِ الْمَخْرَجَ.',family:['تَاهَ','تَائِه','يَتُوهُ'],intruder:'تَمْر',
  narr:'وَصَلَتِ الْعَائِلَةُ إِلَى مَتَاهَةٍ مِنَ الشُّجَيْرَاتِ الْمُتَشَابِكَةِ، تَتَفَرَّعُ مَمَرَّاتُهَا فِي كُلِّ اتِّجَاهٍ، فَأَخَذَ فَرَحٌ يَتَفَحَّصُ الْمَدَاخِلَ.',
  lines:[{w:'dalal',t:'اتَّبِعُونِي! سَأَضَعُ حَصَاةً عِنْدَ كُلِّ مُنْعَطَفٍ حَتَّى لَا نَضِيعَ فِي الْمَتَاهَةِ.'},{w:'nour',t:'فِكْرَةٌ ذَكِيَّةٌ يَا دَلَالُ.'},{w:'kareem',t:'سَأَحْمِلُ الْحَصَى يَا دَلَالُ!'}],
  q1:{s:'المتاهة مكان:',o:[['تتفرّع طرقه ويصعب الخروج منه',1],['طرقه مستقيمة واسعة',0],['لا طرق فيه',0]]},
- q2:{s:'دَخَلْنَا ___ مِنَ الْمَمَرَّاتِ فَلَمْ نَعْرِفِ الْمَخْرَجَ',o:[['مَتَاهَةً',1],['سَاحَةً',0],['جِسْرًا',0]]},
+ q2:{s:'رَسَمَ أَخِي عَلَى الْوَرَقَةِ ___ كَثِيرَةَ الطُّرُقِ، وَطَلَبَ مِنِّي أَنْ أَجِدَ الْمَخْرَجَ',o:[['مَتَاهَةً',1],['شَجَرَةً',0],['سَحَابَةً',0]]},
  k:{ph:['🌀','➡️','🟩']}},
 {word:'عِمْلَاقَة',root:'ع م ل ق',pattern:'فِعْلَالَة',meaning:'ضخمة جدًا بالنسبة إلى ما حولها',example:'بِجَانِبِ الْفَأْرِ الصَّغِيرِ بَدَا الْفِيلُ عِمْلَاقًا.',family:['عِمْلَاق','عَمَالِقَة'],intruder:'عَمَل',
  narr:'خَرَجُوا مِنَ الْمَتَاهَةِ، فَإِذَا بِشَجَرَةٍ عِمْلَاقَةٍ مُورِقَةٍ تَقِفُ وَسَطَ السَّاحَةِ، تَكَادُ أَغْصَانُهَا تُلَامِسُ السَّحَابَ.',
  lines:[{w:'farah',t:'يَا لَهَا مِنْ شَجَرَةٍ عِمْلَاقَةٍ! أَظُنُّ عُمْرَهَا مِئَةَ سَنَةٍ.'},{w:'kareem',t:'أَنَا صَغِيرٌ جِدًّا بِجَانِبِهَا!'}],
- q1:{s:'الشجرة العملاقة شجرة:',o:[['ضخمة جدًا',1],['قديمة جدًا',0],['كثيرة الأوراق',0]]},
- q2:{s:'بِجَانِبِ الْفَأْرِ الصَّغِيرِ بَدَا الْفِيلُ ___',o:[['عِمْلَاقًا',1],['سَرِيعًا',0],['هَادِئًا',0]]},
+ q1:{s:'الشجرة العملاقة شجرة:',o:[['ضخمة جدًا',1],['قصيرة جدًا',0],['يابسة',0]]},
+ q2:{s:'فِي الْغَابَةِ شَجَرَةٌ ___ لَا يَسْتَطِيعُ عَشَرَةُ رِجَالٍ أَنْ يُحِيطُوا بِجِذْعِهَا',o:[['عِمْلَاقَةٌ',1],['صَغِيرَةٌ',0],['رَفِيعَةٌ',0]]},
  k:{ph:['🌲','🌳','🌱']}},
-{word:'عَتِيق',root:'ع ت ق',pattern:'فَعِيل',meaning:'قديم جدًا مرّت عليه سنوات طويلة',example:'مَضَتْ مِئَةُ سَنَةٍ عَلَى طِبَاعَةِ الْكِتَابِ، فَهُوَ كِتَابٌ عَتِيقٌ.',family:['عَتُقَ','عَتَاقَة','الْبَيْتُ الْعَتِيقُ'],intruder:'عَتَبَة',
+{word:'عَتِيق',root:'ع ت ق',pattern:'فَعِيل',meaning:'قديم جدًا مرّت عليه سنوات طويلة',example:'مَضَتْ مِئَةُ سَنَةٍ عَلَى طِبَاعَةِ الْكِتَابِ، فَهُوَ كِتَابٌ عَتِيقٌ.',family:['عَتُقَ','عَتَاقَة','مُعَتَّق'],intruder:'عَتَبَة',
  narr:'جَاءَ الْعَمُّ صَابِرٌ، حَارِسُ الْحَدِيقَةِ، وَأَخْرَجَ مِنْ تَحْتِ الشَّجَرَةِ صُنْدُوقًا خَشَبِيًّا عَتِيقًا.',
  lines:[{w:'saber',t:'هَذَا الصُّنْدُوقُ عَتِيقٌ، وَرِثْتُهُ عَنْ جَدِّي، وَلَمْ يَفْتَحْهُ أَحَدٌ مُنْذُ سَنَوَاتٍ.'},{w:'feras',t:'هَلْ تَسْمَحُ لَنَا أَنْ نَفْتَحَهُ مَعًا؟'},{w:'kareem',t:'مَاذَا فِي الصُّنْدُوقِ؟'}],
- q1:{s:'الشيء العتيق:',o:[['قديم جدًا',1],['ثمين',0],['مكسور',0]]},
- q2:{s:'مَضَتْ مِئَةُ سَنَةٍ عَلَى طِبَاعَةِ الْكِتَابِ، فَهُوَ كِتَابٌ ___',o:[['عَتِيقٌ',1],['جَدِيدٌ',0],['ضَخْمٌ',0]]},
+ q1:{s:'الشيء العتيق:',o:[['قديم جدًا',1],['لامع',0],['مكسور',0]]},
+ q2:{s:'وَجَدْنَا فِي بَيْتِ جَدِّي صُنْدُوقًا صَنَعَهُ جَدُّ أَبِي قَبْلَ زَمَنٍ بَعِيدٍ، فَهُوَ صُنْدُوقٌ ___',o:[['عَتِيقٌ',1],['جَدِيدٌ',0],['ثَقِيلٌ',0]]},
  k:{ph:['🪵','✨','🧸']}},
 {word:'مَحْفُوظَة',root:'ح ف ظ',pattern:'مَفْعُولَة',meaning:'موضوعة في مكان آمن فلا تتلف',example:'وَضَعْنَا الصُّوَرَ فِي عُلْبَةٍ مُغْلَقَةٍ لِتَبْقَى مَحْفُوظَةً مِنَ التَّلَفِ.',family:['حَفِظَ','حَافِظ','مَحْفَظَة'],intruder:'حَفْلَة',
  narr:'فَتَحَ الْعَمُّ صَابِرٌ الصُّنْدُوقَ الْعَتِيقَ، فَوَجَدُوا فِيهِ لَفَائِفَ وَرَقٍ قَدِيمَةً مَحْفُوظَةً بِعِنَايَةٍ دَاخِلَ قِمَاشٍ نَاعِمٍ.',
  lines:[{w:'nour',t:'انْظُرُوا كَيْفَ بَقِيَتْ مَحْفُوظَةً كُلَّ هَذِهِ السَّنَوَاتِ!'},{w:'dalal',t:'مَكْتُوبٌ عَلَيْهَا: قِصَّةُ أَوَّلِ شَجَرَةٍ زُرِعَتْ فِي هَذِهِ الْحَدِيقَةِ.'},{w:'kareem',t:'أُرِيدُ أَنْ أَرَى!'}],
- q1:{s:'الرسالة المحفوظة:',o:[['مصانة في مكان آمن',1],['مكتوبة بخط جميل',0],['مرسلة إلى بعيد',0]]},
- q2:{s:'وَضَعْنَا الصُّوَرَ فِي عُلْبَةٍ مُغْلَقَةٍ لِتَبْقَى ___ مِنَ التَّلَفِ',o:[['مَحْفُوظَةً',1],['مَعْرُوضَةً',0],['مَطْبُوعَةً',0]]},
+ q1:{s:'الرسالة المحفوظة:',o:[['مَصُونة في مكان آمن',1],['مكتوبة بخط جميل',0],['مرسلة إلى بعيد',0]]},
+ q2:{s:'مَا زَالَتْ شَهَادَةُ مِيلَادِ جَدِّي ___ عِنْدَنَا مُنْذُ سَبْعِينَ سَنَةً، لَمْ يُصِبْهَا تَلَفٌ',o:[['مَحْفُوظَةً',1],['مُبَعْثَرَةً',0],['مُمَزَّقَةً',0]]},
  k:{ph:['📦','💧','🗑️']}},
 {word:'تَتَأَلَّقُ',root:'أ ل ق',pattern:'تَتَفَعَّلُ',meaning:'تلمع وتضيء ببريق',example:'فِي اللَّيْلَةِ الصَّافِيَةِ تَتَأَلَّقُ النُّجُومُ فِي السَّمَاءِ.',family:['أَلَق','تَأَلُّق','مُتَأَلِّق'],intruder:'أَلَم',
  narr:'فَرَدَتْ دَلَالُ اللَّفَائِفَ الْمَحْفُوظَةَ تَحْتَ ضَوْءِ الشَّمْسِ، فَبَدَأَتِ الْحُرُوفُ الذَّهَبِيَّةُ تَتَأَلَّقُ بَيْنَ أَيْدِيهِمْ.',
- lines:[{w:'farah',t:'الْحُرُوفُ تَتَأَلَّقُ كَأَنَّهَا نُجُومٌ صَغِيرَةٌ!'},{w:'kareem',t:'أُرِيدُ أَنْ أَلْمِسَهَا!'},{w:'dalal',t:'مَكْتُوبٌ هُنَا بِخَطٍّ قَدِيمٍ: «زَرَعْتُ هَذِهِ الشَّجَرَةَ مِنْ بَذْرَةٍ وَاحِدَةٍ لِيَقْرَأَ أَحْفَادِي قِصَّتَهَا». وَالتَّارِيخُ قَبْلَ مِئَةِ عَامٍ!'}],
+ lines:[{w:'farah',t:'الْحُرُوفُ تَتَأَلَّقُ كَأَنَّهَا نُجُومٌ صَغِيرَةٌ!'},{w:'kareem',t:'أُرِيدُ أَنْ أَلْمِسَهَا!'},{w:'dalal',t:'مَكْتُوبٌ هُنَا بِخَطٍّ قَدِيمٍ: «زَرَعْتُ هَذِهِ الشَّجَرَةَ مِنْ بَذْرَةٍ وَاحِدَةٍ، وَكَتَبْتُ قِصَّتَهَا لِيَقْرَأَهَا أَحْفَادِي». وَالتَّارِيخُ قَبْلَ مِئَةِ عَامٍ!'}],
  q1:{s:'الشيء الذي يتألق:',o:[['يلمع ويضيء',1],['يتحرك بسرعة',0],['يكبر',0]]},
- q2:{s:'فِي اللَّيْلَةِ الصَّافِيَةِ ___ النُّجُومُ فِي السَّمَاءِ',o:[['تَتَأَلَّقُ',1],['تَتَسَاقَطُ',0],['تَخْتَفِي',0]]},
+ q2:{s:'لَبِسَتْ أُخْتِي فُسْتَانَ الْعِيدِ اللَّامِعَ، فَأَخَذَتْ ___ تَحْتَ الْأَضْوَاءِ',o:[['تَتَأَلَّقُ',1],['تَنَامُ',0],['تَبْكِي',0]]},
  k:{ph:['✨','📜','🌑']}},
 {word:'خَاتِمَة',root:'خ ت م',pattern:'فَاعِلَة',meaning:'نهاية الشيء وآخر جزء منه',example:'كَتَبَتْ دَلَالُ خَاتِمَةَ الْقِصَّةِ فِي السَّطْرِ الْأَخِيرِ.',family:['خَتَمَ','خَاتَم','خِتَام'],intruder:'خَيْمَة',
- narr:'فِي خَاتِمَةِ الْمُغَامَرَةِ، أَهْدَى الْعَمُّ صَابِرٌ الْعَائِلَةَ بَذْرَةً مِنَ الشَّجَرَةِ الْعِمْلَاقَةِ لِيَزْرَعُوهَا فِي بَيْتِهِمْ، فَعَمَّتِ الْبَهْجَةُ الْجَمِيعَ.',
+ narr:'فِي خَاتِمَةِ الْمُغَامَرَةِ، أَهْدَى الْعَمُّ صَابِرٌ إِلَى الْعَائِلَةِ بَذْرَةً مِنَ الشَّجَرَةِ الْعِمْلَاقَةِ لِيَزْرَعُوهَا فِي بَيْتِهِمْ، فَعَمَّتِ الْبَهْجَةُ الْجَمِيعَ.',
  lines:[{w:'saber',t:'هَذِهِ بَذْرَةٌ مِنَ الشَّجَرَةِ نَفْسِهَا. ازْرَعُوهَا، وَاكْتُبُوا قِصَّتَهَا، لِيَقْرَأَهَا أَحْفَادُكُمْ كَمَا قَرَأْتُمْ قِصَّةَ جَدِّي.'},{w:'kareem',t:'سَأَسْقِيهَا كُلَّ يَوْمٍ!'},{w:'feras',t:'هَذِهِ أَجْمَلُ خَاتِمَةٍ: سِرُّ الْحَدِيقَةِ سَيَكْبُرُ فِي بَيْتِنَا.'},{w:'dalal',t:'وَسَنَكْتُبُ قِصَّتَهَا بِأَنْفُسِنَا!'}],
  q1:{s:'خاتمة القصة هي:',o:[['نهايتها',1],['عنوانها',0],['حدثها الأهم',0]]},
- q2:{s:'كَتَبَتْ دَلَالُ ___ الْقِصَّةِ فِي السَّطْرِ الْأَخِيرِ',o:[['خَاتِمَةَ',1],['مُقَدِّمَةَ',0],['عُنْوَانَ',0]]},
+ q2:{s:'فِي ___ الْحَفْلِ، شَكَرَ الْمُدِيرُ الْجَمِيعَ وَوَدَّعَهُمْ',o:[['خَاتِمَةِ',1],['بِدَايَةِ',0],['مُنْتَصَفِ',0]]},
  k:{ph:['📕','📖','📘']}}
 ];
 const UNLOCKED_SCENES=10;
 const LANE_STEPS={A:['listen','picture','record','produce','create'],B:['listen','understand','record','family','produce','create'],C:['listen','understand','record','family','conj','produce','create']};
-const STEP_NAME={listen:'اسمع',picture:'اختر الصورة',understand:'افهم',record:'اقرأ وسجّل',family:'عائلة الكلمة',conj:'صرّف الكلمة',fun:'مفاجأة',produce:'أنتج',create:'أبدع'};
+const STEP_NAME={listen:'اسمع',picture:'اختر الصورة',understand:'افهم',record:'اقرأ وسجّل',family:'عائلة الكلمة',conj:'صيغة الكلمة',fun:'مفاجأة',produce:'أنتج',create:'أبدع'};
 const MAX_REC=45;
 
 /* ===================== STORAGE ===================== */
@@ -209,8 +211,8 @@ let db;
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('hadeeqa_v1',1);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('audio'))d.createObjectStore('audio');if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv');if(!d.objectStoreNames.contains('img'))d.createObjectStore('img')};r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error)})}
 const tx=(s,m)=>db.transaction(s,m).objectStore(s);
 const sget=(s,k)=>new Promise((res,rej)=>{const r=tx(s,'readonly').get(k);r.onsuccess=()=>res(r.result??null);r.onerror=()=>rej(r.error)});
-const sput=(s,k,v)=>new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');t.objectStore(s).put(v,k);t.oncomplete=res;t.onerror=()=>rej(t.error)});
-const sdel=(s,k)=>new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');t.objectStore(s).delete(k);t.oncomplete=res;t.onerror=()=>rej(t.error)});
+const sput=(s,k,v)=>new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');t.objectStore(s).put(v,k);t.oncomplete=res;t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error||new Error('abort'))});
+const sdel=(s,k)=>new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');t.objectStore(s).delete(k);t.oncomplete=res;t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error||new Error('abort'))});
 const skeys=(s)=>new Promise((res,rej)=>{const r=tx(s,'readonly').getAllKeys();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 
 const defProg=()=>({scene:0,step:0,results:{},fluency:{},leitner:{},free:{},done:{}});
@@ -224,11 +226,12 @@ function canPlay(m){const a=document.createElement('audio');return m?a.canPlayTy
 async function startRec(key,onTick,onDone){
  if(Rec.active){toast('يوجد تسجيل جارٍ');return false}
  if(!navigator.mediaDevices||!window.MediaRecorder){toast('المتصفح لا يدعم التسجيل');return false}
- let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true}})}catch(e){toast(e.name==='NotAllowedError'?'لم يُسمح بالميكروفون':'تعذر فتح الميكروفون');return false}
+ const v0=VT;let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true}})}catch(e){if(e.name==='NotAllowedError'||e.name==='SecurityError')micHelp();else toast('تعذر فتح الميكروفون');return false}
+ if(v0!==VT){stream.getTracks().forEach(t=>t.stop());return false}
  const mime=pickMime();let rec;try{rec=mime?new MediaRecorder(stream,{mimeType:mime,audioBitsPerSecond:32000}):new MediaRecorder(stream)}catch(e){rec=new MediaRecorder(stream)}
  const chunks=[],t0=Date.now();const s={key,rec,stream,timer:null};Rec.active=s;
  rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
- rec.onstop=async()=>{clearInterval(s.timer);stream.getTracks().forEach(t=>t.stop());Rec.active=null;const sec=(Date.now()-t0)/1000;const blob=new Blob(chunks,{type:rec.mimeType||mime||'audio/webm'});
+ rec.onstop=async()=>{clearInterval(s.timer);stream.getTracks().forEach(t=>t.stop());Rec.active=null;if(s.discard){onDone(null);return}const sec=(Date.now()-t0)/1000;const blob=new Blob(chunks,{type:rec.mimeType||mime||'audio/webm'});
   if(blob.size<400){toast('التسجيل قصير جدًا');onDone(null);return}
   try{await sput('audio',key,{blob,mime:blob.type,sec,t:Date.now()});onDone({sec})}catch(e){toast('تعذر الحفظ');onDone(null)}};
  rec.start(500);s.timer=setInterval(()=>{const el=(Date.now()-t0)/1000;onTick(el);if(el>=MAX_REC)stopRec()},250);
@@ -236,9 +239,10 @@ async function startRec(key,onTick,onDone){
 }
 function stopRec(){const s=Rec.active;if(s&&s.rec.state!=='inactive')s.rec.stop()}
 let curAudio=null;
-async function playKey(key){const r=await sget('audio',key);if(!r)return toast('لا يوجد تسجيل');if(!canPlay(r.mime))return toast('المتصفح لا يشغّل هذه الصيغة ('+r.mime+')');stopAudio();const url=URL.createObjectURL(r.blob);curAudio=new Audio(url);curAudio.onended=()=>URL.revokeObjectURL(url);try{await curAudio.play()}catch(e){toast('تعذر التشغيل')}}
-function stopAudio(){if(curAudio){try{curAudio.pause()}catch(e){}curAudio=null}}
+async function playKey(key){const r=await sget('audio',key);if(!r)return toast('لا يوجد تسجيل');if(!canPlay(r.mime))return toast('المتصفح لا يشغّل هذه الصيغة ('+r.mime+')');stopAudio();const url=URL.createObjectURL(r.blob);curAudio=new Audio(url);curAudio.__u=url;curAudio.onended=()=>URL.revokeObjectURL(url);try{await curAudio.play()}catch(e){toast('تعذر التشغيل')}}
+function stopAudio(){if(curAudio){try{curAudio.pause()}catch(e){}if(curAudio.__u){URL.revokeObjectURL(curAudio.__u)}curAudio=null}}
 async function hasKey(key){return !!(await sget('audio',key))}
+async function micHelp(){if(micHelp.open)return;micHelp.open=1;const v=await modal('<div style="font-size:40px">🎙️</div><div class="line">الميكروفون غير مسموح لهذا التطبيق.<br>لتفعيله: إعدادات الجهاز ← التطبيقات ← حديقة الأسرار ← الأذونات ← الميكروفون ← سماح.</div>',[{t:'حسنًا',v:0},{t:'👨‍👩‍👦 تخطَّ التسجيل هذه المرة',v:1,c:'b-s'}]);micHelp.open=0;if(v===1&&await parentGate()){const n=$('#next')||$('#tnx');if(n)n.disabled=false}}
 
 /* ===================== HELPERS ===================== */
 const $=s=>document.querySelector(s);
@@ -248,17 +252,22 @@ function hl(text,word){const w=strip(word).replace(/^ال/,'');const parts=text.
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.i);toast.i=setTimeout(()=>t.classList.remove('on'),2600)}
 function fmt(s){s=Math.floor(s);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
-const ar=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const ar=n=>esc(String(n)).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 async function imgTag(name,cls){const u=await imgSrc(name);return u?'<img class="'+cls+'" src="'+u+'" alt="">':null}
 async function sceneImg(i){const t=await imgTag('scene'+String(i+1).padStart(2,'0'),'img');return t||'<div class="ph">🌳<br>'+esc(SCENES[i].word)+'<br><span class="small">صورة المشهد تُضاف لاحقًا</span></div>'}
 async function avInner(id){const c=CH[id];if(c.a){const t=await imgTag(c.a,'');if(t)return t}return c.e}
 async function avHtml(id){return '<div class="av">'+(await avInner(id))+'</div>'}
-const today=()=>Math.floor(Date.now()/864e5);
+const dayOf=t=>Math.floor((t-new Date(t).getTimezoneOffset()*6e4)/864e5);const today=()=>dayOf(Date.now());
 
 /* ===================== STATE & ROUTER ===================== */
 const S={kid:null,prog:null,view:'home'};
-async function go(v,arg){stopAudio();if(Rec.active)stopRec();document.querySelectorAll('.ovl').forEach(e=>e.remove());S.view=v;window.scrollTo(0,0);await ({home,kid:kidHome,bedtime,scroll:scrollView,quiz:quizSetup,scene,review,parent,parentScene,parentReview,test:testView,order:(a)=>orderGame(a[0],a[1]),theater:theaterSetup,solorec:soloRecord,ded:dedication,games,game:gameRouter,inbox:parentInbox,wlog:(a)=>wordLog(a[0],a[1])}[v])(arg)}
+let VT=0;function later(fn,ms){const v=VT;return setTimeout(()=>{if(v===VT)fn()},ms)}
+async function go(v,arg){VT++;stopAudio();if(Rec.active){Rec.active.discard=true;stopRec()}document.querySelectorAll('.ovl').forEach(e=>e.remove());S.view=v;if(['kid','scene','review','games','game','bedtime','scroll','ded','order','test'].includes(v))logView(v);window.scrollTo(0,0);await ({home,kid:kidHome,bedtime,scroll:scrollView,quiz:quizSetup,scene,review,parent,parentScene,parentReview,test:testView,order:(a)=>orderGame(a[0],a[1]),theater:theaterSetup,solorec:soloRecord,ded:dedication,games,game:gameRouter,inbox:parentInbox,score:scoreOral,wlog:(a)=>wordLog(a[0],a[1])}[v])(arg)}
 $('#homeBtn').onclick=()=>go('home');
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&Rec.active){Rec.active.discard=true;stopRec();setTimeout(()=>toast('توقّف التسجيل لأن التطبيق خرج من الشاشة؛ سجّل مرة أخرى'),300)}});
+window.addEventListener('unhandledrejection',e=>{const n=e.reason&&e.reason.name;if(n==='QuotaExceededError')toast('مساحة التخزين ممتلئة؛ احذف تسجيلات قديمة من وضع ولي الأمر')});
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+window.__back=function(){if(document.querySelector('.mdl')){document.querySelectorAll('.mdl').forEach(e=>e.remove());return true}const v=S.view;if(v==='home')return false;if(['scene','review','games','bedtime','scroll','ded','order','test'].includes(v)&&S.kid){go('kid',S.kid);return true}if(v==='game'){go('games');return true}if(['parentScene','parentReview','inbox','wlog','score'].includes(v)){go('parent');return true}go('home');return true};
 function setTop(t,s,av){$('#topTtl').textContent=t;$('#topSub').textContent=s;$('#topAv').innerHTML=av||'🌿'}
 
 /* ===================== HOME ===================== */
@@ -266,17 +275,17 @@ async function home(){S.kid=null;setTop('حديقة الأسرار','من يقر
  let kidsHtml='';for(const k of KIDS){const p=await loadProg(k.id);const due=Object.values(p.leitner).filter(l=>l.due<=today()).length;kidsHtml+='<button data-k="'+k.id+'">'+(await avHtml(k.id))+'<b>'+CH[k.id].n+(streak(p)>=3?' 🔥':'')+'</b><span class="small">'+ar(k.age)+' سنوات'+(due?' · مراجعة '+ar(due):'')+'</span></button>'}
  const cov=await imgTag('cover','img');
  $('#view').innerHTML=(cov?'<div class="card" style="padding:0;overflow:hidden">'+cov+'</div>':'')+'<div class="card"><div class="lab">الأطفال</div><div class="kids">'+kidsHtml+'</div></div><div class="card"><div class="lab">ولي الأمر</div><button class="b-s b-w" id="pBtn">🎙️ وضع ولي الأمر: النموذج الصوتي والمتابعة</button><button class="b-a b-w" id="thBtn" style="margin-top:8px">🎭 مسرح العائلة</button><button class="b-a b-w" id="qzBtn" style="margin-top:8px">🏆 مسابقة العائلة</button><p class="small" style="margin:10px 0 0">الصور مضمّنة في الملف. كل طفل: قصة، حديقة، ألعاب، لفافة سرية، وحكاية قبل النوم.</p></div>';
- document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>go('kid',b.dataset.k));$('#pBtn').onclick=()=>go('parent');$('#thBtn').onclick=()=>go('theater');$('#qzBtn').onclick=()=>go('quiz')}
+ document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>go('kid',b.dataset.k));$('#pBtn').onclick=async()=>{if(await parentGate())go('parent');else toast('وضع ولي الأمر محمي')};$('#thBtn').onclick=()=>go('theater');$('#qzBtn').onclick=()=>go('quiz')}
 
 /* ===================== KID HOME ===================== */
 
 /* ===================== SCENE FLOW ===================== */
 function lane(){return KIDS.find(k=>k.id===S.kid).lane}
 function stepsBar(steps,i){return '<div class="steps">'+steps.map((s,j)=>'<span class="'+(j<i?'done':j===i?'on':'')+'"></span>').join('')+'</div><div class="lab">الخطوة '+ar(i+1)+' من '+ar(steps.length)+' — '+STEP_NAME[steps[i]]+'</div>'}
-async function scene(){const i=S.prog.scene,sc=SCENES[i],steps=stepsFor(i);if(S.prog.step>=steps.length){S.prog.done[i]=true;S.prog.doneT=S.prog.doneT||{};S.prog.doneT[i]=Date.now();await saveProg(S.kid,S.prog);return finish()}
+async function scene(){const i=S.prog.scene,sc=SCENES[i],steps=stepsFor(i);if(S.prog.step>=steps.length){const first=!S.prog.done[i];S.prog.done[i]=true;S.prog.doneT=S.prog.doneT||{};if(first||!S.prog.doneT[i])S.prog.doneT[i]=Date.now();if(first)S.prog.lastNew=today();await saveProg(S.kid,S.prog);return finish()}
  const step=steps[S.prog.step];setTop('المشهد '+ar(i+1)+' — '+sc.word,STEP_NAME[step],await avInner(S.kid));
  await ({listen:stListen,picture:stPicture,understand:stUnderstand,fun:stFun,record:stRecord,family:stFamily,conj:stConj,produce:stProduce,create:stCreate}[step])(sc,i,steps);}
-async function next(){S.prog.step++;await saveProg(S.kid,S.prog);go('scene')}
+async function next(){const b=$('#next');if(b){if(b.dataset.busy)return;b.dataset.busy=1;b.disabled=true}S.prog.step++;await saveProg(S.kid,S.prog);go('scene')}
 function nav(ok,label){return '<div class="row"><button class="b-s" id="back">⬅️ رجوع</button><button class="b-p" id="next" '+(ok?'':'disabled')+'>'+(label||'التالي ➡️')+'</button></div>'}
 function bindNav(){$('#back').onclick=()=>{if(S.prog.step>0){S.prog.step--;go('scene')}else go('kid',S.kid)};$('#next').onclick=next}
 
@@ -292,7 +301,7 @@ function bindQuiz(id,opts,sc,onSolved){let attempts=0,solved=false;const box=$('
  if(o.c){solved=true;playFx('ok');b.classList.add('ok');box.querySelectorAll('.opt').forEach(x=>x.disabled=true);$('#'+id+'f').innerHTML=attempts===1?'🌟 أحسنت من المحاولة الأولى':attempts===2?'🌿 صحيح بعد التلميح':'🌱 صحيح بمساعدة';$('#'+id+'f').style.color='#166534';onSolved(attempts)}
  else{playFx('retry');b.classList.add('no');b.disabled=true;const h=$('#'+id+'h');h.style.display='block';if(attempts===1){h.innerHTML='تلميح: تذكّر الجملة من القصة:<br><b>'+hl(sc.narr,sc.word)+'</b>';$('#'+id+'f').textContent='جرّب مرة أخرى'}else{h.innerHTML='الشرح: «'+esc(sc.word)+'» تعني '+esc(sc.meaning)+'.<br>اضغط الآن على الإجابة الصحيحة.';box.querySelectorAll('.opt').forEach(x=>{const oo=opts[+x.dataset.i];if(oo.c)x.classList.add('ok')})}}})}
 const BOX_DAYS=[0,1,3,7,14,30];
-function recordResult(word,key,attempts){const r=S.prog.results[word]=S.prog.results[word]||{};r[key]={first:attempts===1,attempts,t:Date.now()};if(!S.prog.leitner[word])S.prog.leitner[word]={box:1,due:today()+1}}
+function recordResult(word,key,attempts){const r=S.prog.results[word]=S.prog.results[word]||{};if(r[key]){r[key].n=(r[key].n||1)+1}else r[key]={first:attempts===1,attempts,t:Date.now()};if(!S.prog.leitner[word])S.prog.leitner[word]={box:1,due:today()+1}}
 function promote(l,ok){if(ok)l.box=Math.min(5,l.box+1);else l.box=l.box>=5?3:1;l.due=today()+BOX_DAYS[l.box]}
 
 
@@ -302,15 +311,15 @@ async function panUrl(name){PAN_CUSTOM[name]=!!(await sget('img',name));return i
 function panStyle(name,p){const P=PANELS[name];if(!P||PAN_CUSTOM[name])return 'background-size:300% 100%;background-position:'+(p*50)+'% 0';const [f0,f1]=P.b[p],r=P.r,fw=f1-f0;if(fw*r>=1){const fc=(f0+f1)/2;return 'background-size:auto 100%;background-position:'+((fc*r-.5)/(r-1)*100).toFixed(2)+'% 0'}return 'background-size:'+(100/fw).toFixed(2)+'% auto;background-position:'+(f0/(1-fw)*100).toFixed(2)+'% 50%'}
 async function pictureQ(sc,i){const kn='k'+String(i+1).padStart(2,'0');const url=await panUrl(kn);const panels=shuffle([0,1,2]);
  const html='<div class="word">'+esc(sc.word)+'</div><div class="hint">👂 اسمع الكلمة من ماما أو بابا، ثم اضغط على الصورة التي تناسبها</div>'+(await hasKey('model:s'+i+':word')?'<button class="b-p b-w" data-pl="model:s'+i+':word">🔊 اسمع الكلمة</button>':'')+'<div class="kgrid" id="kg">'+panels.map(p=>'<button data-p="'+p+'">'+(url?'<div class="pan" style="background-image:url('+url+');'+panStyle(kn,p)+'"></div>':'<div class="ph2">'+sc.k.ph[p]+'</div>')+'</button>').join('')+'</div><div class="fb" id="kf"></div>';
- const bind=(onDone)=>{document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>playKey(b.dataset.pl));let attempts=0,done=false;document.querySelectorAll('#kg button').forEach(b=>b.onclick=()=>{if(done)return;attempts++;if(+b.dataset.p===0){done=true;b.classList.add('ok');$('#kf').textContent=attempts===1?'🌟 أحسنت!':'🌱 صحيح';$('#kf').style.color='#166534';onDone(attempts)}else{b.classList.add('no');b.disabled=true;$('#kf').textContent=attempts===1?'جرّب مرة أخرى':'المعنى: '+sc.meaning}})};
+ const bind=(onDone)=>{document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>playKey(b.dataset.pl));let attempts=0,done=false;document.querySelectorAll('#kg button').forEach(b=>b.onclick=()=>{if(done)return;attempts++;if(+b.dataset.p===0){done=true;b.classList.add('ok');$('#kf').innerHTML=(attempts===1?'🌟 أحسنت!':'🌱 صحيح')+'<div class="hint" style="margin-top:8px;text-align:right">💡 «'+esc(sc.word)+'» تعني: <b>'+esc(sc.meaning)+'</b><br><span class="small">👨‍👩‍👦 '+esc(sc.example)+'</span></div>';$('#kf').style.color='#166534';onDone(attempts)}else{b.classList.add('no');b.disabled=true;$('#kf').textContent=attempts===1?'جرّب مرة أخرى':'المعنى: '+sc.meaning}})};
  return {html,bind}}
 async function stPicture(sc,i,steps){const q=await pictureQ(sc,i);
  $('#view').innerHTML='<div class="card">'+stepsBar(steps,S.prog.step)+q.html+'</div>'+nav(false);
  q.bind(a=>{recordResult(sc.word,'pic',a);saveProg(S.kid,S.prog);$('#next').disabled=false});bindNav()}
 
 function recBlock(key,label,text,who){return '<div class="card" data-rb="'+key+'">'+(who?'<div class="who">'+who+'</div>':'<div class="lab">'+label+'</div>')+'<div class="line">'+text+'</div><div class="row"><button class="b-r" data-rec="'+key+'">🎙️ سجّل</button><button class="b-s" data-stop="'+key+'" disabled>⏹️ إيقاف</button><button class="b-s" data-pl="'+key+'" disabled>▶️ اسمع صوتي</button><span class="timer" data-t="'+key+'">00:00</span></div><div class="small" data-st="'+key+'"></div></div>'}
-async function wireRec(container,onAny){const kids=container.querySelectorAll('[data-rb]');for(const box of kids){const key=box.dataset.rb;const st=box.querySelector('[data-st]'),pl=box.querySelector('[data-pl]'),rb=box.querySelector('[data-rec]'),sb=box.querySelector('[data-stop]'),tm=box.querySelector('[data-t]');
- const refresh=async()=>{const r=await sget('audio',key);pl.disabled=!r;st.textContent=r?'✓ محفوظ ('+fmt(r.sec)+')':'';if(onAny)onAny()};await refresh();
+async function wireRec(container,onAny){const vw=VT;const kids=container.querySelectorAll('[data-rb]');for(const box of kids){const key=box.dataset.rb;const st=box.querySelector('[data-st]'),pl=box.querySelector('[data-pl]'),rb=box.querySelector('[data-rec]'),sb=box.querySelector('[data-stop]'),tm=box.querySelector('[data-t]');
+ const refresh=async()=>{if(vw!==VT)return;const r=await sget('audio',key);pl.disabled=!r;st.textContent=r?'✓ محفوظ ('+fmt(r.sec)+')':'';if(onAny)onAny()};await refresh();
  const reset=async()=>{rb.disabled=false;sb.disabled=true;rb.textContent='🎙️ سجّل من جديد';tm.textContent='00:00';await refresh()};
  rb.onclick=async()=>{stopAudio();rb.disabled=true;sb.disabled=false;rb.innerHTML='<span class="dot"></span>جارٍ التسجيل';const ok=await startRec(key,s=>tm.textContent=fmt(s),reset);if(!ok){rb.disabled=false;sb.disabled=true;rb.textContent='🎙️ سجّل'}};
  sb.onclick=stopRec;pl.onclick=()=>playKey(key)}}
@@ -326,9 +335,9 @@ async function stRecord(sc,i,steps){const L=lane();const P='rec:'+S.kid+':s'+i;l
 
 async function stFamily(sc,i,steps){const L=lane();const items=shuffle(sc.family.concat([sc.intruder]));
  if(L==='B'){const roots=shuffle([sc.root,SCENES[(i+3)%10].root]);$('#view').innerHTML='<div class="card">'+stepsBar(steps,S.prog.step)+'<div class="word">'+esc(sc.word)+'</div><div class="lab">من أي جذر جاءت هذه الكلمة؟</div><div class="chips" id="fam">'+roots.map(r=>'<button class="chip" data-r="'+esc(r)+'">'+esc(r)+'</button>').join('')+'</div><div class="fb" id="ff"></div></div>'+nav(false);
-  let a=0;document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{a++;if(b.dataset.r===sc.root){b.classList.add('ok');$('#ff').textContent='🌟 '+sc.root+' → '+sc.family.join('، ');recordResult(sc.word,'root',a);saveProg(S.kid,S.prog);$('#next').disabled=false}else{b.classList.add('no');b.disabled=true;$('#ff').textContent='فكّر في الحروف الأصلية للكلمة'}})}
+  let a=0,solved=false;document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{if(solved)return;a++;if(b.dataset.r===sc.root){solved=true;document.querySelectorAll('[data-r]').forEach(x=>x.disabled=true);b.classList.add('ok');$('#ff').textContent='🌟 '+sc.root+' → '+sc.family.join('، ');recordResult(sc.word,'root',a);saveProg(S.kid,S.prog);$('#next').disabled=false}else{b.classList.add('no');b.disabled=true;$('#ff').textContent='فكّر في الحروف الأصلية للكلمة'}})}
  else{$('#view').innerHTML='<div class="card">'+stepsBar(steps,S.prog.step)+'<div class="word">'+esc(sc.word)+'</div><div class="lab">الجذر: '+esc(sc.root)+' · الوزن: '+esc(sc.pattern)+'</div><div class="hint">'+G(S.kid,'اختر الكلمات الثلاث التي من عائلة هذا الجذر، واترك الدخيلة','اختاري الكلمات الثلاث التي من عائلة هذا الجذر، واتركي الدخيلة')+'</div><div class="chips" id="fam">'+items.map(w=>'<button class="chip" data-w="'+esc(w)+'">'+esc(w)+'</button>').join('')+'</div><div class="fb" id="ff"></div></div>'+nav(false);
-  let picked=0,wrong=0;document.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{if(b.disabled)return;b.disabled=true;if(sc.family.includes(b.dataset.w)){b.classList.add('ok');picked++}else{b.classList.add('no');wrong++;$('#ff').textContent='«'+b.dataset.w+'» ليست من جذر '+sc.root}if(picked===sc.family.length){$('#ff').textContent=wrong?G(S.kid,'🌿 أكملتَ العائلة','🌿 أكملتِ العائلة'):'🌟 عائلة كاملة من المحاولة الأولى';recordResult(sc.word,'family',wrong?2:1);saveProg(S.kid,S.prog);$('#next').disabled=false}})}
+  let picked=0,wrong=0,fin=false;document.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{if(b.disabled||fin)return;b.disabled=true;if(sc.family.includes(b.dataset.w)){b.classList.add('ok');picked++}else{b.classList.add('no');wrong++;$('#ff').textContent='«'+b.dataset.w+'» ليست من جذر '+sc.root}if(picked===sc.family.length&&!fin){fin=true;document.querySelectorAll('[data-w]').forEach(x=>x.disabled=true);$('#ff').textContent=wrong?G(S.kid,'🌿 أكملتَ العائلة','🌿 أكملتِ العائلة'):'🌟 عائلة كاملة من المحاولة الأولى';recordResult(sc.word,'family',wrong?2:1);saveProg(S.kid,S.prog);$('#next').disabled=false}})}
  bindNav()}
 
 async function stProduce(sc,i,steps){const key='free:'+S.kid+':s'+i;const L=lane();
@@ -348,15 +357,16 @@ async function stCreate(sc,i,steps){$('#view').innerHTML='<div class="card">'+st
 
 /* ===================== PARENT ===================== */
 async function parent(){setTop('وضع ولي الأمر','النموذج الصوتي والمتابعة والصور','👨‍👩‍👧‍👦');
- let dash='';for(const k of KIDS){const p=await loadProg(k.id);const rs=Object.entries(p.results);const first=rs.filter(([w,r])=>Object.values(r).some(x=>x&&x.first)).length;dash+='<div class="card"><div class="who">'+(await avHtml(k.id))+CH[k.id].n+'</div><div class="stat"><div>مشاهد مكتملة: '+ar(Object.keys(p.done).length)+'</div><div>كلمات في الصندوق: '+ar(Object.keys(p.leitner).length)+'</div><div>صحيح من الأولى: '+ar(first)+'</div></div>'+Object.keys(p.leitner).map(w=>{const l=p.leitner[w],r=p.results[w]||{};return '<div class="small" style="margin-top:8px"><b data-wl="'+k.id+'" data-w="'+esc(w)+'" style="cursor:pointer;text-decoration:underline">'+esc(w)+'</b> — صندوق '+ar(l.box)+' · '+Object.keys(r).filter(x=>x[0]!=='_').map(x=>x+(r[x].first?' ✓':' ('+ar(r[x].attempts)+')')).join(' · ')+'</div>'}).join('')+(p.tests&&p.tests.pre?'<div class="small" style="margin-top:8px">📊 اختبار البداية: '+(p.tests.pre.skipped?'تخطّي':ar(p.tests.pre.score)+'/١٠')+(p.tests.post?' · بعد أسبوعين: '+ar(p.tests.post.score)+'/١٠ (الفرق '+(p.tests.post.score-p.tests.pre.score>=0?'+':'')+ar(p.tests.post.score-p.tests.pre.score)+')':'')+'</div>':'')+(p.order?Object.entries(p.order).map(([r,o])=>'<div class="small">🧩 ترتيب '+r+': '+(o.wrong?ar(o.wrong)+' خطأ':'بلا خطأ')+'</div>').join(''):'')+'<div class="row"><button class="b-s" data-pr="'+k.id+'">🎧 التسجيلات</button><button class="b-p" data-book="'+k.id+'">📖 كتاب '+CH[k.id].n+'</button><button class="b-s" data-bk="'+k.id+'">💾 نسخة احتياطية</button><button class="b-d" data-del="'+k.id+'">🗑️ حذف</button></div></div>'}
+ let dash='';for(const k of KIDS){const p=await loadProg(k.id);const rs=Object.entries(p.results);const tr=rs.flatMap(([w,r])=>Object.entries(r).filter(([kk])=>kk!=='life'&&!kk.startsWith('rev')).map(([kk,x])=>x));const first=tr.filter(x=>x&&x.first).length;dash+='<div class="card"><div class="who">'+(await avHtml(k.id))+CH[k.id].n+'</div><div class="stat"><div>مشاهد مكتملة: '+ar(Object.keys(p.done).length)+'</div><div>كلمات في الصندوق: '+ar(Object.keys(p.leitner).length)+'</div><div>أسئلة التدريب الصحيحة من أول محاولة: '+ar(first)+' من '+ar(tr.length)+'</div></div>'+Object.keys(p.leitner).map(w=>{const l=p.leitner[w],r=p.results[w]||{};return '<div class="small" style="margin-top:8px"><b data-wl="'+k.id+'" data-w="'+esc(w)+'" style="cursor:pointer;text-decoration:underline">'+esc(w)+'</b> — صندوق '+ar(l.box)+' · '+Object.keys(r).filter(x=>x[0]!=='_').map(x=>esc(x)+(r[x]&&r[x].first?' ✓':' ('+ar(r[x]&&r[x].attempts)+')')).join(' · ')+'</div>'}).join('')+(p.order?Object.entries(p.order).map(([r,o])=>'<div class="small">🧩 ترتيب '+r+': '+(o.wrong?ar(o.wrong)+' خطأ':'بلا خطأ')+'</div>').join(''):'')+'<div class="row"><button class="b-s" data-pr="'+k.id+'">🎧 التسجيلات</button><button class="b-p" data-book="'+k.id+'">📖 كتاب '+CH[k.id].n+'</button><button class="b-s" data-bk="'+k.id+'">💾 نسخة احتياطية</button><button class="b-d" data-del="'+k.id+'">🗑️ حذف</button></div></div>'}
  let fx='<div class="card"><div class="lab">🎉 صوت التشجيع</div><p class="small">سجّل عبارات قصيرة تُسمع عند الإجابة الصحيحة وعند الخطأ (تُختار عشوائيًا). مثل: «أحسنت يا بطل!»، «لا بأس، فكّر مرة أخرى».</p>'+[0,1,2].map(j=>recBlock('fx:ok:'+j,'✅ تشجيع '+ar(j+1),'')).join('')+[0,1].map(j=>recBlock('fx:retry:'+j,'🔁 حاول مجددًا '+ar(j+1),'')).join('')+recBlock('fx:applause:0','👏 تصفيق نهاية العرض','سجّل تصفيق العائلة كلها!')+'</div><div class="card"><div class="lab">👴 رسائل العم صابر</div><p class="small">خمس رسائل قصيرة يسجّلها بابا أو ماما متقمّصًا شخصية العم صابر (صوت كبير السن)، تُفتح للطفل بعد المشاهد ٢، ٤، ٦، ٨، ١٠. مثل: «أحسنتم يا صغار! بعد المتاهة تنتظركم مفاجأة…»</p>'+SABER_MSG_AFTER.map(i=>recBlock('fx:saber:'+i,'📬 بعد المشهد '+ar(i+1),'')).join('')+'</div>';
  const inboxN=(await allChallenges()).filter(c=>c.a&&!c.judged).length+(await Promise.all(KIDS.map(async k=>(( await loadProg(k.id)).asks||[]).filter(a=>!a.answered).length))).reduce((a,b)=>a+b,0);
  let star=null,best=0;for(const k of KIDS){const p=await loadProg(k.id);const w=weekDays(p);if(w>best){best=w;star=k.id}}
  fx='<div class="card"><button class="b-p b-w" id="inbox">📬 صندوق الوارد'+(inboxN?' ('+ar(inboxN)+')':'')+'</button>'+(star&&best>=3?'<div class="who" style="margin-top:10px">⭐ نجم الأسبوع: '+CH[star].n+' — '+ar(best)+' أيام من ٧ (على المواظبة لا الدرجات)</div>':'')+'</div>'+fx;
- $('#view').innerHTML=fx+(await parentExtrasHtml())+'<div class="card"><div class="lab">النموذج الصوتي</div><p class="small">سجّل بصوتك نص الراوي وكل جملة حوار؛ يسمعها الطفل قبل أن يقرأ.</p>'+SCENES.map((s,i)=>'<button class="b-s b-w" data-ps="'+i+'" '+(i>=UNLOCKED_SCENES?'disabled':'')+' style="margin-bottom:8px;text-align:right">المشهد '+ar(i+1)+' — '+esc(s.word)+'</button>').join('')+'</div><div class="card"><div class="lab">الصور</div><p class="small">ارفع الصور بأسمائها (scene01.png، cover.png، k01.png، avatar-dalal.png…). الاسم يحدد مكانها.</p><input type="file" id="imgs" accept="image/*" multiple><div class="small" id="imgSt" style="margin-top:8px"></div></div><div class="card"><div class="lab">استعادة نسخة احتياطية</div><input type="file" id="bkin" accept="application/json"></div>'+dash;
- $('#inbox').onclick=()=>go('inbox');document.querySelectorAll('[data-wl]').forEach(b=>b.onclick=()=>go('wlog',[b.dataset.wl,b.dataset.w]));await wireRec($('#view'));await parentExtrasBind();document.querySelectorAll('[data-book]').forEach(b=>b.onclick=async()=>{toast('جارٍ تجهيز الكتاب…');await exportBook(b.dataset.book)});document.querySelectorAll('[data-bk]').forEach(b=>b.onclick=()=>exportBackup(b.dataset.bk));$('#bkin').onchange=async e=>{if(e.target.files[0]){if(!confirm('الاستعادة تستبدل بيانات الطفل الحالية. متابعة؟'))return;await importBackup(e.target.files[0]);go('parent')}};document.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>go('parentScene',+b.dataset.ps));document.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>go('parentReview',b.dataset.pr));
- document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const k=b.dataset.del;if(!confirm('حذف كل تسجيلات '+CH[k].n+' وتقدمه؟'))return;if(!confirm('تأكيد نهائي؟'))return;for(const key of await skeys('audio')){const x=String(key);if(x.includes(':'+k+':')||x.endsWith(':'+k))await sdel('audio',key)}for(const key of await skeys('img')){const x=String(key);if(x.startsWith('draw:'+k)||x==='photo:'+k||x.startsWith('hunt:'+k+':')||x==='plant:'+k)await sdel('img',key)}await sdel('kv','prog:'+k);toast('تم الحذف');go('parent')});
- $('#imgs').onchange=async e=>{let n=0;for(const f of e.target.files){const name=f.name.replace(/\.[^.]+$/,'');const blob=await compress(f,name.startsWith('avatar')?400:name.startsWith('k')&&/^k\d\d$/.test(name)?1536:1280);await sput('img',name,blob);n++}$('#imgSt').textContent='✓ حُفظت '+ar(n)+' صورة';const keys=await skeys('img');$('#imgSt').textContent+=' · المتاح: '+keys.filter(k=>!String(k).startsWith('draw:')).join(', ')}}
+ const hasPin=!!(await sget('kv','pin'));let asx='<div class="card"><div class="lab">🔒 رمز ولي الأمر</div><p class="small">'+(hasPin?'الرمز مفعّل: يُطلب لدخول هذا الوضع ولقرارات ولي الأمر.':'بلا رمز يُطلب سؤال ضرب، وقد تحلّه دلال. يُنصح بتعيين رمز من ٤ أرقام.')+'</p><div class="row"><input id="pinIn" inputmode="numeric" maxlength="4" placeholder="٤ أرقام" style="font:inherit;padding:10px;border:2px solid var(--line);border-radius:12px;width:8em"><button class="b-p" id="pinSet">حفظ الرمز</button>'+(hasPin?'<button class="b-s" id="pinDel">إلغاء الرمز</button>':'')+'</div></div>';asx+='<div class="card"><div class="lab">📊 التقييم</div><p class="small">قبلي وختامي وتذكّر بعد أسبوعين؛ ١٠ كلمات من القصة و١٠ كلمات مقارنة لا يعلّمها التطبيق. الإجابات الشفهية تُصحَّح هنا دون معرفة أيّها من البداية وأيّها من النهاية.</p><div class="row"><button class="b-p" id="scOral">🎧 تصحيح الإجابات الشفهية'+((await oralQueue()).length?' ('+ar((await oralQueue()).length)+')':'')+'</button><button class="b-s" id="csvBtn">📤 بيانات التقييم (CSV)</button></div></div>';for(const k of KIDS){const p=await loadProg(k.id);if(p.tests&&(p.tests.pre||p.tests.post))asx+=await assessCard(k.id)}
+ $('#view').innerHTML=fx+asx+(await parentExtrasHtml())+'<div class="card"><div class="lab">النموذج الصوتي</div><p class="small">سجّل بصوتك نص الراوي وكل جملة حوار؛ يسمعها الطفل قبل أن يقرأ.</p>'+SCENES.map((s,i)=>'<button class="b-s b-w" data-ps="'+i+'" '+(i>=UNLOCKED_SCENES?'disabled':'')+' style="margin-bottom:8px;text-align:right">المشهد '+ar(i+1)+' — '+esc(s.word)+'</button>').join('')+'</div><div class="card"><div class="lab">الصور</div><p class="small">ارفع الصور بأسمائها (scene01.png، cover.png، k01.png، avatar-dalal.png…). الاسم يحدد مكانها.</p><input type="file" id="imgs" accept="image/*" multiple><div class="small" id="imgSt" style="margin-top:8px"></div></div><div class="card"><div class="lab">استعادة نسخة احتياطية</div><input type="file" id="bkin" accept=".json,application/json,application/octet-stream,text/plain"></div>'+dash;
+ $('#inbox').onclick=()=>go('inbox');$('#scOral').onclick=()=>go('score');$('#pinSet').onclick=async()=>{const v=($('#pinIn').value||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));if(!/^\d{4}$/.test(v))return toast('أدخل ٤ أرقام');await sput('kv','pin',v);toast('حُفظ الرمز');go('parent')};if($('#pinDel'))$('#pinDel').onclick=async()=>{await sdel('kv','pin');toast('أُلغي الرمز');go('parent')};$('#csvBtn').onclick=exportAssessCSV;document.querySelectorAll('[data-wl]').forEach(b=>b.onclick=()=>go('wlog',[b.dataset.wl,b.dataset.w]));await wireRec($('#view'));await parentExtrasBind();document.querySelectorAll('[data-book]').forEach(b=>b.onclick=async()=>{toast('جارٍ تجهيز الكتاب…');await exportBook(b.dataset.book)});document.querySelectorAll('[data-bk]').forEach(b=>b.onclick=()=>exportBackup(b.dataset.bk));$('#bkin').onchange=async e=>{if(e.target.files[0]){if(!confirm('الاستعادة تستبدل بيانات الطفل الحالية. متابعة؟'))return;await importBackup(e.target.files[0]);go('parent')}};document.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>go('parentScene',+b.dataset.ps));document.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>go('parentReview',b.dataset.pr));
+ document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const k=b.dataset.del;if(!confirm('حذف كل تسجيلات '+CH[k].n+' وتقدمه؟'))return;if(!confirm('تأكيد نهائي؟'))return;for(const key of await skeys('audio')){const x=String(key);if(x.includes(':'+k+':')||x.endsWith(':'+k))await sdel('audio',key)}for(const key of await skeys('img')){const x=String(key);if(x.startsWith('draw:'+k)||x==='photo:'+k||x.startsWith('hunt:'+k+':')||x==='plant:'+k)await sdel('img',key)}await sdel('kv','prog:'+k);await sdel('kv','log:'+k);toast('تم الحذف');go('parent')});
+ $('#imgs').onchange=async e=>{let n=0;for(const f of e.target.files){const name=f.name.replace(/\.[^.]+$/,'');if(IMGB[name]){URL.revokeObjectURL(IMGB[name]);delete IMGB[name]}const blob=await compress(f,name.startsWith('avatar')?400:name.startsWith('k')&&/^k\d\d$/.test(name)?1536:1280);await sput('img',name,blob);n++}$('#imgSt').textContent='✓ حُفظت '+ar(n)+' صورة';const keys=await skeys('img');$('#imgSt').textContent+=' · المتاح: '+keys.filter(k=>!String(k).startsWith('draw:')).join(', ')}}
 function compress(file,max){return new Promise(res=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(b=>res(b||file),'image/webp',.82)};im.onerror=()=>res(file);im.src=URL.createObjectURL(file)})}
 async function parentScene(i){const sc=SCENES[i];setTop('نموذج المشهد '+ar(i+1),sc.word,'🎙️');
  let html='<div class="card"><div class="hint">سجّل كل مقطع بهدوء وبسرعة قراءة طبيعية. مدة كل تسجيل حتى 45 ثانية.</div></div>'+recBlock('model:s'+i+':word','🔤 الكلمة وحدها (لكريم)','<span class="word">'+esc(sc.word)+'</span>')+recBlock('model:s'+i+':narr','📖 الراوي',hl(sc.narr,sc.word));
@@ -381,8 +391,8 @@ const CONJ=[
  {s:'ذَهَبَ أَبِي إِلَى الطَّبِيبِ لِيُجْرِيَ ___ عَلَى عَيْنَيْهِ',o:[['فَحْصًا',1],['فَاحِصًا',0],['يَتَفَحَّصُ',0]]},
  {s:'كَانَ الْعِيدُ يَوْمًا ___ فِي بَيْتِنَا',o:[['بَهِيجًا',1],['بَهْجَةٌ',0],['ابْتَهَجَ',0]]},
  {s:'جَلَسْنَا عَلَى ___ النَّهْرِ الشَّرْقِيَّةِ وَنَظَرْنَا إِلَى الْغَرْبِيَّةِ',o:[['ضِفَّةِ',1],['ضِفَافِ',0],['ضِفَّتَانِ',0]]},
- {s:'___ الْقِطُّ الصَّغِيرُ فِي الشَّوَارِعِ فَلَمْ يَجِدْ بَيْتَهُ',o:[['تَاهَ',1],['مَتَاهَةٌ',0],['تَائِهٌ',0]]},
- {s:'فِي الْحِكَايَةِ كَانَ ___ يَحْرُسُونَ بَابَ الْقَلْعَةِ',o:[['الْعَمَالِقَةِ',1],['عِمْلَاقَةٍ',0],['الْعِمْلَاقُ',0]]},
+ {s:'لَقَدْ ___ الْقِطُّ الصَّغِيرُ فِي الشَّوَارِعِ فَلَمْ يَجِدْ بَيْتَهُ',o:[['تَاهَ',1],['مَتَاهَةٌ',0],['تَائِهٌ',0]]},
+ {s:'فِي الْحِكَايَةِ كَانَ ___ يَحْرُسُونَ بَابَ الْقَلْعَةِ',o:[['الْعَمَالِقَةُ',1],['عِمْلَاقَةٌ',0],['الْعِمْلَاقُ',0]]},
  {s:'الْبَيْتُ ___ هُوَ الْكَعْبَةُ',o:[['الْعَتِيقُ',1],['عَتَاقَةٌ',0],['عَتُقَ',0]]},
  {s:'___ دَلَالُ الْقَصِيدَةَ كُلَّهَا فِي يَوْمٍ وَاحِدٍ',o:[['حَفِظَتْ',1],['مَحْفُوظَةٌ',0],['مَحْفَظَةٌ',0]]},
  {s:'بَدَتِ النُّجُومُ ___ فِي السَّمَاءِ الصَّافِيَةِ',o:[['مُتَأَلِّقَةً',1],['أَلَقٌ',0],['تَأَلُّقٌ',0]]},
@@ -394,29 +404,148 @@ async function stConj(sc,i,steps){const q=quizHtml('q3',CONJ[i]);
 
 
 /* fresh transfer items: never used in training */
-const TESTQ=[
- {s:'اشْتَرَى جَدِّي نَبْتَةً صَغِيرَةً، وَبَعْدَ شَهْرٍ صَارَتْ ___',o:[['مُورِقَةً',1],['ذَابِلَةً',0],['قَصِيرَةً',0]]},
- {s:'وَقَفَ الشُّرْطِيُّ ___ جَوَازَ السَّفَرِ قَبْلَ أَنْ يَسْمَحَ بِالْمُرُورِ',o:[['يَتَفَحَّصُ',1],['يُمَزِّقُ',0],['يَنْسَى',0]]},
- {s:'عِنْدَمَا عَادَ أَخِي مِنَ السَّفَرِ مَلَأَتِ ___ الْبَيْتَ',o:[['الْبَهْجَةُ',1],['الظُّلْمَةُ',0],['الرِّيحُ',0]]},
- {s:'نَبَتَ الْقَصَبُ عَلَى ___ النِّيلِ',o:[['ضِفَافِ',1],['سَطْحِ',0],['أَعْمَاقِ',0]]},
- {s:'كَانَ السُّوقُ الْقَدِيمُ ___ مِنَ الْأَزِقَّةِ الضَّيِّقَةِ',o:[['مَتَاهَةً',1],['سَاحَةً',0],['شَارِعًا',0]]},
- {s:'رَأَيْنَا فِي الْمَتْحَفِ هَيْكَلَ دِينَاصُورٍ ___ يَمْلَأُ الْقَاعَةَ',o:[['عِمْلَاقٍ',1],['سَرِيعٍ',0],['مُلَوَّنٍ',0]]},
- {s:'فِي الْمَتْحَفِ سَيْفٌ ___ عُمْرُهُ أَلْفُ سَنَةٍ',o:[['عَتِيقٌ',1],['حَادٌّ',0],['طَوِيلٌ',0]]},
- {s:'بَقِيَتْ رِسَالَةُ جَدَّتِي ___ فِي دُرْجِ أُمِّي عِشْرِينَ سَنَةً',o:[['مَحْفُوظَةً',1],['مَفْتُوحَةً',0],['مَكْتُوبَةً',0]]},
- {s:'بَعْدَ تَنْظِيفِ الْكَأْسِ الزُّجَاجِيَّةِ صَارَتْ ___ تَحْتَ الضَّوْءِ',o:[['تَتَأَلَّقُ',1],['تَنْكَسِرُ',0],['تَسْقُطُ',0]]},
- {s:'صَفَّقَ الْجُمْهُورُ فِي ___ الْمَسْرَحِيَّةِ',o:[['خَاتِمَةِ',1],['مُنْتَصَفِ',0],['فَاصِلِ',0]]}
+/* ===================== التقييم (المقياس ٢) =====================
+ التصميم: قبلي/ختامي/تذكّر مؤجَّل، مع كلمات مقارنة لا يعلّمها التطبيق.
+ لكل كلمة: (١) استدعاء شفهي يُسجَّل أولًا (قبل رؤية الخيارات) ثم (٢) تعرّف: ٤ خيارات + «لا أعرف».
+ أثر التطبيق = تحسّن كلمات القصة − تحسّن كلمات المقارنة (يُلغي أثر التكرار والنضج والتخمين).
+ الإجابات الشفهية يصحّحها ولي الأمر لاحقًا دون أن يعرف أهي من البداية أم من النهاية. */
+const TEST_T=[
+ {s:'غُصْنٌ مُورِقٌ، أَيْ غُصْنٌ:',o:[['تَكْسُوهُ أَوْرَاقٌ خَضْرَاءُ',1],['تَمْلَؤُهُ أَشْوَاكٌ حَادَّةٌ طَوِيلَةٌ',0],['يَسِيلُ مِنْهُ صَمْغٌ لَزِجٌ كَثِيرٌ',0],['تَنَامُ عَلَيْهِ طُيُورٌ صَغِيرَةٌ',0]]},
+ {s:'يَتَفَحَّصُ سَامِي الصُّنْدُوقَ، أَيْ:',o:[['يَنْظُرُ فِيهِ بِانْتِبَاهٍ',1],['يَحْمِلُهُ إِلَى غُرْفَتِهِ',0],['يَدْهُنُهُ بِلَوْنٍ جَدِيدٍ',0],['يُغْلِقُهُ بِالْمِفْتَاحِ جَيِّدًا',0]]},
+ {s:'الْبَهْجَةُ هِيَ:',o:[['سُرُورٌ يُرَى عَلَى الْوُجُوهِ',1],['تَعَبٌ يُصِيبُ الْجِسْمَ',0],['خَوْفٌ مِنَ الْمَجْهُولِ',0],['مَلَلٌ مِنْ طُولِ الِانْتِظَارِ',0]]},
+ {s:'ضِفَافُ الْقَنَاةِ هِيَ:',o:[['الْأَرْضُ عَلَى جَانِبَيْهَا',1],['الْجُسُورُ الَّتِي فَوْقَهَا',0],['الْأَسْمَاكُ الَّتِي فِيهَا',0],['الْقَوَارِبُ الَّتِي تَعْبُرُهَا',0]]},
+ {s:'الْمَتَاهَةُ هِيَ:',o:[['مَكَانٌ يَضِيعُ فِيهِ الدَّاخِلُ',1],['مَكَانٌ يُرَى مِنْهُ كُلُّ شَيْءٍ',0],['مَكَانٌ تُعْرَضُ فِيهِ التُّحَفُ',0],['مَكَانٌ تُزْرَعُ فِيهِ الزُّهُورُ',0]]},
+ {s:'صَخْرَةٌ عِمْلَاقَةٌ، أَيْ صَخْرَةٌ:',o:[['هَائِلَةُ الْحَجْمِ',1],['نَاعِمَةُ الْمَلْمَسِ',0],['لَامِعَةُ اللَّوْنِ',0],['حَادَّةُ الْأَطْرَافِ',0]]},
+ {s:'بَابٌ عَتِيقٌ، أَيْ بَابٌ:',o:[['صُنِعَ قَبْلَ زَمَنٍ طَوِيلٍ',1],['مَصْنُوعٌ مِنَ الْحَدِيدِ الثَّقِيلِ',0],['مُزَيَّنٌ بِنُقُوشٍ مُلَوَّنَةٍ',0],['مَفْتُوحٌ طَوَالَ الْيَوْمِ',0]]},
+ {s:'صُورَةٌ مَحْفُوظَةٌ، أَيْ صُورَةٌ:',o:[['بَقِيَتْ سَلِيمَةً فِي مَكَانٍ آمِنٍ',1],['رُسِمَتْ بِأَلْوَانٍ زَاهِيَةٍ جَمِيلَةٍ',0],['تَمَزَّقَتْ أَطْرَافُهَا مِنْ كَثْرَةِ اللَّعِبِ',0],['صَوَّرْنَاهَا فِي رِحْلَةٍ إِلَى الْبَحْرِ',0]]},
+ {s:'تَتَأَلَّقُ عَيْنَا الطِّفْلِ، أَيْ:',o:[['تَشِعَّانِ بَرِيقًا',1],['تَدْمَعَانِ مِنَ الْحُزْنِ',0],['تُغْمَضَانِ مِنَ النُّعَاسِ',0],['تَحْمَرَّانِ مِنَ التَّعَبِ',0]]},
+ {s:'خَاتِمَةُ الرِّسَالَةِ هِيَ:',o:[['آخِرُ جُزْءٍ تَنْتَهِي بِهِ',1],['الْوَرَقَةُ الَّتِي كُتِبَتْ عَلَيْهَا',0],['الظَّرْفُ الَّذِي وُضِعَتْ فِيهِ',0],['الْخَطُّ الَّذِي كُتِبَتْ بِهِ',0]]}
 ];
-/* ===================== PRE/POST TEST ===================== */
-async function testView(kind){const qs=SCENES.map((sc,i)=>({sc,i}));let idx=0;const res={};const L=lane();
- const run=async()=>{if(idx>=qs.length){S.prog.tests=S.prog.tests||{};S.prog.tests[kind]={score:Object.values(res).filter(Boolean).length,t:Date.now(),detail:res};await saveProg(S.kid,S.prog);
-   $('#view').innerHTML='<div class="card" style="text-align:center"><div style="font-size:56px">'+(kind==='pre'?'🌱':'🌳')+'</div><h2 style="color:var(--g9)">'+(kind==='pre'?'انتهى الاختبار الأول':'انتهى اختبار ما بعد أسبوعين')+'</h2><p class="line">'+(kind==='pre'?'الآن نبدأ القصة!':'أحسنت. ولي الأمر يرى النتيجة في لوحته.')+'</p><button class="b-p b-w" id="h">🏠</button></div>';$('#h').onclick=()=>go('kid',S.kid);return}
-  const {sc,i}=qs[idx];const head='<div class="card"><div class="lab">'+(kind==='pre'?'قبل أن نبدأ':'بعد أسبوعين')+' — سؤال '+ar(idx+1)+' من ١٠</div>';const after='<div class="row"><button class="b-p b-w" id="nx" disabled>التالي</button></div>';
-  if(L==='A'){const q=await pictureQ(sc,i);$('#view').innerHTML=head+q.html.replace(/<div class="hint">.*?<\/div>/,'<div class="hint">👂 اسمع الكلمة ثم اضغط الصورة</div>')+'</div>'+after;
-   document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>playKey(b.dataset.pl));let done=false;document.querySelectorAll('#kg button').forEach(b=>b.onclick=()=>{if(done)return;done=true;res[sc.word]=+b.dataset.p===0;document.querySelectorAll('#kg button').forEach(x=>x.disabled=true);$('#nx').disabled=false})}
-  else{const tq=TESTQ[i];const opts=shuffle(tq.o.map(o=>({t:o[0],c:!!o[1]})));$('#view').innerHTML=head+'<div class="line">'+esc(tq.s)+'</div><div class="opts" id="tq">'+opts.map((o,k)=>'<button class="opt" data-i="'+k+'">'+esc(o.t)+'</button>').join('')+'</div></div>'+after;
-   let done=false;document.querySelectorAll('#tq .opt').forEach(b=>b.onclick=()=>{if(done)return;done=true;res[sc.word]=opts[+b.dataset.i].c;document.querySelectorAll('#tq .opt').forEach(x=>x.disabled=true);b.style.borderColor='var(--blu)';$('#nx').disabled=false})}
-  $('#nx').onclick=()=>{idx++;run()}};
- setTop(kind==='pre'?'اختبار البداية':'اختبار بعد أسبوعين','بلا تلميح ولا تصحيح',await avInner(S.kid));run()}
+const CONTROL=[
+ {w:'مُتَشَقِّقَة',m:'فيها خطوط وفتحات من الجفاف',s:'أَرْضٌ مُتَشَقِّقَةٌ، أَيْ أَرْضٌ:',o:[['تَمْلَؤُهَا فَتَحَاتٌ مِنَ الْجَفَافِ',1],['مُغَطَّاةٌ بِعُشْبٍ أَخْضَرَ كَثِيفٍ',0],['مَلِيئَةٌ بِحَصًى مُلَوَّنٍ صَغِيرٍ',0],['مُنْحَدِرَةٌ نَحْوَ الْوَادِي الْعَمِيقِ',0]]},
+ {w:'يَسْتَنْشِقُ',m:'يُدخل الهواء أو الماء في أنفه',s:'رَأَيْتُ سَامِي يَسْتَنْشِقُ، أَيْ:',o:[['يُدْخِلُ الْهَوَاءَ فِي أَنْفِهِ',1],['يَمْسَحُ وَجْهَهُ بِالْمَاءِ الْبَارِدِ',0],['يُغَنِّي بِصَوْتٍ عَالٍ جَمِيلٍ',0],['يَرْسُمُ بِقَلَمٍ مُلَوَّنٍ صَغِيرٍ',0]]},
+ {w:'الْحَنِين',m:'شوق إلى مكان أو شخص بعيد',s:'الْحَنِينُ هُوَ:',o:[['شَوْقٌ إِلَى مَكَانٍ أَوْ شَخْصٍ',1],['غَضَبٌ مِنْ كَلَامٍ جَارِحٍ قَاسٍ',0],['خَوْفٌ مِنَ الظَّلَامِ وَالْوَحْدَةِ',0],['تَعَبٌ بَعْدَ يَوْمٍ طَوِيلٍ',0]]},
+ {w:'الْكُثْبَان',m:'تلال من الرمل في الصحراء',s:'الْكُثْبَانُ هِيَ:',o:[['تِلَالٌ مِنَ الرَّمْلِ فِي الصَّحْرَاءِ',1],['آبَارُ مَاءٍ عَمِيقَةٌ فِي الصَّحْرَاءِ',0],['خِيَامٌ يَسْكُنُهَا أَهْلُ الصَّحْرَاءِ',0],['قَوَافِلُ جِمَالٍ تَعْبُرُ الصَّحْرَاءَ',0]]},
+ {w:'الْمَرْفَأ',m:'مكان على الشاطئ تقف فيه السفن',s:'الْمَرْفَأُ هُوَ:',o:[['مَكَانٌ تَقِفُ فِيهِ السُّفُنُ',1],['مَكَانٌ تُزْرَعُ فِيهِ الْأَشْجَارُ',0],['مَكَانٌ تُبَاعُ فِيهِ الْمَلَابِسُ',0],['مَكَانٌ يُخْزَنُ فِيهِ الْقَمْحُ',0]]},
+ {w:'نَحِيل',m:'رفيع الجسم قليل اللحم',s:'رَجُلٌ نَحِيلٌ، أَيْ رَجُلٌ:',o:[['جِسْمُهُ رَفِيعٌ جِدًّا',1],['صَوْتُهُ عَالٍ جِدًّا',0],['شَعْرُهُ طَوِيلٌ جِدًّا',0],['خُطُوَاتُهُ بَطِيئَةٌ جِدًّا',0]]},
+ {w:'مُعْتِم',m:'مظلم لا يدخله الضوء',s:'غُرْفَةٌ مُعْتِمَةٌ، أَيْ غُرْفَةٌ:',o:[['لَا يَدْخُلُهَا الضَّوْءُ',1],['بَارِدَةٌ فِي الشِّتَاءِ',0],['مُرَتَّبَةٌ نَظِيفَةٌ دَائِمًا',0],['صَغِيرَةٌ ضَيِّقَةٌ جِدًّا',0]]},
+ {w:'مَهْجُور',m:'تركه أهله فلا يسكنه أحد',s:'بَيْتٌ مَهْجُورٌ، أَيْ بَيْتٌ:',o:[['لَا يَسْكُنُهُ أَحَدٌ',1],['مُزْدَحِمٌ بِالضُّيُوفِ',0],['بُنِيَ قَبْلَ أَيَّامٍ',0],['مَطْلِيٌّ بِلَوْنٍ أَبْيَضَ',0]]},
+ {w:'يُثَرْثِرُ',m:'يُكثر الكلام فيما لا فائدة منه',s:'كَانَ الْوَلَدُ يُثَرْثِرُ، أَيْ:',o:[['يُكْثِرُ الْكَلَامَ بِلَا فَائِدَةٍ',1],['يَكْتُبُ بِخَطٍّ صَغِيرٍ جِدًّا',0],['يَأْكُلُ طَعَامَهُ بِسُرْعَةٍ كَبِيرَةٍ',0],['يَنَامُ فِي وَقْتٍ مُبَكِّرٍ',0]]},
+ {w:'الْهَامِش',m:'المساحة الفارغة على جانب الصفحة',s:'هَامِشُ الصَّفْحَةِ هُوَ:',o:[['الْمَسَاحَةُ الْفَارِغَةُ عَلَى طَرَفِهَا',1],['الرَّقْمُ الْمَكْتُوبُ فِي أَسْفَلِهَا',0],['الْعُنْوَانُ الْكَبِيرُ فِي أَعْلَاهَا',0],['الصُّورَةُ الْمَرْسُومَةُ فِي وَسَطِهَا',0]]}
+];
+const TEST_B=[
+ [{s:'أَحَاطَتِ الْأَشْجَارُ بِالْبَيْتِ، أَيْ:',o:[['كَانَتْ حَوْلَهُ مِنْ كُلِّ الْجِهَاتِ',1],['سَقَطَتْ فَوْقَهُ مِنْ شِدَّةِ الرِّيحِ',0],['نَبَتَتْ دَاخِلَهُ بَيْنَ الْغُرَفِ',0],['حَجَبَتْ عَنْهُ مَاءَ الْمَطَرِ',0]]},
+  {s:'تَتَمَايَلُ الْأَزْهَارُ، أَيْ:',o:[['تَتَحَرَّكُ يَمِينًا وَيَسَارًا',1],['تَتَفَتَّحُ فِي الصَّبَاحِ الْبَاكِرِ',0],['تَذْبُلُ مِنْ شِدَّةِ حَرِّ الصَّيْفِ',0],['تَفُوحُ مِنْهَا رَائِحَةٌ طَيِّبَةٌ',0]]}],
+ [{s:'مَشَى سَامِي بِحَذَرٍ، أَيْ مَشَى:',o:[['مُنْتَبِهًا خَوْفًا مِنَ الْأَذَى',1],['مُسْرِعًا لِيَصِلَ قَبْلَ الْجَمِيعِ',0],['ضَاحِكًا يُغَنِّي مَعَ أَصْدِقَائِهِ',0],['مُتْعَبًا بَعْدَ يَوْمٍ طَوِيلٍ',0]]},
+  {s:'رَأَيْنَا آثَارَ أَرْنَبٍ، أَيْ:',o:[['عَلَامَاتٍ تَرَكَهَا حِينَ مَرَّ',1],['صِغَارًا يَلْعَبُونَ حَوْلَهُ',0],['طَعَامًا يُخَبِّئُهُ لِلشِّتَاءِ',0],['بَيْتًا يَحْفِرُهُ تَحْتَ الْأَرْضِ',0]]}],
+ [{s:'الْتَقَطَتْ سَلْمَى الْقَلَمَ، أَيْ:',o:[['أَخَذَتْهُ مِنَ الْأَرْضِ',1],['كَتَبَتْ بِهِ رِسَالَةً طَوِيلَةً',0],['كَسَرَتْهُ مِنْ شِدَّةِ الْغَضَبِ',0],['أَعْطَتْهُ لِصَدِيقَتِهَا الصَّغِيرَةِ',0]]},
+  {s:'الْمَمَرُّ هُوَ:',o:[['طَرِيقٌ ضَيِّقٌ يُمْشَى فِيهِ',1],['بِرْكَةُ مَاءٍ صَغِيرَةٌ',0],['غُرْفَةٌ وَاسِعَةٌ مُضِيئَةٌ',0],['سُوقٌ مُزْدَحِمَةٌ بِالنَّاسِ',0]]}],
+ [{s:'لَمَحَ سَامِي قِطًّا، أَيْ:',o:[['رَآهُ بِنَظْرَةٍ سَرِيعَةٍ',1],['أَطْعَمَهُ بِيَدِهِ',0],['حَمَلَهُ بَيْنَ ذِرَاعَيْهِ',0],['خَافَ مِنْهُ وَهَرَبَ',0]]},
+  {s:'الْأَعْشَابُ هِيَ:',o:[['نَبَاتَاتٌ خَضْرَاءُ قَصِيرَةٌ',1],['حِجَارَةٌ مَلْسَاءُ عَلَى شَاطِئِ النَّهْرِ',0],['حَشَرَاتٌ صَغِيرَةٌ تَعِيشُ فِي التُّرَابِ',0],['أَغْصَانٌ يَابِسَةٌ تَسْقُطُ مِنَ الْأَشْجَارِ',0]]}],
+ [{s:'أَغْصَانٌ مُتَشَابِكَةٌ، أَيْ أَغْصَانٌ:',o:[['يَتَدَاخَلُ بَعْضُهَا فِي بَعْضٍ',1],['مَقْطُوعَةٌ مُلْقَاةٌ عَلَى الْأَرْضِ',0],['مُسْتَقِيمَةٌ طَوِيلَةٌ كَالْعِصِيِّ',0],['مَلِيئَةٌ بِالثِّمَارِ النَّاضِجَةِ',0]]},
+  {s:'يَتَفَرَّعُ الطَّرِيقُ، أَيْ:',o:[['يَنْقَسِمُ إِلَى طُرُقٍ كَثِيرَةٍ',1],['يَنْتَهِي عِنْدَ بَابٍ مُغْلَقٍ',0],['يَرْتَفِعُ نَحْوَ قِمَّةِ الْجَبَلِ',0],['يَمْتَلِئُ بِالْمَاءِ بَعْدَ الْمَطَرِ',0]]}],
+ [{s:'السَّاحَةُ هِيَ:',o:[['مَكَانٌ وَاسِعٌ مَكْشُوفٌ',1],['مَطْبَخٌ يُطْهَى فِيهِ الطَّعَامُ',0],['نَفَقٌ طَوِيلٌ تَحْتَ الْأَرْضِ',0],['جِدَارٌ عَالٍ مِنَ الْحِجَارَةِ',0]]},
+  {s:'تُلَامِسُ يَدُ سَلْمَى الْمَاءَ، أَيْ:',o:[['تَمَسُّهُ بِرِفْقٍ',1],['تَغْسِلُهُ بِالصَّابُونِ',0],['تَبْتَعِدُ عَنْهُ خَائِفَةً',0],['تَمْلَأُ مِنْهُ كُوبًا',0]]}],
+ [{s:'الْحَارِسُ هُوَ:',o:[['مَنْ يَحْمِي الْمَكَانَ وَيَرْعَاهُ',1],['مَنْ يَبْنِي الْبُيُوتَ الْجَدِيدَةَ',0],['مَنْ يَبِيعُ الطَّعَامَ فِي السُّوقِ',0],['مَنْ يَقُودُ السَّيَّارَةَ فِي الطَّرِيقِ',0]]},
+  {s:'صُنْدُوقٌ خَشَبِيٌّ، أَيْ صُنْدُوقٌ:',o:[['مَصْنُوعٌ مِنَ الْخَشَبِ',1],['مَصْنُوعٌ مِنَ الْحَدِيدِ',0],['مَصْنُوعٌ مِنَ الزُّجَاجِ',0],['مَصْنُوعٌ مِنَ الْوَرَقِ',0]]}],
+ [{s:'اللَّفَائِفُ هِيَ:',o:[['أَوْرَاقٌ مَطْوِيَّةٌ كَالْأُسْطُوَانَةِ',1],['صَنَادِيقُ صَغِيرَةٌ مُزَخْرَفَةٌ بِالذَّهَبِ',0],['أَقْلَامٌ مُلَوَّنَةٌ طَوِيلَةٌ رَفِيعَةٌ',0],['خَرَائِطُ مُعَلَّقَةٌ عَلَى الْجِدَارِ',0]]},
+  {s:'رَتَّبَتْ سَلْمَى كُتُبَهَا بِعِنَايَةٍ، أَيْ:',o:[['بِاهْتِمَامٍ وَحِرْصٍ',1],['بِسُرْعَةٍ قَبْلَ النَّوْمِ',0],['وَهِيَ تَشْعُرُ بِالْمَلَلِ',0],['بِمُسَاعَدَةِ أَخِيهَا الصَّغِيرِ',0]]}],
+ [{s:'فَرَدَتْ سَلْمَى السَّجَّادَةَ، أَيْ:',o:[['بَسَطَتْهَا بَعْدَ أَنْ كَانَتْ مَلْفُوفَةً',1],['غَسَلَتْهَا بِالْمَاءِ وَالصَّابُونِ جَيِّدًا',0],['عَلَّقَتْهَا عَلَى الْجِدَارِ',0],['بَاعَتْهَا فِي السُّوقِ',0]]},
+  {s:'وَرَقَةٌ ذَهَبِيَّةٌ، أَيْ وَرَقَةٌ:',o:[['لَوْنُهَا كَلَوْنِ الذَّهَبِ',1],['مُبَلَّلَةٌ بِالْمَاءِ',0],['مُمَزَّقَةُ الْأَطْرَافِ',0],['مَكْتُوبٌ عَلَيْهَا اسْمِي',0]]}],
+ [{s:'أَهْدَى سَامِي كِتَابَهُ، أَيْ:',o:[['أَعْطَاهُ لِغَيْرِهِ بِلَا ثَمَنٍ',1],['بَاعَهُ بِثَمَنٍ قَلِيلٍ جِدًّا',0],['أَضَاعَهُ فِي سَاحَةِ الْمَدْرَسَةِ',0],['قَرَأَهُ مَرَّتَيْنِ كَامِلَتَيْنِ',0]]},
+  {s:'عَمَّتِ الْفَرْحَةُ الْبَيْتَ، أَيْ:',o:[['انْتَشَرَتْ فِي كُلِّ أَرْجَائِهِ',1],['خَرَجَتْ مِنْهُ سَرِيعًا جِدًّا',0],['اخْتَبَأَتْ فِي إِحْدَى غُرَفِهِ',0],['بَقِيَتْ عِنْدَ بَابِهِ الْخَارِجِيِّ',0]]}]
+];
+const TKIND={pre:'اختبار البداية',post:'الاختبار الختامي',delay:'اختبار التذكّر'};
+const DELAY_DAYS=14;
+/* ترتيب ثابت لكل طفل ولكل اختبار (يُعاد بناؤه كما هو عند الاستئناف) */
+function seeded(seed){let h=1779033703^seed.length;for(let i=0;i<seed.length;i++){h=Math.imul(h^seed.charCodeAt(i),3432918353);h=h<<13|h>>>19}return()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return((h^=h>>>16)>>>0)/4294967296}}
+function sshuffle(a,rnd){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function laneOf(kid){const k=KIDS.find(x=>x.id===kid);return k?k.lane:'B'}
+function testItem(id){const c=id[0],n=id.slice(1);if(c==='t'){const i=+n;return {id,cond:'T',w:SCENES[i].word,m:SCENES[i].meaning,q:TEST_T[i]}}if(c==='c'){const i=+n;return {id,cond:'C',w:CONTROL[i].w,m:CONTROL[i].m,q:CONTROL[i]}}const [i,j]=n.split('_').map(Number);return {id,cond:'B',w:BONUS[i][j][0],m:BONUS[i][j][1],q:TEST_B[i][j]}}
+function testPlan(kid,kind){const rnd=seeded(kid+':'+kind+':v2');const main=sshuffle([...SCENES.map((_,i)=>'t'+i),...CONTROL.map((_,i)=>'c'+i)],rnd);const steps=[];main.forEach(id=>{steps.push([id,'oral']);steps.push([id,'rec'])});
+ if(laneOf(kid)==='C')sshuffle(BONUS.flatMap((a,i)=>a.map((_,j)=>'b'+i+'_'+j)),rnd).forEach(id=>steps.push([id,'rec']));return steps}
+function tget(P,kind){const t=(P.tests||{})[kind];return t&&t.v===2?t:null}
+function tDone(P,kind){const t=tget(P,kind);return !!(t&&t.done)}
+/* اختبار بداية قديم (قبل المقياس ٢): يُعاد إن لم يبدأ الطفل القصة بعد؛ وإلا يُحفظ كما هو ويُعلَّم «غير قابل للمقارنة» */
+function preSatisfied(P){const t=(P.tests||{}).pre;if(!t)return false;if(t.v===2)return !!(t.done||t.skipped);return Object.keys(P.done||{}).length>0}
+function preLegacy(P){const t=(P.tests||{}).pre;return !!(t&&t.v!==2)}
+
+async function testView(kind){const kid=S.kid,L=lane(),P=S.prog;P.tests=P.tests||{};
+ if(kind==='pre'&&P.tests.pre&&P.tests.pre.v!==2)P.tests.pre_legacy=P.tests.pre;
+ let T=tget(P,kind);if(!T||T.skipped){T=P.tests[kind]={v:2,k:0,resp:{},t0:Date.now(),done:false};await saveProg(kid,P)}
+ const steps=testPlan(kid,kind),N=steps.length;
+ setTop(TKIND[kind],'بلا تلميح ولا تصحيح',await avInner(kid));
+ const readAloud=L==='A'?'<div class="hint" style="background:#eff6ff;border-color:#bfdbfe">👨‍👩‍👦 ولي الأمر يقرأ الكلمة والخيارات بصوت هادئ متساوٍ، بلا تلميح ولا تعليق على الإجابة.</div>':'';
+ const step=async()=>{
+  if(T.k>=N){T.done=true;T.t=Date.now();await saveProg(kid,P);chime('spark');
+   $('#view').innerHTML='<div class="card" style="text-align:center"><div style="font-size:56px">'+(kind==='pre'?'🌱':kind==='post'?'🌳':'🌟')+'</div><h2 style="color:var(--g9)">'+G(kid,'شكرًا لك! انتهيت','شكرًا لكِ! انتهيتِ')+'</h2><p class="line">'+(kind==='pre'?'الآن تبدأ المغامرة!':'النتيجة عند ولي الأمر.')+'</p><button class="b-p b-w" id="h">🏠</button></div>';$('#h').onclick=()=>go('kid',kid);return}
+  const [id,stage]=steps[T.k];const it=testItem(id);const r=T.resp[id]=T.resp[id]||{};const nWord=new Set(steps.slice(0,T.k+1).map(s=>s[0])).size,nAll=new Set(steps.map(s=>s[0])).size;
+  const head='<div class="card"><div class="steps">'+'<span class="on" style="flex:'+(T.k/N)+'"></span><span style="flex:'+(1-T.k/N)+'"></span></div><div class="lab">'+TKIND[kind]+' — '+ar(nWord)+' من '+ar(nAll)+'</div>'+readAloud;
+  const pause='<button class="b-s b-w" id="tpause" style="margin-top:10px;min-height:40px;font-size:.9rem">⏸️ نكمل لاحقًا</button>';
+  const adv=async()=>{T.k++;await saveProg(kid,P);step()};
+  if(stage==='oral'){const key='test:'+kid+':'+kind+':'+id;
+   $('#view').innerHTML=head+'<div class="word" style="font-size:2.4rem">'+esc(it.w)+'</div><p class="line" style="text-align:center">'+G(kid,'ماذا تعني هذه الكلمة؟ قلْ معناها أو قلْ جملة فيها.','ماذا تعني هذه الكلمة؟ قولي معناها أو قولي جملة فيها.')+'</p></div>'
+    +recBlock(key,'🎙️ إجابتك بصوتك','')+'<div class="row"><button class="b-s" id="tdk">🤷 لا أعرف</button><button class="b-p" id="tnx" disabled>التالي ➡️</button></div>'+pause;
+   await wireRec($('#view'),async()=>{const has=await hasKey(key);const b=$('#tnx');if(b)b.disabled=!has});
+   let busy=false;$('#tdk').onclick=async()=>{if(Rec.active||busy)return;busy=true;await sdel('audio',key).catch(()=>{});r.oral={dk:1,t:Date.now()};await adv()};
+   $('#tnx').onclick=async()=>{if(Rec.active||busy)return;busy=true;r.oral=(await hasKey(key))?{has:1,t:Date.now()}:{na:1,t:Date.now()};await adv()};
+  }else{const opts=sshuffle(it.q.o.map(o=>({t:o[0],c:!!o[1]})),seeded(kid+kind+id));const t0=Date.now();let done=false;
+   $('#view').innerHTML=head+'<div class="line" style="font-size:1.25rem;text-align:center;margin:10px 0"><b>'+esc(it.q.s)+'</b></div><div class="opts" id="tq">'+opts.map((o,k)=>'<button class="opt" data-i="'+k+'">'+esc(o.t)+'</button>').join('')+'<button class="opt" data-i="dk" style="background:#f8fafc;color:var(--mut)">🤷 لا أعرف</button></div></div>'+pause;
+   document.querySelectorAll('#tq .opt').forEach(b=>b.onclick=async()=>{if(done)return;done=true;const dk=b.dataset.i==='dk';const o=dk?null:opts[+b.dataset.i];r.rec={a:dk?null:o.t,ok:dk?0:(o.c?1:0),dk:dk?1:0,rt:Date.now()-t0,t:Date.now()};document.querySelectorAll('#tq .opt').forEach(x=>x.disabled=true);b.style.borderColor='var(--blu)';setTimeout(adv,450)})}
+  $('#tpause').onclick=()=>go('kid',kid)};
+ step()}
+
+/* ---------- حساب النتائج ---------- */
+function tSummary(P,kind){const t=tget(P,kind);if(!t)return null;const g={T:{n:0,ok:0,dk:0,os:0,on:0},C:{n:0,ok:0,dk:0,os:0,on:0},B:{n:0,ok:0,dk:0,os:0,on:0}};
+ for(const [id,r] of Object.entries(t.resp)){const c=testItem(id).cond;const x=g[c];if(r.rec){x.n++;x.ok+=r.rec.ok;x.dk+=r.rec.dk}if(r.oral){const s=r.oral.dk?0:(typeof r.oral.score==='number'?r.oral.score:null);if(s!==null){x.os+=s;x.on++}}}
+ return {done:!!t.done,g,t:t.t}}
+function learnedWords(P,a,b){const A=tget(P,a),B=tget(P,b);if(!A||!B||!A.done||!B.done)return null;const out={T:[],C:[],lost:[]};for(const id of Object.keys(B.resp)){const ra=(A.resp[id]||{}).rec,rb=(B.resp[id]||{}).rec;if(!ra||!rb)continue;const it=testItem(id);if(!ra.ok&&rb.ok&&(it.cond==='T'||it.cond==='C'))out[it.cond].push(it.w);if(ra.ok&&!rb.ok&&it.cond==='T')out.lost.push(it.w)}return out}
+function condUnknown(P,a,b){const A=tget(P,a),B=tget(P,b);if(!A||!B||!A.done||!B.done)return null;const o={T:[0,0],C:[0,0]};for(const id of Object.keys(A.resp)){const it=testItem(id);if(it.cond==='B')continue;const ra=A.resp[id].rec,rb=(B.resp[id]||{}).rec;if(!ra||!rb||ra.ok)continue;o[it.cond][1]++;if(rb.ok)o[it.cond][0]++}return o}
+function pct(x){return x.n?Math.round(100*x.ok/x.n):null}
+function omean(x){return x.on?(x.os/x.on):null}
+function fmtP(v){return v===null?'—':ar(v)+'٪'}
+function fmtO(v){return v===null?'—':ar(v.toFixed(1))}
+async function engagement(kid){const log=(await sget('kv','log:'+kid))||[];if(!log.length)return null;const days=new Set(),feat={};let ms=0;
+ for(let i=0;i<log.length;i++){const [t,v]=log[i];days.add(dayOf(t));feat[v]=(feat[v]||0)+1;const nx=log[i+1];if(nx){const gap=nx[0]-t;if(gap<5*60e3)ms+=gap}}
+ return {days:days.size,min:Math.round(ms/60e3),feat}}
+const FEAT_N={scene:'المشاهد',review:'السقاية',games:'الألعاب',game:'لعبة',bedtime:'حكاية النوم',scroll:'اللفافة',quiz:'المسابقة',theater:'المسرح',ded:'الإهداء',order:'الترتيب',test:'الاختبارات'};
+async function assessCard(kid){const P=await loadProg(kid);const L=laneOf(kid);const S0=tSummary(P,'pre'),S1=tSummary(P,'post'),S2=tSummary(P,'delay');
+ const rows=[['T','كلمات القصة'],['C','كلمات المقارنة (لا تُعلَّم)']].concat(L==='C'?[['B','الكلمات الإضافية']]:[]);
+ const cell=(s,c,f)=>s&&s.done?f(s.g[c]):'—';
+ let h='<div class="card"><div class="lab">📊 تقييم '+esc(CH[kid].n)+'</div>';
+ if(preLegacy(P)&&!tget(P,'pre'))h+='<p class="small" style="color:#b45309">⚠️ اختبار البداية أُجري بالمقياس القديم (٣ خيارات، بلا كلمات مقارنة)؛ لا يُقارن بالختامي.</p>';
+ h+='<table class="ast"><tr><th></th><th>البداية</th><th>الختامي</th><th>التذكّر</th></tr>';
+ for(const [c,n] of rows)h+='<tr><td>'+n+' — تعرّف</td><td>'+cell(S0,c,x=>fmtP(pct(x)))+'</td><td>'+cell(S1,c,x=>fmtP(pct(x)))+'</td><td>'+cell(S2,c,x=>fmtP(pct(x)))+'</td></tr>'+(c==='B'?'':'<tr><td>'+n+' — شفهي (من ٢)</td><td>'+cell(S0,c,x=>fmtO(omean(x)))+'</td><td>'+cell(S1,c,x=>fmtO(omean(x)))+'</td><td>'+cell(S2,c,x=>fmtO(omean(x)))+'</td></tr>');
+ h+='</table>';
+ const net=(a,b)=>{if(!a||!b||!a.done||!b.done)return '';const dT=pct(b.g.T)-pct(a.g.T),dC=pct(b.g.C)-pct(a.g.C);const oT=omean(b.g.T),oT0=omean(a.g.T),oC=omean(b.g.C),oC0=omean(a.g.C);
+  const oral=[oT,oT0,oC,oC0].every(v=>v!==null)?' · شفهي: '+((oT-oT0)-(oC-oC0)>=0?'+':'')+ar(((oT-oT0)-(oC-oC0)).toFixed(1)):' · الشفهي ينتظر التصحيح';
+  return '<div class="small" style="margin-top:6px"><b>أثر التطبيق</b> = تحسّن كلمات القصة ('+(dT>=0?'+':'')+ar(dT)+') − تحسّن كلمات المقارنة ('+(dC>=0?'+':'')+ar(dC)+') = <b>'+(dT-dC>=0?'+':'')+ar(dT-dC)+' نقطة</b>'+oral+'</div>'};
+ h+=net(S0,S1)?'<div class="small" style="margin-top:8px">من البداية إلى الختامي:</div>'+net(S0,S1):'';h+=net(S0,S2)?'<div class="small">من البداية إلى التذكّر:</div>'+net(S0,S2):'';
+ const cmp=S2&&S2.done?'delay':'post';const cu=condUnknown(P,'pre',cmp);if(cu)h+='<div class="small" style="margin-top:8px"><b>المقياس الأدقّ</b> — من الكلمات التي لم يعرفها في البداية: صار يعرف '+ar(cu.T[0])+' من '+ar(cu.T[1])+' من كلمات القصة، مقابل '+ar(cu.C[0])+' من '+ar(cu.C[1])+' من كلمات المقارنة.</div>';const lw=learnedWords(P,'pre',cmp);if(lw)h+='<div class="small" style="margin-top:8px">🌱 كلمات قصة تعلّمها (خطأ في البداية ← صحيح الآن): '+(lw.T.length?lw.T.map(esc).join('، '):'—')+'<br>للمقارنة، كلمات لم تُعلَّم صارت صحيحة: '+(lw.C.length?lw.C.map(esc).join('، '):'—')+(lw.lost.length?'<br>كلمات قصة عرفها في البداية وأخطأها الآن: '+lw.lost.map(esc).join('، '):'')+'</div>';
+ if(S0&&S0.done)h+='<div class="small">«لا أعرف» في البداية: '+ar(S0.g.T.dk+S0.g.C.dk)+' من '+ar(S0.g.T.n+S0.g.C.n)+(S1&&S1.done?' · في الختامي: '+ar(S1.g.T.dk+S1.g.C.dk):'')+'</div>';
+ const E=await engagement(kid);if(E){const top=Object.entries(E.feat).filter(([v])=>FEAT_N[v]).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([v,n])=>FEAT_N[v]+' '+ar(n)).join(' · ');h+='<div class="small" style="margin-top:8px">⏱️ أيام النشاط: '+ar(E.days)+' · الدقائق: '+ar(E.min)+(E.days?' (≈'+ar(Math.round(E.min/E.days))+' في اليوم)':'')+'<br>ما يفتحه: '+top+'</div>'}
+ h+='<p class="small" style="margin-top:8px;color:var(--mut)">١٠ كلمات في كل فئة: فرق كلمة أو كلمتين قد يكون صدفة. الحكم من اتجاه المقياسين معًا وعبر الأطفال الثلاثة، لا من رقم واحد.</p></div>';return h}
+
+/* ---------- التصحيح الأعمى للإجابات الشفهية ---------- */
+async function oralQueue(){const q=[];for(const k of KIDS){const P=await loadProg(k.id);const postDone=tDone(P,'post');for(const kind of ['pre','post','delay']){const t=tget(P,kind);if(!t||!t.done)continue;if(kind==='pre'&&!postDone)continue;for(const [id,r] of Object.entries(t.resp)){if(r.oral&&r.oral.has&&typeof r.oral.score!=='number'&&!r.oral.na)q.push({kid:k.id,kind,id})}}}return shuffle(q)}
+async function scoreOral(){setTop('🎧 تصحيح الإجابات الشفهية','دون معرفة البداية من النهاية','👨‍👩‍👧‍👦');const q=await oralQueue();let i=0;
+ const show=async()=>{if(i>=q.length){$('#view').innerHTML='<div class="card" style="text-align:center"><div style="font-size:48px">✅</div><p class="line">لا توجد إجابات تنتظر التصحيح.</p><p class="small">إجابات اختبار البداية تظهر هنا بعد أن ينهي الطفل الاختبار الختامي، فتُصحَّح مختلطةً بإجابات النهاية دون أن تعرف أيّها أيّ.</p><button class="b-p b-w" id="bk">⬅️ رجوع</button></div>';$('#bk').onclick=()=>go('parent');return}
+  const x=q[i],it=testItem(x.id),key='test:'+x.kid+':'+x.kind+':'+x.id;
+  $('#view').innerHTML='<div class="card"><div class="lab">تبقّى '+ar(q.length-i)+' · '+esc(CH[x.kid].n)+'</div><div class="word">'+esc(it.w)+'</div><div class="hint">المعنى المرجعي: '+esc(it.m)+'</div><button class="b-p b-w" id="opl">▶️ اسمع الإجابة</button>'
+   +'<div class="opts" style="margin-top:10px"><button class="opt" data-sc="2"><b>٢</b> — معنى صحيح، أو جملة تستعمل الكلمة استعمالًا صحيحًا واضحًا</button><button class="opt" data-sc="1"><b>١</b> — فكرة قريبة غير دقيقة، أو جملة يحتمل فيها الاستعمال الصحيح والخطأ</button><button class="opt" data-sc="0"><b>٠</b> — معنى خاطئ، أو تكرار الكلمة دون معنى</button><button class="opt" data-sc="na" style="color:var(--mut)">🔇 لا يُسمع / تسجيل فارغ</button></div></div><div class="row"><button class="b-s b-w" id="bk">⬅️ رجوع</button></div>';
+  $('#opl').onclick=()=>playKey(key);$('#bk').onclick=()=>go('parent');setTimeout(()=>playKey(key),250);
+  document.querySelectorAll('[data-sc]').forEach(b=>b.onclick=async()=>{const P=await loadProg(x.kid);const r=(tget(P,x.kind).resp[x.id]||{});r.oral=r.oral||{has:1};if(b.dataset.sc==='na')r.oral.na=1;else r.oral.score=+b.dataset.sc;r.oral.st=Date.now();await saveProg(x.kid,P);i++;show()})};
+ show()}
+
+/* ---------- تصدير البيانات الخام (CSV) ---------- */
+async function exportAssessCSV(){const rows=[['kid','lane','test','item','cond','word','rec_answer','rec_correct','rec_dont_know','rt_ms','oral_recorded','oral_dont_know','oral_score','answered_at']];
+ for(const k of KIDS){const P=await loadProg(k.id);for(const kind of ['pre','post','delay']){const t=tget(P,kind);if(!t)continue;for(const [id,r] of Object.entries(t.resp)){const it=testItem(id);const rc=r.rec||{},o=r.oral||{};rows.push([k.id,k.lane,kind,id,it.cond,it.w,rc.a||'',rc.ok??'',rc.dk??'',rc.rt??'',o.has?1:0,o.dk?1:0,typeof o.score==='number'?o.score:(o.na?'na':''),new Date(rc.t||o.t||t.t0).toISOString()])}}}
+ const csv='﻿'+rows.map(r=>r.map(v=>{const s=String(v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}).join(',')).join('\n');
+ dl(new Blob([csv],{type:'text/csv;charset=utf-8'}),'تقييم-حديقة-الأسرار-'+new Date().toISOString().slice(0,10)+'.csv')}
+
+/* ---------- سجل الاستعمال (لمعرفة ما يعود إليه الطفل فعلًا) ---------- */
+let LOGQ=Promise.resolve();
+function logView(v){const kid=S.kid;if(!kid||v==='home'||v==='parent')return;LOGQ=LOGQ.then(async()=>{const a=(await sget('kv','log:'+kid))||[];a.push([Date.now(),v]);if(a.length>5000)a.splice(0,a.length-5000);await sput('kv','log:'+kid,a)}).catch(()=>{})}
 
 /* ===================== STORY ORDER GAME ===================== */
 async function orderGame(from,to){const idxs=[];for(let i=from;i<=to;i++)idxs.push(i);const sh=shuffle(idxs);let picked=[];let wrong=0;
@@ -433,10 +562,21 @@ async function playFx(kind){const keys=(await skeys('audio')).map(String).filter
 async function exportBackup(kid){const out={kid,prog:await loadProg(kid),audio:{},draw:{}};const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
  for(const k of (await skeys('audio')).map(String)){if(k.includes(':'+kid+':')||k.endsWith(':'+kid)||k.startsWith('fx:')||k.startsWith('model:')){const r=await sget('audio',k);out.audio[k]={d:await b64(r.blob),mime:r.mime,sec:r.sec,t:r.t}}}
  for(const k of (await skeys('img')).map(String)){if(k.startsWith('draw:'+kid)||k==='photo:'+kid||k.startsWith('hunt:'+kid+':')||k==='plant:'+kid){out.draw[k]=await b64(await sget('img',k))}}
- const blob=new Blob([JSON.stringify(out)],{type:'application/json'});dl(blob,'نسخة-'+CH[kid].n+'-'+new Date().toISOString().slice(0,10)+'.json')}
-function dl(blob,name){if(window.AndroidBridge){const f=new FileReader();f.onload=()=>{window.AndroidBridge.saveFile(name,blob.type||'application/octet-stream',f.result.split(',')[1]);toast('حُفظ في مجلد التنزيلات: '+name)};f.readAsDataURL(blob);return}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},3000)}
-async function importBackup(file){const t=JSON.parse(await file.text());const toBlob=async d=>await (await fetch(d)).blob();
- await saveProg(t.kid,t.prog);for(const [k,v] of Object.entries(t.audio||{}))await sput('audio',k,{blob:await toBlob(v.d),mime:v.mime,sec:v.sec,t:v.t});for(const [k,v] of Object.entries(t.draw||{}))await sput('img',k,await toBlob(v));toast('استُعيدت بيانات '+CH[t.kid].n)}
+ out.log=(await sget('kv','log:'+kid))||[];const blob=new Blob([JSON.stringify(out)],{type:'application/json'});dl(blob,'نسخة-'+CH[kid].n+'-'+new Date().toISOString().slice(0,10)+'.json')}
+function dl(blob,name){if(window.AndroidBridge){const f=new FileReader();f.onload=()=>{window.AndroidBridge.saveFile(name,blob.type||'application/octet-stream',f.result.split(',')[1])};f.readAsDataURL(blob);return}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},3000)}
+function progStamp(p){let m=0;const u=x=>{if(typeof x==='number'&&x>m)m=x};Object.values((p&&p.doneT)||{}).forEach(u);Object.values((p&&p.results)||{}).forEach(r=>Object.values(r||{}).forEach(x=>x&&u(x.t)));Object.values((p&&p.tests)||{}).forEach(t=>{if(t){u(t.t);u(t.t0)}});return m}
+const keyMine=(k,kid)=>k.includes(':'+kid+':')||k.endsWith(':'+kid);
+function validBackup(t){if(!t||typeof t!=='object'||!KIDS.some(k=>k.id===t.kid))return false;const p=t.prog;return !!(p&&typeof p==='object'&&p.done&&typeof p.done==='object'&&p.results&&typeof p.results==='object'&&p.leitner&&typeof p.leitner==='object')}
+async function importBackup(file){let t;try{t=JSON.parse(await file.text())}catch(e){toast('الملف غير صالح');return false}
+ if(!validBackup(t)){toast('هذا ليس ملف بيانات صحيحًا من حديقة الأسرار');return false}
+ const cur=await loadProg(t.kid),a=progStamp(cur),b=progStamp(t.prog);const fd=x=>x?new Date(x).toLocaleString('ar-EG'):'—';
+ if(a>b+60e3&&!confirm('⚠️ هذا الملف أقدم من بيانات '+CH[t.kid].n+' على هذا الجهاز.\nآخر نشاط هنا: '+fd(a)+'\nآخر نشاط في الملف: '+fd(b)+'\nالاستعادة تمحو التقدّم الأحدث. متابعة؟'))return false;
+ try{const toBlob=async d=>await (await fetch(d)).blob();
+  for(const [k,v] of Object.entries(t.audio||{})){if(!v||typeof v.d!=='string'||!v.d.startsWith('data:'))continue;const shared=k.startsWith('model:')||k.startsWith('fx:');if(!shared&&!keyMine(k,t.kid))continue;if(shared&&await hasKey(k))continue;await sput('audio',k,{blob:await toBlob(v.d),mime:String(v.mime||''),sec:+v.sec||0,t:+v.t||Date.now()})}
+  for(const [k,v] of Object.entries(t.draw||{})){if(typeof v!=='string'||!v.startsWith('data:image/')||!keyMine(k,t.kid))continue;await sput('img',k,await toBlob(v))}
+  if(Array.isArray(t.log))await sput('kv','log:'+t.kid,t.log.filter(x=>Array.isArray(x)&&typeof x[0]==='number'&&typeof x[1]==='string').slice(-5000));
+  await saveProg(t.kid,t.prog)}catch(e){toast('تعذّرت الاستعادة ('+esc(e&&e.name||'')+')؛ لم تتغيّر بيانات التقدّم');return false}
+ toast('استُعيدت بيانات '+CH[t.kid].n);return true}
 
 /* ===================== BOOK EXPORT ===================== */
 async function exportBook(kid){const p=await loadProg(kid);const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
@@ -452,8 +592,8 @@ async function exportBook(kid){const p=await loadProg(kid);const b64=b=>new Prom
  dl(new Blob([html],{type:'text/html;charset=utf-8'}),'كتاب-'+CH[kid].n+'.html')}
 
 /* ===================== SESSION TIMER ===================== */
-let sessT0=Date.now();const SESS_MIN={A:5,B:8,C:12};
-function sessCheck(){if(!S.kid)return;const m=(Date.now()-sessT0)/60000;if(m>=SESS_MIN[lane()]&&!sessCheck.shown){sessCheck.shown=true;toast('⏰ مرّت '+ar(Math.round(m))+' دقائق؛ نكمل غدًا؟ (يمكنك المتابعة)')}}
+let sessT0=Date.now();const SESS_MIN={A:12,B:15,C:20};
+function sessCheck(){if(!S.kid||['scene','test','review','game'].includes(S.view))return;const m=(Date.now()-sessT0)/60000;if(m>=SESS_MIN[lane()]&&!sessCheck.shown){sessCheck.shown=true;toast('⏰ مرّت '+ar(Math.round(m))+' دقائق؛ نكمل غدًا؟ (يمكنك المتابعة)')}}
 setInterval(sessCheck,30000);
 
 
@@ -479,15 +619,15 @@ async function theaterSetup(){setTop('🎭 مسرح العائلة','من يؤد
   $('#missing').innerHTML='ينقص:<br>'+Object.entries(by).map(([w,l])=>'<b>'+CH[w].n+'</b>: '+l.join('، ')+' '+(KIDS.some(k=>k.id===w)?'<button class="b-s" data-sr="'+w+'" style="min-height:36px;padding:6px 10px">🎙️ سجّل الآن</button>':'<button class="b-s" data-pp="1" style="min-height:36px;padding:6px 10px">🎙️ من وضع ولي الأمر</button>')).join('<br>');document.querySelectorAll('[data-sr]').forEach(b=>b.onclick=()=>go('solorec',b.dataset.sr));document.querySelectorAll('[data-pp]').forEach(b=>b.onclick=()=>go('parent'))};
  $('#play').onclick=()=>{if(cfg.mode==='solo'&&!cfg.solo)return toast('اختر الطفل');window.__thA=window.__thA||new Audio();try{window.__thA.play().catch(()=>{})}catch(e){}theaterPlay(plan())};
  await wireRec($('#view'))}
-async function theaterPlay(plan){let k=0,stop=false;setTop('🎭 العرض','',"🎭");
- const show=async()=>{if(S.view!=='theater'){stop=true;stopAudio();return}if(stop)return;if(k>=plan.length){$('#view').innerHTML='<div class="card" style="text-align:center"><div style="font-size:64px">👏</div><h2 style="color:var(--g9)">انتهى العرض!</h2><button class="b-p b-w" id="again">🔁 مرة أخرى</button><button class="b-s b-w" id="bk" style="margin-top:8px">⬅️ رجوع</button></div>';playFx('applause');$('#again').onclick=()=>{k=0;show()};$('#bk').onclick=()=>go('theater');return}
+async function theaterPlay(plan){let k=0,stop=false,gen=0;setTop('🎭 العرض','',"🎭");
+ const show=async()=>{const g=++gen;const alive=()=>!stop&&g===gen&&S.view==='theater';if(S.view!=='theater'){stop=true;stopAudio();return}if(stop)return;if(k>=plan.length){$('#view').innerHTML='<div class="card" style="text-align:center"><div style="font-size:64px">👏</div><h2 style="color:var(--g9)">انتهى العرض!</h2><button class="b-p b-w" id="again">🔁 مرة أخرى</button><button class="b-s b-w" id="bk" style="margin-top:8px">⬅️ رجوع</button></div>';playFx('applause');$('#again').onclick=()=>{k=0;show()};$('#bk').onclick=()=>go('theater');return}
   const p=plan[k];const sc=SCENES[p.i];const first=k===0||plan[k-1].i!==p.i;
   $('#view').innerHTML='<div class="card">'+(await sceneImg(p.i))+'<div class="lab" style="margin-top:10px">المشهد '+ar(p.i+1)+' · '+(p.role==='narr'?'📖 الراوي':'💬 '+CH[p.role].n)+' <span style="color:var(--mut)">(بصوت '+CH[p.who].n+')</span></div><div class="who">'+(await avHtml(p.role==='narr'?p.who:p.role))+'</div><div class="txt">'+hl(p.text,sc.word)+'</div><div class="row"><button class="b-s" id="prev">⏮️</button><button class="b-s" id="pause">⏸️ إيقاف</button><button class="b-s" id="nx">⏭️</button></div></div>';
   $('#prev').onclick=()=>{k=Math.max(0,k-1);show()};$('#nx').onclick=()=>{stopAudio();k++;show()};$('#pause').onclick=()=>{stop=true;stopAudio();$('#pause').textContent='▶️ متابعة';$('#pause').onclick=()=>{stop=false;show()}};
   const r=await sget('audio',perfKey(p.who,p.i,p.part));
-  if(first)await new Promise(res=>setTimeout(res,700));
-  if(r&&canPlay(r.mime)){stopAudio();const u=URL.createObjectURL(r.blob);const a=window.__thA||(window.__thA=new Audio());curAudio=a;a.onended=()=>{URL.revokeObjectURL(u);if(!stop){k++;show()}};a.src=u;try{await a.play()}catch(e){setTimeout(()=>{if(!stop){k++;show()}},2500)}}
-  else{const tx=$('#view').querySelector('.txt');if(!tx)return;tx.insertAdjacentHTML('afterend','<div class="small" style="color:#b91c1c">لا تسجيل لهذا السطر بصوت '+CH[p.who].n+' — اقرأه الآن بصوتك</div>');setTimeout(()=>{if(!stop){k++;show()}},Math.max(3000,p.text.split(' ').length*450))}};
+  if(first)await new Promise(res=>setTimeout(res,700));if(!alive())return;
+  if(r&&canPlay(r.mime)){stopAudio();const u=URL.createObjectURL(r.blob);const a=window.__thA||(window.__thA=new Audio());curAudio=a;a.onended=()=>{URL.revokeObjectURL(u);if(alive()){k++;show()}};a.src=u;try{await a.play()}catch(e){setTimeout(()=>{if(alive()){k++;show()}},2500)}}
+  else{const tx=$('#view').querySelector('.txt');if(!tx)return;tx.insertAdjacentHTML('afterend','<div class="small" style="color:#b91c1c">لا تسجيل لهذا السطر بصوت '+CH[p.who].n+' — اقرأه الآن بصوتك</div>');setTimeout(()=>{if(alive()){k++;show()}},Math.max(3000,p.text.split(' ').length*450))}};
  show()}
 
 
@@ -510,15 +650,15 @@ async function dedication(kid){S.kid=kid;const p=await loadProg(kid);const d=p.d
 /* ===================== EXTRAS DATA ===================== */
 const EXTRA=[
  {hide:'حَدِيدِيَّةٌ',ant:{s:'ضدّ «مُورِقَة»:',o:[['عَارِيَة',1],['مُثْمِرَة',0],['عَالِيَة',0]]},pat:{s:'مُورِقَة على وزن مُفْعِلَة. ما الكلمة على الوزن نفسه من جذر ث م ر؟',o:[['مُثْمِرَة',1],['ثَمَرَة',0],['ثِمَار',0]]}},
- {hide:'يَرْسُمُ',ant:{s:'ضدّ «يَتَفَحَّصُ»:',o:[['يَتَجَاهَلُ',1],['يُدَقِّقُ',0],['يَنْظُرُ',0]]},pat:{s:'يَتَفَحَّصُ على وزن يَتَفَعَّلُ. ما الكلمة على الوزن نفسه من جذر ع ل م؟',o:[['يَتَعَلَّمُ',1],['يَعْلَمُ',0],['عَالِم',0]]}},
- {hide:'الْهُدُوءُ',ant:{s:'ضدّ «بَهْجَة»:',o:[['حُزْن',1],['فَرَح',0],['سُرُور',0]]},pat:{s:'بَهْجَة على وزن فَعْلَة. ما الكلمة على الوزن نفسه من جذر ض ح ك؟',o:[['ضَحْكَة',1],['ضَاحِك',0],['يَضْحَكُ',0]]}},
+ {hide:'يَأْكُلُ',ant:{s:'ضدّ «يَتَفَحَّصُ»:',o:[['يَتَجَاهَلُ',1],['يُدَقِّقُ',0],['يَنْظُرُ',0]]},pat:{s:'يَتَفَحَّصُ على وزن يَتَفَعَّلُ. ما الكلمة على الوزن نفسه من جذر ع ل م؟',o:[['يَتَعَلَّمُ',1],['يَعْلَمُ',0],['عَالِم',0]]}},
+ {hide:'الْكَآبَةُ',ant:{s:'ضدّ «بَهْجَة»:',o:[['حُزْن',1],['فَرَح',0],['سُرُور',0]]},pat:{s:'بَهْجَة على وزن فَعْلَة. ما الكلمة على الوزن نفسه من جذر ض ح ك؟',o:[['ضَحْكَة',1],['ضَاحِك',0],['يَضْحَكُ',0]]}},
  {hide:'قَاعِ',ant:{s:'ضدّ «ضِفَاف»:',o:[['وَسَط النَّهْر',1],['جَوَانِب النَّهْر',0],['شَاطِئ',0]]},pat:{s:'ضِفَاف جمع ضِفَّة على وزن فِعَال. ما جمع «جَبَل» على الوزن نفسه؟',o:[['جِبَال',1],['جَبَلَان',0],['جُبَيْل',0]]}},
- {hide:'سَاحَةٍ',ant:{s:'ضدّ «مَتَاهَة»:',o:[['طَرِيق مُسْتَقِيم',1],['مَمَرَّات مُتَشَابِكَة',0],['غَابَة',0]]},pat:{s:'مَتَاهَة على وزن مَفْعَلَة. ما الكلمة على الوزن نفسه من جذر د ر س؟',o:[['مَدْرَسَة',1],['دَارِس',0],['دُرُوس',0]]}},
+ {hide:'سَفِينَةٍ',ant:{s:'ضدّ «مَتَاهَة»:',o:[['طَرِيق مُسْتَقِيم',1],['مَمَرَّات مُتَشَابِكَة',0],['غَابَة',0]]},pat:{s:'مَتَاهَة على وزن مَفْعَلَة. ما الكلمة على الوزن نفسه من جذر د ر س؟',o:[['مَدْرَسَة',1],['دَارِس',0],['دُرُوس',0]]}},
  {hide:'صَغِيرَةٍ',ant:{s:'ضدّ «عِمْلَاقَة»:',o:[['صَغِيرَة جِدًّا',1],['ضَخْمَة',0],['طَوِيلَة',0]]},pat:{s:'عِمْلَاق جمعه عَمَالِقَة. ما جمع «تِلْمِيذ» على الوزن نفسه؟',o:[['تَلَامِذَة',1],['تِلْمِيذَان',0],['تَلْمَذَة',0]]}},
  {hide:'طَائِرًا',ant:{s:'ضدّ «عَتِيق»:',o:[['جَدِيد',1],['قَدِيم',0],['ثَمِين',0]]},pat:{s:'عَتِيق على وزن فَعِيل. ما الكلمة على الوزن نفسه من جذر ك ب ر؟',o:[['كَبِير',1],['أَكْبَر',0],['كِبَار',0]]}},
  {hide:'مُبَلَّلَةً',ant:{s:'ضدّ «مَحْفُوظَة»:',o:[['ضَائِعَة',1],['مَصُونَة',0],['مُغْلَقَة',0]]},pat:{s:'مَحْفُوظَة على وزن مَفْعُولَة. ما الكلمة على الوزن نفسه من جذر ك ت ب؟',o:[['مَكْتُوبَة',1],['كَاتِبَة',0],['كِتَابَة',0]]}},
  {hide:'تَبْكِي',ant:{s:'ضدّ «تَتَأَلَّقُ»:',o:[['تَنْطَفِئُ',1],['تَلْمَعُ',0],['تُضِيءُ',0]]},pat:{s:'تَتَأَلَّقُ على وزن تَتَفَعَّلُ. ما الكلمة على الوزن نفسه من جذر ك ل م؟',o:[['تَتَكَلَّمُ',1],['تَكَلُّم',0],['كَلِمَة',0]]}},
- {hide:'بِدَايَةِ',ant:{s:'ضدّ «خَاتِمَة»:',o:[['مُقَدِّمَة',1],['نِهَايَة',0],['خِتَام',0]]},pat:{s:'خَاتِمَة على وزن فَاعِلَة. ما الكلمة على الوزن نفسه من جذر ف ك ه؟',o:[['فَاكِهَة',1],['فَوَاكِه',0],['تَفَكُّه',0]]}}
+ {hide:'مِلْعَقَةِ',ant:{s:'ضدّ «خَاتِمَة»:',o:[['مُقَدِّمَة',1],['نِهَايَة',0],['خِتَام',0]]},pat:{s:'خَاتِمَة على وزن فَاعِلَة. ما الكلمة على الوزن نفسه من جذر ف ك ه؟',o:[['فَاكِهَة',1],['فَوَاكِه',0],['تَفَكُّه',0]]}}
 ];
 const SABER_MSG_AFTER=[1,3,5,7,9]; // scene indexes (0-based) after which a message unlocks
 
@@ -560,10 +700,10 @@ function firstUndone(kind){const g=(S.prog.games||{})[kind]||{};return Object.ke
 
 /* --- 5 hidden word --- */
 async function gHide(){const i=firstUndone('hide');if(i===undefined)return gameDone('أكملت كل الكلمات المختبئة!');const sc=SCENES[i],sub=EXTRA[i].hide;
- const words=sc.narr.split(' ');const w=strip(sc.word).replace(/^ال/,'');const ti=words.findIndex(x=>strip(x).includes(w));const shown=words.slice();shown[ti]=sub;
+ const words=sc.narr.split(' ');const w=strip(sc.word).replace(/^ال/,'');const ti=words.findIndex(x=>strip(x).includes(w));const shown=words.slice();const pm=words[ti].match(/[.,،؛:!؟»«"]+$/);shown[ti]=sub+(pm?pm[0]:'');
  setTop('🔍 الكلمة المختبئة','المشهد '+ar(i+1),await avInner(S.kid));
  $('#view').innerHTML='<div class="card">'+(await sceneImg(i))+'<div class="hint">في هذه الجملة كلمة دخيلة حلّت مكان كلمة القصة. اضغطها!</div><div class="wtap" id="wt">'+shown.map((x,j)=>'<span data-j="'+j+'">'+esc(x)+'</span>').join('')+'</div><div class="fb" id="f"></div></div>';
- let a=0;document.querySelectorAll('#wt span').forEach(s=>s.onclick=async()=>{a++;if(+s.dataset.j===ti){s.style.background='var(--g1)';s.textContent=sc.word;$('#f').textContent=a===1?'🌟 وجدتها من أول مرة! الكلمة الصحيحة: '+sc.word:'🌿 صحيح. الكلمة: '+sc.word;recordResult(sc.word,'hide',a);await markG('hide',i);setTimeout(()=>go('game','hide'),1800)}else{s.classList.add('err');$('#f').textContent=a>=2?'تلميح: الكلمة التي تعلمتها في هذا المشهد هي «'+sc.word+'»':'ليست هذه؛ أي كلمة لا تناسب القصة؟'}})}
+ let a=0;let solved=false;document.querySelectorAll('#wt span').forEach(s=>s.onclick=async()=>{if(solved)return;a++;if(+s.dataset.j===ti){solved=true;s.style.background='var(--g1)';s.textContent=sc.word;$('#f').textContent=a===1?'🌟 وجدتها من أول مرة! الكلمة الصحيحة: '+sc.word:'🌿 صحيح. الكلمة: '+sc.word;recordResult(sc.word,'hide',a);await markG('hide',i);later(()=>go('game','hide'),1800)}else{s.classList.add('err');$('#f').textContent=a>=2?'تلميح: الكلمة التي تعلمتها في هذا المشهد هي «'+sc.word+'»':'ليست هذه؛ أي كلمة لا تناسب القصة؟'}})}
 
 /* --- 8 antonym, 9 pattern --- */
 async function gQuiz(kind,title,qf){const i=firstUndone(kind);if(i===undefined)return gameDone('أكملت كل الأسئلة!');const sc=SCENES[i];const q=quizHtml('qx',qf(i));setTop(title,'المشهد '+ar(i+1),await avInner(S.kid));
@@ -577,8 +717,8 @@ async function gFast(){const done=Object.keys(S.prog.done).map(Number);let round
   const i=done[Math.floor(Math.random()*done.length)];const sc=SCENES[i];const kn='k'+String(i+1).padStart(2,'0');const url=await panUrl(kn);const other=1+Math.floor(Math.random()*2);const pair=shuffle([0,other]);
   setTop('📦 صندوق الأسرار السريع',ar(round+1)+'/'+ar(N),await avInner(S.kid));
   $('#view').innerHTML='<div class="card"><div class="word">'+esc(sc.word)+'</div>'+(await hasKey('model:s'+i+':word')?'<button class="b-p b-w" data-pl="model:s'+i+':word">🔊</button>':'')+'<div class="kgrid" style="grid-template-columns:1fr 1fr" id="kg">'+pair.map(p=>'<button data-p="'+p+'">'+(url?'<div class="pan" style="background-image:url('+url+');'+panStyle(kn,p)+'"></div>':'<div class="ph2">'+sc.k.ph[p]+'</div>')+'</button>').join('')+'</div><div class="steps"><span class="on" id="tbar"></span></div></div>';
-  document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>playKey(b.dataset.pl));let done2=false;const t0=Date.now();const tm=setInterval(()=>{const r=1-(Date.now()-t0)/3000;$('#tbar').style.flex=Math.max(0,r);if(r<=0){clearInterval(tm);if(!done2){done2=true;round++;run()}}},100);
-  document.querySelectorAll('#kg button').forEach(b=>b.onclick=()=>{if(done2)return;done2=true;clearInterval(tm);if(+b.dataset.p===0){score++;b.classList.add('ok');playFx('ok')}else b.classList.add('no');round++;setTimeout(run,600)})};
+  document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>playKey(b.dataset.pl));let done2=false;const t0=Date.now(),v0=VT;const tm=setInterval(()=>{if(v0!==VT){clearInterval(tm);return}const r=1-(Date.now()-t0)/3000;$('#tbar').style.flex=Math.max(0,r);if(r<=0){clearInterval(tm);if(!done2){done2=true;round++;run()}}},100);
+  document.querySelectorAll('#kg button').forEach(b=>b.onclick=()=>{if(done2)return;done2=true;clearInterval(tm);if(+b.dataset.p===0){score++;b.classList.add('ok');playFx('ok')}else b.classList.add('no');round++;later(run,600)})};
  run()}
 
 /* --- 11 what comes next (Kareem) --- */
@@ -587,7 +727,7 @@ async function gNextPic(){const done=Object.keys(S.prog.done).map(Number).filter
  const img=async n=>{const u=await imgSrc('scene'+String(n+1).padStart(2,'0'));return u?'<img src="'+u+'" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px;display:block">':'<div class="ph">'+ar(n+1)+'</div>'};
  setTop('🖼️ ماذا يحدث بعد؟','',await avInner(S.kid));let tiles='';for(const n of opts)tiles+='<button data-n="'+n+'" style="padding:0;border:3px solid var(--line);border-radius:14px;overflow:hidden">'+(await img(n))+'</button>';
  $('#view').innerHTML='<div class="card"><div class="lab">هذا المشهد…</div>'+(await img(i))+'<div class="lab" style="margin-top:12px">ماذا حدث بعده؟</div><div style="display:grid;gap:10px">'+tiles+'</div><div class="fb" id="f"></div></div>';
- let a=0;document.querySelectorAll('[data-n]').forEach(b=>b.onclick=async()=>{a++;if(+b.dataset.n===i+1){b.style.borderColor='var(--g7)';playFx('ok');S.prog.nextpic=S.prog.nextpic||[];S.prog.nextpic.push({i,a});await saveProg(S.kid,S.prog);setTimeout(()=>gameDone('صحيح! هكذا تتابع القصة'),900)}else{b.style.borderColor='#fca5a5';b.disabled=true;$('#f').textContent='فكّر: ماذا فعلت العائلة بعد ذلك؟'}})}
+ let a=0,solved=false;document.querySelectorAll('[data-n]').forEach(b=>b.onclick=async()=>{if(solved)return;a++;if(+b.dataset.n===i+1){solved=true;b.style.borderColor='var(--g7)';playFx('ok');S.prog.nextpic=S.prog.nextpic||[];S.prog.nextpic.push({i,a});await saveProg(S.kid,S.prog);later(()=>gameDone('صحيح! هكذا تتابع القصة'),900)}else{b.style.borderColor='#fca5a5';b.disabled=true;$('#f').textContent='فكّر: ماذا فعلت العائلة بعد ذلك؟'}})}
 
 /* --- 6 blind narrator --- */
 async function gBlind(){const i=firstUndone('blind');if(i===undefined)return gameDone('رويتَ كل المشاهد!');const sc=SCENES[i];const key='blind:'+S.kid+':s'+i;setTop('🙈 الراوي الأعمى','المشهد '+ar(i+1),await avInner(S.kid));
@@ -624,7 +764,7 @@ async function gSaber(){const done=Object.keys(S.prog.done).map(Number);const av
 /* --- 14 ask parent --- */
 async function gAsk(){const asks=S.prog.asks=S.prog.asks||[];setTop('❓ سؤال لبابا وماما','',await avInner(S.kid));
  let html='<div class="card"><div class="hint">عندك سؤال عن كلمة أو عن القصة؟ سجّله، وسيجيبك بابا أو ماما بصوتهما.</div></div>'+recBlock('ask:new:'+S.kid,'🎙️ سؤالي','')+'<div class="row"><button class="b-p b-w" id="send">📨 إرسال</button></div>';
- html+=asks.slice().reverse().map(a=>'<div class="card"><div class="small">'+new Date(a.t).toLocaleDateString('ar-EG')+'</div><button class="b-s" data-pl="ask:'+S.kid+':'+a.id+'">🔊 سؤالي</button> '+(a.answered?'<button class="b-p" data-ans="'+a.id+'">🔊 الجواب'+(a.heard?'':' 🔔')+'</button>':'<span class="small">بانتظار الجواب</span>')+'</div>').join('');
+ html+=asks.slice().reverse().map(a=>'<div class="card"><div class="small">'+new Date(a.t).toLocaleDateString('ar-EG')+'</div><button class="b-s" data-pl="ask:'+S.kid+':'+a.id+'">🔊 سؤالي</button> '+(a.answered?'<button class="b-p" data-ans="'+esc(a.id)+'">🔊 الجواب'+(a.heard?'':' 🔔')+'</button>':'<span class="small">بانتظار الجواب</span>')+'</div>').join('');
  $('#view').innerHTML=html+'<div class="row"><button class="b-s b-w" id="bk">⬅️ رجوع</button></div>';$('#bk').onclick=()=>go('games');await wireRec($('#view'));document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>playKey(b.dataset.pl));
  document.querySelectorAll('[data-ans]').forEach(b=>b.onclick=async()=>{const a=asks.find(x=>x.id===b.dataset.ans);a.heard=1;await saveProg(S.kid,S.prog);playKey('ans:'+S.kid+':'+a.id)});
  $('#send').onclick=async()=>{const r=await sget('audio','ask:new:'+S.kid);if(!r)return toast('سجّل سؤالك أولًا');const id=Date.now().toString(36);await sput('audio','ask:'+S.kid+':'+id,r);await sdel('audio','ask:new:'+S.kid);asks.push({id,t:Date.now()});await saveProg(S.kid,S.prog);toast('أُرسل');gAsk()}}
@@ -662,7 +802,7 @@ async function parentInbox(){setTop('📬 صندوق ولي الأمر','أسئ�
 async function wordLog(kid,w){const p=await loadProg(kid);const i=SCENES.findIndex(s=>s.word===w);const r=p.results[w]||{},l=p.leitner[w]||{},T=p.tests||{};setTop('سجل «'+w+'»',CH[kid].n,await avInner(kid));
  const row=(k,v)=>'<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0"><span>'+k+'</span><b>'+v+'</b></div>';
  const names={q1:'سؤال المعنى',q2:'الإكمال',pic:'الصورة',root:'الجذر',family:'عائلة الكلمة',conj:'التصريف',hide:'المختبئة',ant:'الضد',pat:'الوزن',blind:'الراوي الأعمى',chal:'تحدي الأخوة'};
- let html='<div class="card">'+row('الاختبار الأول',T.pre?(T.pre.detail[w]?'✅':'❌'):'—')+row('بعد أسبوعين',T.post?(T.post.detail[w]?'✅':'❌'):'—')+row('الصندوق',l.box?ar(l.box)+' (مراجعة '+(l.due-today()<=0?'اليوم':'بعد '+ar(l.due-today())+' يوم')+')':'—')+Object.keys(r).filter(k=>names[k]).map(k=>row(names[k],r[k].first?'⭐ من أول مرة':'بعد '+ar(r[k].attempts)+' محاولات')).join('')+Object.keys(r).filter(k=>k.startsWith('rev')).map(k=>row('مراجعة '+new Date(r[k].t).toLocaleDateString('ar-EG'),r[k].first?'✅':'❌')).join('')+'</div>';
+ let html='<div class="card">'+['pre','post','delay'].map(kd=>{const t=tget(p,kd);const rr=t&&i>=0?(t.resp['t'+i]||{}).rec:null;return row(TKIND[kd],rr?(rr.ok?'✅':rr.dk?'🤷 لا أعرف':'❌'):'—')}).join('')+row('الصندوق',l.box?ar(l.box)+' (مراجعة '+(l.due-today()<=0?'اليوم':'بعد '+ar(l.due-today())+' يوم')+')':'—')+Object.keys(r).filter(k=>names[k]).map(k=>row(names[k],r[k].first?'⭐ من أول مرة':'بعد '+ar(r[k].attempts)+' محاولات')).join('')+Object.keys(r).filter(k=>k.startsWith('rev')).map(k=>row('مراجعة '+new Date(r[k].t).toLocaleDateString('ar-EG'),r[k].first?'✅':'❌')).join('')+'</div>';
  const fr=await sget('audio','free:'+kid+':s'+i);const hu=await imgTag('hunt:'+kid+':'+i,'img');const ha=await hasKey('hunt:'+kid+':'+i);
  html+='<div class="card">'+(fr?'<button class="b-s" data-pl="free:'+kid+':s'+i+'">🔊 الجملة الحرة</button> ':'')+(ha?'<button class="b-s" data-pl="hunt:'+kid+':'+i+'">🔊 جملة البيت</button>':'')+(hu||'')+'</div>';
  $('#view').innerHTML=html+'<div class="row"><button class="b-s b-w" id="bk">⬅️ رجوع</button></div>';$('#bk').onclick=()=>go('parent');document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>playKey(b.dataset.pl))}
@@ -681,18 +821,23 @@ function confetti(n){const box=document.createElement('div');box.className='cf';
 
 /* --- نافذة منبثقة وبوابة ولي الأمر (بلا لوحة مفاتيح؛ تعمل في أندرويد وويندوز) --- */
 function modal(html,btns){return new Promise(res=>{const o=document.createElement('div');o.className='mdl ovl';o.innerHTML='<div class="mdl-c">'+html+'<div class="row" style="justify-content:center"></div></div>';const b=o.querySelector('.row');(btns||[{t:'حسنًا',v:true}]).forEach(x=>{const e=document.createElement('button');e.className=x.c||'b-p';e.innerHTML=x.t;e.onclick=()=>{o.remove();res(x.v)};b.appendChild(e)});o.addEventListener('click',e=>{if(e.target===o){o.remove();res(null)}});document.body.appendChild(o)})}
-async function parentGate(){const a=6+Math.floor(Math.random()*4),b=6+Math.floor(Math.random()*4),c=a*b;const opts=shuffle([c,c+a,c-b,c+2]);return (await modal('<div class="lab">سؤال لولي الأمر</div><div class="word">'+ar(a)+' × '+ar(b)+' = ؟</div>',opts.map(x=>({t:ar(x),v:x===c,c:'b-s'}))))===true}
+function pinPad(pin){return new Promise(res=>{const o=document.createElement('div');o.className='mdl ovl';let v='';o.innerHTML='<div class="mdl-c"><div class="lab">🔒 رمز ولي الأمر</div><div class="word" id="pinv" style="letter-spacing:.35em">····</div><div class="pinpad">'+['1','2','3','4','5','6','7','8','9','x','0','b'].map(x=>'<button class="b-s" data-pk="'+x+'">'+(x==='x'?'✕':x==='b'?'⌫':ar(x))+'</button>').join('')+'</div></div>';
+ const upd=()=>{o.querySelector('#pinv').textContent='●'.repeat(v.length)+'·'.repeat(4-v.length)};
+ o.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{const k=b.dataset.pk;if(k==='x'){o.remove();return res(false)}if(k==='b'){v=v.slice(0,-1);return upd()}v+=k;upd();if(v.length===4){o.remove();res(v===pin)}});document.body.appendChild(o)})}
+async function parentGate(){if((parentGate.lock||0)>Date.now()){toast('انتظر قليلًا ثم حاول مجددًا');return false}const pin=await sget('kv','pin');let ok;
+ if(pin)ok=await pinPad(pin);else{const a=12+Math.floor(Math.random()*8),b=3+Math.floor(Math.random()*7),c=a*b;const opts=shuffle([c,c+a,c-b,c+10]);ok=(await modal('<div class="lab">سؤال لولي الأمر</div><div class="word">'+ar(a)+' × '+ar(b)+' = ؟</div><p class="small">لحماية أفضل: عيّن رمزًا سريًا من وضع ولي الأمر.</p>',opts.map(x=>({t:ar(x),v:x===c,c:'b-s'}))))===true}
+ if(!ok)parentGate.lock=Date.now()+30000;return ok}
 
 /* --- الصور: تحويل المضمَّن إلى رابط خفيف مرة واحدة --- */
 const IMGC={};
-async function imgSrc(name){const b=await sget('img',name);if(b)return URL.createObjectURL(b);if(IMGC[name]!==undefined)return IMGC[name];let u=null;const a=document.getElementById('assets');if(a){const m=window.__ASSETS||(window.__ASSETS=JSON.parse(a.textContent));if(m[name]){try{u=URL.createObjectURL(await (await fetch(m[name])).blob())}catch(e){u=m[name]}}}IMGC[name]=u;return u}
+const IMGB={};async function imgSrc(name){const b=await sget('img',name);if(b)return IMGB[name]||(IMGB[name]=URL.createObjectURL(b));if(IMGC[name]!==undefined)return IMGC[name];let u=null;const a=document.getElementById('assets');if(a){const m=window.__ASSETS||(window.__ASSETS=JSON.parse(a.textContent));if(m[name]){try{u=URL.createObjectURL(await (await fetch(m[name])).blob())}catch(e){u=m[name]}}}IMGC[name]=u;return u}
 async function imgDataURL(name){const b=await sget('img',name);if(b)return await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});const a=document.getElementById('assets');if(a){const m=window.__ASSETS||(window.__ASSETS=JSON.parse(a.textContent));return m[name]||null}return null}
 
 /* ===================== الكلمات الإضافية (المسار الأكبر) ===================== */
 const BONUS=[
  [['أَحَاطَتْ','كانت حوله من كل جانب'],['تَتَمَايَلُ','تميل يمينًا ويسارًا بلطف']],
  [['بِحَذَرٍ','بانتباه شديد خوفًا من الخطر'],['آثَار','علامات يتركها شيء مرّ من المكان']],
- [['الْتَقَطَتْ','أخذت الشيء عن الأرض بيدها'],['الْمَمَرّ','طريق يُمشى فيه']],
+ [['الْتَقَطَتْ','أخذت الشيء من الأرض بيدها'],['الْمَمَرّ','طريق يُمشى فيه']],
  [['لَمَحَ','رأى الشيء بنظرة سريعة'],['الْأَعْشَاب','نباتات خضراء صغيرة تنبت على الأرض']],
  [['الْمُتَشَابِكَة','المتداخل بعضها في بعض'],['تَتَفَرَّعُ','تنقسم إلى طرق كثيرة']],
  [['السَّاحَة','مكان واسع مكشوف'],['تُلَامِسُ','تمسّ الشيء برفق']],
@@ -740,27 +885,28 @@ async function wotdBanner(P,kid){const w=await wotdWord(P);if(!w)return '';const
 /* ===================== الصفحة الرئيسية للطفل ===================== */
 async function kidHome(kid){S.kid=kid;S.prog=await loadProg(kid);sessT0=Date.now();sessCheck.shown=false;const k=KIDS.find(x=>x.id===kid);setTop(CH[kid].n,'مسار '+ar(k.age)+' سنوات',await avInner(kid));
  const P=S.prog,T=P.tests||{},L=k.lane;const on=(id,f)=>{const e=$('#'+id);if(e)e.onclick=f};
- const restore=inp=>inp.onchange=async e=>{const f=e.target.files[0];if(!f)return;let t;try{t=JSON.parse(await f.text())}catch(x){return toast('الملف غير صالح')}if(t.kid!==kid)return toast('هذا ملف '+(CH[t.kid]?CH[t.kid].n:'طفل آخر')+' وليس ملفك');if(T.pre&&!confirm('سيُستبدل ما على هذا الجهاز ببيانات الملف. متابعة؟'))return;await importBackup(f);go('kid',kid)};
- if(!T.pre){$('#view').innerHTML='<div class="card" style="text-align:center"><div style="font-size:56px">🌱</div><h2 style="color:var(--g9)">قبل أن نبدأ المغامرة</h2><p class="line">عشرة أسئلة سريعة. لا بأس إن لم '+G(kid,'تعرف','تعرفي')+'؛ هذا ليس امتحانًا، بل لنعرف من أين نبدأ.</p><button class="b-p b-w" id="pre">ابدأ</button><button class="b-s b-w" id="preSkip" style="margin-top:8px">لاحقًا (يختار ولي الأمر)</button><button class="b-s b-w" id="preRsBtn" style="margin-top:8px">📂 عندي ملف بياناتي من جهاز آخر</button><input type="file" id="preRs" accept="application/json" style="display:none"></div>';
-  on('preRsBtn',()=>$('#preRs').click());restore($('#preRs'));on('pre',()=>go('test','pre'));on('preSkip',async()=>{if(!confirm('بلا اختبار بداية لن نعرف مقدار التحسن. تخطّي؟'))return;P.tests={pre:{score:null,skipped:1,t:Date.now(),detail:{}}};await saveProg(kid,P);go('kid',kid)});return}
- const allDone=Object.keys(P.done).length>=SCENES.length;const lastDone=Math.max(0,...Object.values(P.doneT||{}));const postDue=allDone&&!T.post&&(Date.now()-lastDone)>=14*864e5;const postWait=allDone&&!T.post&&!postDue?Math.ceil((14*864e5-(Date.now()-lastDone))/864e5):0;
- const due=dueList(P,L).length;const nx=[...Array(SCENES.length).keys()].find(i=>!P.done[i]);const mid=P.step>0&&!P.done[P.scene];const cur=mid?P.scene:nx;
+ const restore=inp=>inp.onchange=async e=>{const f=e.target.files[0];if(!f)return;let t;try{t=JSON.parse(await f.text())}catch(x){return toast('الملف غير صالح')}if(t.kid!==kid)return toast('هذا ملف '+(CH[t.kid]?CH[t.kid].n:'طفل آخر')+' وليس ملفك');if(T.pre&&!confirm('سيُستبدل ما على هذا الجهاز ببيانات الملف. متابعة؟'))return;if(await importBackup(f))go('kid',kid)};
+ if(!preSatisfied(P)){const tp=tget(P,'pre');$('#view').innerHTML='<div class="card" style="text-align:center"><div style="font-size:56px">🌱</div><h2 style="color:var(--g9)">قبل أن نبدأ المغامرة</h2><p class="line">'+G(kid,'سنسألك','سنسألكِ')+' عن بعض الكلمات. لا بأس إن لم '+G(kid,'تعرف','تعرفي')+'؛ '+G(kid,'اضغط','اضغطي')+' «لا أعرف» بلا خوف. هذا ليس امتحانًا، بل لنعرف من أين نبدأ.</p>'+(L==='A'?'<p class="small">ولي الأمر يجلس معه ويقرأ له. يمكن تقسيمه على جلستين.</p>':'')+'<button class="b-p b-w" id="pre">'+(tp&&!tp.done&&tp.k?'أكمل ('+ar(tp.k)+' من '+ar(testPlan(kid,'pre').length)+')':'ابدأ')+'</button><button class="b-s b-w" id="preSkip" style="margin-top:8px">لاحقًا (يختار ولي الأمر)</button><button class="b-s b-w" id="preRsBtn" style="margin-top:8px">📂 عندي ملف بياناتي من جهاز آخر</button><input type="file" id="preRs" accept=".json,application/json,application/octet-stream,text/plain" style="display:none"></div>';
+  on('preRsBtn',()=>$('#preRs').click());restore($('#preRs'));on('pre',()=>go('test','pre'));on('preSkip',async()=>{if(!(await parentGate()))return toast('هذا القرار لولي الأمر');if(!confirm('بلا اختبار بداية لن نعرف مقدار التحسن. تخطّي؟'))return;P.tests=P.tests||{};P.tests.pre={v:2,skipped:1,t:Date.now(),resp:{}};await saveProg(kid,P);go('kid',kid)});return}
+ const allDone=Object.keys(P.done).length>=SCENES.length;const lastDone=Math.max(0,...Object.values(P.doneT||{}));const postDue=allDone&&!tDone(P,'post')&&today()>dayOf(lastDone);const postWait=allDone&&!tDone(P,'post')&&!postDue;const tpo=tget(P,'post');const dly=tDone(P,'post')&&!tDone(P,'delay')?Math.max(0,DELAY_DAYS-(today()-dayOf(tpo.t))):-1;
+ const due=dueList(P,L).length;const nx=[...Array(SCENES.length).keys()].find(i=>!P.done[i]);const mid=P.step>0&&!P.done[P.scene];const cur=mid?P.scene:nx;const locked=!mid&&cur!==undefined&&P.lastNew===today()&&P.extraDay!==today();
  const W=await wotdBanner(P,kid);
  let cont;if(cur===undefined)cont='<div class="card" style="text-align:center;font-size:1.2rem">🌳 '+G(kid,'أنهيتَ','أنهيتِ')+' القصة كلها!</div>';
+ else if(locked)cont='<div class="card" style="text-align:center"><button class="b-s b-w" data-s="'+cur+'" style="font-size:1.15rem;min-height:64px">🌙 المشهد '+ar(cur+1)+' غدًا — الحديقة تكبر في الليل</button></div>';
  else if(L==='A')cont='<div class="card" style="padding:0;overflow:hidden"><button class="b-p b-w" data-s="'+cur+'" style="border-radius:0;padding:0;display:block">'+(await sceneImg(cur))+'<div style="padding:16px;font-size:1.4rem">▶️ '+(mid?'نكمل':'نبدأ')+' المشهد '+ar(cur+1)+'</div></button></div>';
  else cont='<div class="card"><button class="b-p b-w" data-s="'+cur+'" style="font-size:1.25rem;min-height:64px">▶️ '+(mid?G(kid,'تابع','تابعي'):G(kid,'ابدأ','ابدئي'))+' المشهد '+ar(cur+1)+' — '+esc(SCENES[cur].word)+'</button>'+(mid?'<button class="b-s b-w" data-rs="'+cur+'" style="margin-top:8px;min-height:40px;font-size:.9rem">🔁 من بداية المشهد</button>':'')+'</div>';
  const rev=due?'<div class="card"><button class="b-a b-w" id="revBtn" style="font-size:1.2rem;min-height:60px">💧 '+G(kid,'اسقِ','اسقي')+' حديقتك ('+ar(due)+')</button></div>':'';
- const post=postDue?'<div class="card"><div class="lab">🌳 بعد أسبوعين</div><button class="b-a b-w" id="postBtn">اختبار الكلمات العشر</button></div>':postWait?'<div class="card small">اختبار ما بعد أسبوعين بعد '+ar(postWait)+' يوم</div>':'';
+ const tdl=tget(P,'delay');const post=postDue?'<div class="card"><div class="lab">🌳 '+G(kid,'أنهيتَ','أنهيتِ')+' القصة!</div><button class="b-a b-w" id="postBtn">'+(tpo&&tpo.k?'أكمل الاختبار الختامي':'الاختبار الختامي')+'</button></div>':postWait?'<div class="card small">🌳 الاختبار الختامي غدًا</div>':dly===0?'<div class="card"><div class="lab">🌟 مرّ أسبوعان</div><button class="b-a b-w" id="delayBtn">'+(tdl&&tdl.k?'أكمل اختبار التذكّر':'اختبار التذكّر')+'</button></div>':dly>0?'<div class="card small">🌟 اختبار التذكّر بعد '+ar(dly)+' يوم</div>':'';
  const acts='<div class="acts">'+[['gmBtn','🎮','ألعابي'],['bedBtn','🌙','حكاية النوم'],['scBtn','📜','اللفافة'],['dedBtn','🎁','إهدائي']].map(([id,e,t])=>'<button id="'+id+'"><b>'+e+'</b>'+t+'</button>').join('')+'</div>';
  const ord=((P.done[4]&&!(P.order||{})['0-4'])?'<div class="card"><button class="b-a b-w" data-og="0,4">🧩 رتّب المشاهد ١–٥</button></div>':'')+((P.done[9]&&!(P.order||{})['5-9'])?'<div class="card"><button class="b-a b-w" data-og="5,9">🧩 رتّب المشاهد ٦–١٠</button></div>':'');
- const bag='<details class="card" id="bag"><summary style="cursor:pointer;font-weight:900;color:var(--mut)">📦 حقيبتي (للانتقال بين الأجهزة)</summary><div class="row"><button class="b-s" id="myBk">💾 خذ بياناتي معي</button><button class="b-s" id="myRsBtn">📂 أعد بياناتي هنا</button></div><input type="file" id="myRs" accept="application/json" style="display:none"><p class="small" style="margin:8px 0 0">بياناتك فقط؛ لا تمسّ إخوتك.</p></details>';
+ const bag='<details class="card" id="bag"><summary style="cursor:pointer;font-weight:900;color:var(--mut)">📦 حقيبتي (للانتقال بين الأجهزة)</summary><div class="row"><button class="b-s" id="myBk">💾 خذ بياناتي معي</button><button class="b-s" id="myRsBtn">📂 أعد بياناتي هنا</button></div><input type="file" id="myRs" accept=".json,application/json,application/octet-stream,text/plain" style="display:none"><p class="small" style="margin:8px 0 0">بياناتك فقط؛ لا تمسّ إخوتك.</p></details>';
  const map=await mapPanel(P,cur);
  const bonus=L==='C'&&Object.keys(P.bonus||{}).length?'<div class="small" style="text-align:center;margin:-6px 0 12px">🔎 كلماتي الإضافية: '+ar(Object.keys(P.bonus).length)+'</div>':'';
  $('#view').innerHTML=L==='A'?W+cont+rev+wordsPanel()+acts+'<details class="card" id="more"><summary style="cursor:pointer;font-weight:900;color:var(--mut)">⋯ المزيد</summary>'+post+map+ord+bag+'</details>':W+post+cont+rev+wordsPanel()+bonus+acts+map+ord+bag;
- document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const i=+b.dataset.s;if(P.scene!==i||P.done[i])P.step=0;P.scene=i;go('scene')});
+ document.querySelectorAll('[data-s]').forEach(b=>b.onclick=async()=>{const i=+b.dataset.s;if(locked&&i===cur&&!P.done[i]){const v=await modal('<div style="font-size:48px">🌙</div><div class="line">مشهد جديد واحد كل يوم يجعل الكلمات تثبت في الذاكرة. '+G(kid,'اسقِ','اسقي')+' حديقتك أو '+G(kid,'العب','العبي')+'، ونلتقي بالمشهد '+ar(i+1)+' غدًا!</div>',[{t:'حسنًا',v:0},{t:'👨‍👩‍👦 ولي الأمر: افتحه اليوم',v:1,c:'b-s'}]);if(v===1&&await parentGate()){P.extraDay=today();await saveProg(kid,P);go('kid',kid)}return}if(P.scene!==i||P.done[i])P.step=0;P.scene=i;go('scene')});
  document.querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>{P.scene=+b.dataset.rs;P.step=0;go('scene')});
  document.querySelectorAll('[data-og]').forEach(b=>b.onclick=()=>go('order',b.dataset.og.split(',').map(Number)));
- on('revBtn',()=>go('review'));on('postBtn',()=>go('test','post'));on('dedBtn',()=>go('ded',kid));on('gmBtn',()=>go('games'));on('bedBtn',()=>go('bedtime'));on('scBtn',()=>go('scroll'));
+ on('revBtn',()=>go('review'));on('postBtn',()=>go('test','post'));on('delayBtn',()=>go('test','delay'));on('dedBtn',()=>go('ded',kid));on('gmBtn',()=>go('games'));on('bedBtn',()=>go('bedtime'));on('scBtn',()=>go('scroll'));
  on('myBk',()=>exportBackup(kid));on('myRsBtn',()=>$('#myRs').click());restore($('#myRs'));
  on('wotdPlay',()=>playKey('model:s'+$('#wotdPlay').dataset.i+':word'));
  on('wotdStar',async()=>{if(!(await parentGate()))return toast('الإجابة غير صحيحة');const w=await wotdWord(P);P.wotd=P.wotd||{};P.wotd[today()]=w;P.stars=(P.stars||0)+1;const r=P.results[w]=P.results[w]||{};r.life={first:true,attempts:1,t:Date.now()};await saveProg(kid,P);chime('big');confetti(18);go('kid',kid)})}
@@ -863,7 +1009,7 @@ const FUN={0:'jig',1:'lens',4:'maze',5:'size',8:'scratch'};
 function stepsFor(i){const b=LANE_STEPS[lane()].slice();if(FUN[i]!==undefined)b.splice(2,0,'fun');return b}
 async function stFun(sc,i,steps){const kid=S.kid;$('#view').innerHTML='<div class="card">'+stepsBar(steps,S.prog.step)+'<div class="lab">🎲 مفاجأة المشهد</div><div id="fun"></div><div class="fb" id="funf"></div><button class="b-s" id="skip" style="display:none;margin-top:8px;min-height:40px;font-size:.9rem">تخطَّ المفاجأة</button></div>'+nav(false);bindNav();
  const done=()=>{S.prog.fun=S.prog.fun||{};S.prog.fun[i]=Date.now();saveProg(kid,S.prog);const n=$('#next');if(n)n.disabled=false;const s=$('#skip');if(s)s.style.display='none'};
- setTimeout(()=>{const b=$('#skip'),n=$('#next');if(b&&n&&n.disabled){b.style.display='inline-flex';b.onclick=()=>{n.disabled=false;b.style.display='none'}}},50000);
+ later(()=>{const b=$('#skip'),n=$('#next');if(b&&n&&n.disabled){b.style.display='inline-flex';b.onclick=()=>{n.disabled=false;b.style.display='none'}}},50000);
  await ({jig:fJigsaw,lens:fLens,maze:fMaze,size:fSize,scratch:fScratch}[FUN[i]])(sc,i,$('#fun'),done)}
 /* أحجية صورة المشهد */
 async function fJigsaw(sc,i,box,done){const kid=S.kid;const url=await imgSrc('scene'+pad2(i+1));const n=lane()==='A'?2:3;let order=shuffle([...Array(n*n).keys()]);while(order.every((v,k)=>v===k))order=shuffle(order);let sel=null,won=false;
@@ -923,7 +1069,7 @@ async function quizSetup(){setTop('🏆 مسابقة العائلة','','🏆');
  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{rounds=+b.dataset.r;document.querySelectorAll('[data-r]').forEach(x=>x.classList.toggle('ok',x===b))});
  $('#bk').onclick=()=>go('home');$('#qgo').onclick=()=>{const ps=[...document.querySelectorAll('[data-qp].on')].map(b=>b.dataset.qp);if(ps.length<2)return toast('اختر لاعبَين على الأقل');actx();quizPlay(ps,rounds)}}
 function quizQ(pid,used){const kd=KIDS.find(k=>k.id===pid);const L=kd?kd.lane:'P';for(let tries=0;tries<60;tries++){const i=Math.floor(Math.random()*SCENES.length),sc=SCENES[i];if(L==='A'){if(used.has('A'+i))continue;used.add('A'+i);return {i,L,q:{pic:1}}}
-  const pools={B:[sc.q1,EXTRA[i].ant,TESTQ[i]],C:[sc.q2,EXTRA[i].pat,CONJ[i],TESTQ[i]],P:[EXTRA[i].pat,CONJ[i],{s:'ما جذر كلمة «'+sc.word+'»؟',o:[[sc.root,1],[SCENES[(i+3)%10].root,0],[SCENES[(i+6)%10].root,0]]},{s:'ما معنى «'+BONUS[i][0][0]+'»؟',o:[[BONUS[i][0][1],1],[BONUS[(i+2)%10][1][1],0],[BONUS[(i+5)%10][0][1],0]]}]}[L];
+  const pools={B:[sc.q1,EXTRA[i].ant,sc.q2],C:[sc.q2,EXTRA[i].pat,CONJ[i],EXTRA[i].ant],P:[EXTRA[i].pat,CONJ[i],{s:'ما جذر كلمة «'+sc.word+'»؟',o:[[sc.root,1],[SCENES[(i+3)%10].root,0],[SCENES[(i+6)%10].root,0]]},EXTRA[i].ant]}[L];
   const j=Math.floor(Math.random()*pools.length),key=L+i+'-'+j;if(used.has(key))continue;used.add(key);return {i,L,q:pools[j]}}
  return {i:0,L,q:L==='A'?{pic:1}:SCENES[0].q1}}
 async function quizPlay(ps,rounds){const sc={};ps.forEach(p=>sc[p]=0);const used=new Set();let turn=0;const total=ps.length*rounds;

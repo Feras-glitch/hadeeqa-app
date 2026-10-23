@@ -3,7 +3,7 @@
 import asyncio, json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from playwright.async_api import async_playwright
-from helpers import serve, new_page, view, solve_quiz, record_all, run_scene
+from helpers import answer_gate, serve, new_page, view, solve_quiz, record_all, run_scene, skip_pre, take_test
 
 URL = serve(8794)
 ERR, FAIL = [], []
@@ -22,7 +22,7 @@ async def main():
         # ================= جهاز ١: تابلت فرح =================
         pg = await new_page(b, ERR); ev = pg.evaluate
         await pg.goto(URL); await pg.wait_for_timeout(900)
-        await pg.click('[data-k="farah"]'); await pg.click('#preSkip'); await pg.wait_for_timeout(400)
+        await pg.click('[data-k="farah"]'); await skip_pre(pg)
         await pg.click('button[data-s] >> nth=0'); await pg.wait_for_timeout(400)
         ok('farah: scene 1 to celebration', await run_scene(pg, log=lambda s: None))
         recs = await ev("(async()=>{const ks=await skeys('audio');return ks.filter(k=>k.startsWith('rec:farah:s0:'))})()")
@@ -59,7 +59,7 @@ async def main():
         found = 0
         for i in range(10):
             for sp in await pg.query_selector_all('#wt span'):
-                if (await sp.inner_text()) in subs:
+                if (await sp.inner_text()).rstrip('.,،؛:!؟') in subs:
                     await sp.click(); found += 1; break
             await pg.wait_for_timeout(2000)
         ok('hidden-word game: intruder found in all 10 scenes', found == 10, f'{found}/10')

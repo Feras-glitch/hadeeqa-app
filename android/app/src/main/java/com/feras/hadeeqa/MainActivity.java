@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class Bridge {
-        @JavascriptInterface public void saveFile(String name, String mime, String b64) {
+        @JavascriptInterface public boolean saveFile(String name, String mime, String b64) {
             try {
                 byte[] data = Base64.decode(b64, Base64.DEFAULT);
                 if (Build.VERSION.SDK_INT >= 29) {
@@ -104,14 +104,23 @@ public class MainActivity extends AppCompatActivity {
                     cv.put(MediaStore.Downloads.MIME_TYPE, mime);
                     cv.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
                     Uri u = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv);
-                    try (OutputStream os = getContentResolver().openOutputStream(u)) { os.write(data); }
+                    if (u == null) throw new java.io.IOException("insert failed");
+                    try (OutputStream os = getContentResolver().openOutputStream(u)) { if (os == null) throw new java.io.IOException("no stream"); os.write(data); }
                 } else {
-                    File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), name);
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        runOnUiThread(() -> ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_PERM));
+                        throw new java.io.IOException("اسمح بالتخزين ثم أعد المحاولة");
+                    }
+                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS); dir.mkdirs();
+                    File f = new File(dir, name);
                     try (FileOutputStream fo = new FileOutputStream(f)) { fo.write(data); }
                 }
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "تم الحفظ في التنزيلات: " + name, Toast.LENGTH_LONG).show());
-            } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(MainActivity.this, "تعذر الحفظ: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                return true;
+            } catch (Throwable e) {
+                final String m = e.getMessage();
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "تعذر الحفظ: " + m, Toast.LENGTH_LONG).show());
+                return false;
             }
         }
     }
@@ -131,5 +140,8 @@ public class MainActivity extends AppCompatActivity {
             fileCb.onReceiveValue(uris); fileCb = null;
         }
     }
-    @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
+    // زر الرجوع يتبع شاشات التطبيق (من المشهد إلى صفحة الطفل…)؛ يخرج فقط من الصفحة الرئيسية
+    @Override public void onBackPressed() {
+        web.evaluateJavascript("(function(){try{return window.__back?window.__back():false}catch(e){return false}})()", v -> { if (!"true".equals(v)) finish(); });
+    }
 }

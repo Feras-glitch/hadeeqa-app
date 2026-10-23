@@ -155,7 +155,7 @@ async def run_scene(pg, log=print, hs=None):
             else:
                 for w in fam:
                     await pg.click(f'[data-w="{w}"]')
-        elif step == 'صرّف الكلمة':
+        elif step in ('صرّف الكلمة', 'صيغة الكلمة'):
             await solve_quiz(pg, 'q3')
         elif step == 'أبدع':
             pass
@@ -180,3 +180,42 @@ async def answer_gate(pg):
             await btn.click()
             return True
     return False
+
+
+async def take_test(pg, record_every=2):
+    """Take a v2 test to the end: oral stage records an answer on every Nth word
+    (otherwise 'لا أعرف'); recognition stage taps the first option. Returns steps done."""
+    n = oral_i = 0
+    for _ in range(200):
+        if await pg.query_selector('#h'):
+            return n
+        if await pg.query_selector('#tdk'):
+            oral_i += 1
+            if oral_i % record_every == 1 or record_every == 1:
+                rb = await pg.query_selector('[data-rec]')
+                key = await rb.get_attribute('data-rec')
+                await rb.click(); await pg.wait_for_timeout(1100)
+                await pg.click(f'[data-stop="{key}"]'); await pg.wait_for_timeout(700)
+                await pg.click('#tnx')
+            else:
+                await pg.click('#tdk')
+        elif await pg.query_selector('#tq .opt'):
+            await pg.click('#tq .opt >> nth=0')
+        n += 1
+        await pg.wait_for_timeout(650)
+    raise Exception('test did not finish')
+
+
+async def skip_pre(pg):
+    """Pre-test skip is a parent decision: gate, then confirm (dialogs auto-accepted)."""
+    await pg.click('#preSkip'); await pg.wait_for_timeout(200)
+    await answer_gate(pg); await pg.wait_for_timeout(500)
+
+
+async def start_next_scene(pg):
+    """Start the current scene; if today's new scene was already done, unlock via the parent."""
+    await pg.click('button[data-s] >> nth=0'); await pg.wait_for_timeout(400)
+    if await pg.query_selector('.mdl-c'):
+        await pg.click('.mdl-c button >> text=ولي الأمر'); await pg.wait_for_timeout(200)
+        await answer_gate(pg); await pg.wait_for_timeout(500)
+        await pg.click('button[data-s] >> nth=0'); await pg.wait_for_timeout(400)
