@@ -1,0 +1,49 @@
+{
+  "name": "hadeeqa",
+  "productName": "حديقة الأسرار",
+  "version": "1.0.0",
+  "description": "قصة تعليمية بصوت الأسرة",
+  "main": "main.js",
+  "author": "Feras",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "31.3.1",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "com.feras.hadeeqa",
+    "productName": "Hadeeqa",
+    "files": [
+      "main.js",
+      "www/**/*",
+      "icon.png"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Hadeeqa-${version}-${arch}.${ext}",
+      "icon": "icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "language": "1025"
+    }
+  }
+}

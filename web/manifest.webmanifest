@@ -1,0 +1,1 @@
+{ "name": "حديقة الأسرار", "short_name": "الحديقة", "start_url": "./index.html", "display": "standalone", "dir": "rtl", "lang": "ar", "background_color": "#f0fdf4", "theme_color": "#166534", "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }] }
