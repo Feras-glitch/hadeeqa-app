@@ -71,7 +71,11 @@ canvas{width:100%;border:2px dashed var(--amb);border-radius:14px;background:#ff
 'use strict';
 /* ===================== DATA ===================== */
 const CH={feras:{n:'بابا فراس',e:'👨',a:'avatar-feras'},nour:{n:'ماما نور',e:'👩',a:'avatar-nour'},dalal:{n:'دلال',e:'👧',a:'avatar-dalal'},farah:{n:'فرح',e:'👦',a:'avatar-farah'},kareem:{n:'كريم',e:'🧒',a:'avatar-kareem'},saber:{n:'العم صابر',e:'👴',a:'avatar-saber'},narr:{n:'الراوي',e:'📖'}};
-const KIDS=[{id:'kareem',age:6,lane:'A'},{id:'farah',age:8,lane:'B'},{id:'dalal',age:10,lane:'C'}];
+let KIDS=[{id:'kareem',age:6,lane:'A'},{id:'farah',age:8,lane:'B'},{id:'dalal',age:10,lane:'C'}];
+const laneOfAge=a=>a<=7?'A':a<=9?'B':'C';
+const roleOf=kid=>{const k=KIDS.find(x=>x.id===kid);if(!k)return kid;if(CH[kid]&&['kareem','farah','dalal'].includes(kid))return kid;return {A:'kareem',B:'farah',C:'dalal'}[k.lane]};
+/* إن وُجد ملف عائلة «واحة اللسان العربي» (kb-family-v1) تُقرأ منه أسماء الأطفال وأعمارهم بدل الثلاثة المثبّتين؛ شخصيات القصة تبقى كما هي */
+function initFamily(){try{const F=JSON.parse(localStorage.getItem('kb-family-v1')||'null');if(!F||!Array.isArray(F.kids)||!F.kids.length)return;const y=new Date().getFullYear();KIDS=F.kids.map(k=>{const age=k.by?Math.max(4,y-k.by):8;const id='kz_'+k.id;CH[id]={n:k.name,e:k.g==='f'?'👧':'👦',a:null};return {id,age,lane:laneOfAge(age)}})}catch(e){}}
 const SCENES=[
 {word:'مُورِقَة',root:'و ر ق',pattern:'مُفْعِلَة',meaning:'كثيرة الأوراق الخضراء',example:'بَعْدَ الْمَطَرِ صَارَتِ الشَّجَرَةُ الْيَابِسَةُ مُورِقَةً.',family:['وَرَقَة','أَوْرَاق','وَرَّاق'],intruder:'رَقِيق',
  narr:'وَقَفَتْ عَائِلَةُ فِرَاسٍ أَمَامَ بَوَّابَةِ الْحَدِيقَةِ الْكَبِيرَةِ، وَقَدْ أَحَاطَتْ بِهَا أَشْجَارٌ مُورِقَةٌ تَتَمَايَلُ أَغْصَانُهَا فِي الْهَوَاءِ.',
@@ -264,7 +268,7 @@ async function stRecord(sc,i,steps){const L=lane();const P='rec:'+S.kid+':s'+i;l
  const need=[];
  if(L==='C'){html+=recBlock(P+':narr','📖 الراوي (تسجيل الطلاقة)',hl(sc.narr,sc.word));need.push(P+':narr')}
  if(L==='A'){html+=recBlock(P+':word','🔁 كرّر الكلمة','<span class="word">'+esc(sc.word)+'</span>');need.push(P+':word')}
- for(const [j,l] of sc.lines.entries()){const mine=l.w===S.kid;const take=mine||(L==='B'&&l.w==='kareem');if(!take)continue;html+=recBlock(P+':l'+j,'',hl(l.t,sc.word),(await avHtml(l.w))+CH[l.w].n+(mine?' (أنا)':''));need.push(P+':l'+j)}
+ for(const [j,l] of sc.lines.entries()){const mine=l.w===roleOf(S.kid);const take=mine||(L==='B'&&l.w==='kareem');if(!take)continue;html+=recBlock(P+':l'+j,'',hl(l.t,sc.word),(await avHtml(l.w))+CH[l.w].n+(mine?' (أنا)':''));need.push(P+':l'+j)}
  if(!need.length){html+=recBlock(P+':l0','',hl(sc.lines[0].t,sc.word),(await avHtml(sc.lines[0].w))+CH[sc.lines[0].w].n);need.push(P+':l0')}
  $('#view').innerHTML=html+nav(false);
  const check=async()=>{let ok=true;for(const k of need)if(!(await hasKey(k)))ok=false;$('#next').disabled=!ok};
@@ -414,14 +418,14 @@ setInterval(sessCheck,30000);
 
 
 /* ===================== THEATER (solo / family show) ===================== */
-const PERF=['kareem','farah','dalal','feras','nour']; // المؤدّون: أفراد الأسرة فقط؛ العم صابر شخصية خيالية يؤدّيها أحدهم
+const PERF_OF=()=>KIDS.map(k=>k.id).concat(['feras','nour']); // المؤدّون: أفراد الأسرة فقط؛ العم صابر شخصية خيالية يؤدّيها أحدهم
 function perfKey(who,i,part){ // who: kid id (rec) or parent/saber (model)
  if(KIDS.some(k=>k.id===who))return 'rec:'+who+':s'+i+':'+part;return 'model:s'+i+':'+part}
 async function theaterSetup(){setTop('🎭 مسرح العائلة','من يؤدي كل دور؟','🎭');
- const cfg=(await sget('kv','theater'))||{mode:'family',cast:{feras:'feras',nour:'nour',saber:'feras',dalal:'dalal',farah:'farah',kareem:'kareem'},narr:['dalal','farah','kareem']};
- const sel=(id,cur)=>'<select data-cast="'+id+'" style="font:inherit;padding:10px;border-radius:12px;border:2px solid var(--line);width:100%">'+PERF.map(p=>'<option value="'+p+'" '+(p===cur?'selected':'')+'>'+CH[p].n+'</option>').join('')+'</select>';
+ const byLane=L=>(KIDS.find(k=>k.lane===L)||KIDS[0]||{id:'feras'}).id;const cfg=(await sget('kv','theater'))||{mode:'family',cast:{feras:'feras',nour:'nour',saber:'feras',dalal:byLane('C'),farah:byLane('B'),kareem:byLane('A')},narr:KIDS.map(k=>k.id)};
+ const sel=(id,cur)=>'<select data-cast="'+id+'" style="font:inherit;padding:10px;border-radius:12px;border:2px solid var(--line);width:100%">'+PERF_OF().map(p=>'<option value="'+p+'" '+(p===cur?'selected':'')+'>'+CH[p].n+'</option>').join('')+'</select>';
  const rows=Object.keys(cfg.cast).map(ch=>'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="flex:1;font-weight:900">'+CH[ch].n+'</div><div style="flex:1.4">'+sel(ch,cfg.cast[ch])+'</div></div>').join('');
- const narrChips=PERF.map(p=>'<button class="chip '+(cfg.narr.includes(p)?'ok':'')+'" data-n="'+p+'">'+CH[p].n+'</button>').join('');
+ const narrChips=PERF_OF().map(p=>'<button class="chip '+(cfg.narr.includes(p)?'ok':'')+'" data-n="'+p+'">'+CH[p].n+'</button>').join('');
  $('#view').innerHTML='<div class="card"><div class="lab">النمط</div><div class="row"><button class="'+(cfg.mode==='solo'?'b-p':'b-s')+'" data-m="solo">🎤 عرض فردي: طفل واحد يؤدي كل الأدوار</button><button class="'+(cfg.mode==='family'?'b-p':'b-s')+'" data-m="family">👨‍👩‍👧‍👦 عرض عائلي: كلٌّ يقرأ دوره</button></div></div><div id="soloBox" class="card" style="'+(cfg.mode==='solo'?'':'display:none')+'"><div class="lab">من يؤدي العرض الفردي؟</div><div class="kids">'+KIDS.map(k=>'<button data-solo="'+k.id+'" style="'+(cfg.solo===k.id?'border-color:var(--g7);background:var(--g1)':'')+'"><span class="av">'+CH[k.id].e+'</span><b>'+CH[k.id].n+'</b></button>').join('')+'</div>'+(cfg.solo?'<button class="b-s b-w" id="solorec" style="margin-top:10px">🎤 '+CH[cfg.solo].n+' يسجّل كل الأدوار</button>':'')+'<p class="small" style="margin-top:10px">الفكرة: يغيّر الطفل صوته لكل شخصية — صوت غليظ لبابا، هادئ لماما، مرتجف للعم صابر. التطبيق يعرض بطاقة الشخصية قبل كل سطر.</p></div><div id="famBox" style="'+(cfg.mode==='family'?'':'display:none')+'"><div class="card"><div class="lab">توزيع الأدوار</div><p class="small">العم صابر شخصية خيالية في القصة؛ يؤدّيها أحد أفراد الأسرة بصوت متقمَّص (كبير السن، هادئ).</p>'+rows+'</div><div class="card"><div class="lab">الراوي يتناوب بين</div><div class="chips" id="narrs">'+narrChips+'</div><p class="small">مشهد ١ للأول، مشهد ٢ للثاني… ثم يعود الدور.</p></div></div><div class="card"><div class="row"><button class="b-a" id="rehearse">🎬 ما الذي ينقص للتسجيل؟</button><button class="b-p" id="play">▶️ ابدأ العرض</button></div><div class="small" id="missing" style="margin-top:10px"></div></div>';
  const save=()=>sput('kv','theater',cfg);const sr=$('#solorec');if(sr)sr.onclick=()=>go('solorec',cfg.solo);
  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=async()=>{cfg.mode=b.dataset.m;await save();theaterSetup()});
@@ -629,7 +633,7 @@ async function wordLog(kid,w){const p=await loadProg(kid);const i=SCENES.findInd
 
 /* ===================== BOOT ===================== */
 if(location.protocol.startsWith('http')&&'serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-openDB().then(()=>go('home')).catch(e=>{document.getElementById('view').innerHTML='<div class="card">تعذر فتح التخزين المحلي: '+esc(e&&e.message)+'</div>'});
+openDB().then(()=>{initFamily();return go('home')}).catch(e=>{document.getElementById('view').innerHTML='<div class="card">تعذر فتح التخزين المحلي: '+esc(e&&e.message)+'</div>'});
 window.addEventListener('beforeunload',()=>{if(Rec.active)stopRec()});
 </script>
 </body>
