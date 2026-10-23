@@ -1,6 +1,7 @@
 name: Build APK and Windows
 on:
-  push: { branches: [main] }
+  push:
+    branches: [main]
   workflow_dispatch:
 jobs:
   android:
@@ -36,7 +37,9 @@ jobs:
   pages:
     runs-on: ubuntu-latest
     permissions: { pages: write, id-token: write }
-    environment: { name: github-pages, url: ${{ steps.deploy.outputs.page_url }} }
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/upload-pages-artifact@v3
