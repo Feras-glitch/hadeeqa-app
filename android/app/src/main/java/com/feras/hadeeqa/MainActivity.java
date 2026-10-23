@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.webkit.WebViewAssetLoader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private WebView web;
     private ValueCallback<Uri[]> fileCb;
     private PermissionRequest pendingPerm;
+    private Uri camUri;
+    private File camFile;
     private static final int REQ_FILE = 1, REQ_PERM = 2;
 
     @Override protected void onCreate(Bundle b) {
@@ -58,15 +61,36 @@ public class MainActivity extends AppCompatActivity {
             @Override public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p) {
                 if (fileCb != null) fileCb.onReceiveValue(null);
                 fileCb = cb;
-                Intent i = p.createIntent();
-                i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                try { startActivityForResult(i, REQ_FILE); } catch (Exception e) { fileCb = null; return false; }
+                camUri = null; camFile = null;
+                Intent pick = p.createIntent();
+                pick.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, p.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE);
+                boolean wantsImage = false;
+                for (String t : p.getAcceptTypes()) if (t != null && t.startsWith("image")) wantsImage = true;
+                Intent cam = null;
+                if (wantsImage && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    try {
+                        File dir = new File(getCacheDir(), "camera"); dir.mkdirs();
+                        camFile = new File(dir, "IMG_" + System.currentTimeMillis() + ".jpg");
+                        camUri = FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".fileprovider", camFile);
+                        cam = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        cam.putExtra(MediaStore.EXTRA_OUTPUT, camUri);
+                        cam.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    } catch (Exception e) { cam = null; camUri = null; camFile = null; }
+                }
+                Intent go;
+                if (cam != null && p.isCaptureEnabled()) go = cam;            // <input capture>: open the camera directly
+                else {
+                    go = Intent.createChooser(pick, "اختر صورة");
+                    if (cam != null) go.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cam});  // camera offered next to the gallery
+                }
+                try { startActivityForResult(go, REQ_FILE); } catch (Exception e) { fileCb = null; return false; }
                 return true;
             }
         });
         web.addJavascriptInterface(new Bridge(), "AndroidBridge");
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQ_PERM);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA}, REQ_PERM);
         web.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
     }
 
@@ -98,7 +122,14 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override protected void onActivityResult(int req, int result, Intent data) {
         super.onActivityResult(req, result, data);
-        if (req == REQ_FILE && fileCb != null) { fileCb.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data)); fileCb = null; }
+        if (req == REQ_FILE && fileCb != null) {
+            Uri[] uris = null;
+            if (result == Activity.RESULT_OK) {
+                uris = WebChromeClient.FileChooserParams.parseResult(result, data);
+                if ((uris == null || uris.length == 0) && camFile != null && camFile.length() > 0) uris = new Uri[]{camUri};
+            }
+            fileCb.onReceiveValue(uris); fileCb = null;
+        }
     }
     @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 }
