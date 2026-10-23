@@ -124,19 +124,42 @@ async def main():
         tmp = tempfile.mkdtemp()
         def wf(name, obj):
             pth = os.path.join(tmp, name); open(pth, 'w', encoding='utf-8').write(json.dumps(obj, ensure_ascii=False)); return pth
-        dlg = []
-        pg.on('dialog', lambda d: dlg.append(d.message))
-        await pg.set_input_files('#bkin', wf('old.json', old)); await pg.wait_for_timeout(1200)
-        ok('older backup triggers a clear warning before overwriting', any('أقدم' in m for m in dlg), '; '.join(m[:40] for m in dlg))
-        dlg.clear()
         snap = await ev("loadProg('farah').then(p=>JSON.stringify(p))")
+        await pg.set_input_files('#bkin', wf('old.json', old)); await pg.wait_for_timeout(800)
+        mt = await pg.inner_text('.mdl-c') if await pg.query_selector('.mdl-c') else ''
+        ok('older backup: warns and offers messages-only before anything is replaced', 'أقدم' in mt and 'الرسائل والتحديات فقط' in mt, mt[:80])
+        await pg.click('.mdl-c button >> text=إلغاء'); await pg.wait_for_timeout(400)
+        ok('cancel leaves progress exactly as it was', await ev("loadProg('farah').then(p=>JSON.stringify(p))") == snap)
+        await pg.set_input_files('#bkin', wf('old2.json', old)); await pg.wait_for_timeout(800)
+        await pg.click('.mdl-c button >> text=الرسائل والتحديات فقط'); await pg.wait_for_timeout(700)
+        after_m = await ev("loadProg('farah')"); before_m = json.loads(snap)
+        ok('messages-only import never touches progress', after_m['done'] == before_m['done'] and after_m['doneT'] == before_m['doneT'] and after_m['results'] == before_m['results'])
         await pg.set_input_files('#bkin', wf('bad.json', {'kid': 'farah', 'prog': None})); await pg.wait_for_timeout(800)
-        ok('malformed backup rejected, progress untouched', await ev("loadProg('farah').then(p=>JSON.stringify(p))") == snap)
-        await pg.set_input_files('#bkin', wf('evil.json', evil)); await pg.wait_for_timeout(1200)
+        ok('malformed backup rejected, progress untouched', not await pg.query_selector('.mdl-c') and (await ev("loadProg('farah')"))['done'].get('0') is True)
+        await pg.set_input_files('#bkin', wf('evil.json', evil)); await pg.wait_for_timeout(800)
+        if await pg.query_selector('.mdl-c'):
+            await pg.click('.mdl-c button >> text=استعادة كاملة'); await pg.wait_for_timeout(1200)
         await ev("go('parent')"); await pg.wait_for_timeout(800)
         await ev("(async()=>{S.kid='farah';await go('kid','farah')})()"); await pg.wait_for_timeout(800)
         ok('markup inside a restored file is not executed', not await ev("!!window.__pwn"))
         ok('a backup cannot write another child\'s recordings', not await ev("hasKey('rec:dalal:s9:narr')"))
+
+        # 7b) a failed/aborted write rejects instead of hanging forever
+        res = await ev("""(async()=>{const orig=db.transaction.bind(db);db.transaction=(st,m)=>{const t=orig(st,m);if(m==='readwrite')setTimeout(()=>{try{t.abort()}catch(e){}},0);return t};
+          const r=await Promise.race([sput('kv','x',1).then(()=>'resolved',()=>'rejected'),new Promise(r=>setTimeout(()=>r('hung'),2000))]);db.transaction=orig;return r})()""")
+        ok('storage failure is reported, not a silent hang', res == 'rejected', res)
+
+        # 10b) leaving the screen while the microphone is still opening never records on the next screen
+        await ev("""(()=>{const g=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);navigator.mediaDevices.getUserMedia=c=>new Promise(r=>setTimeout(()=>r(g(c)),400))})()""")
+        await to_step(pg, 'dalal', 0, 3)
+        await pg.click('[data-rec] >> nth=0'); await pg.click('#homeBtn'); await pg.wait_for_timeout(1200)
+        ok('slow mic + leaving: no hidden recording', not await ev("!!Rec.active"))
+
+        # 11b) the fast-picture game's timer stops when the child leaves
+        before = len(ERR)
+        await ev("(async()=>{S.kid='dalal';S.prog=await loadProg('dalal');S.prog.done[0]=true;S.prog.done[1]=true;await go('game','fast')})()"); await pg.wait_for_timeout(500)
+        await pg.click('#homeBtn'); await pg.wait_for_timeout(1500)
+        ok('fast game: no timer errors after leaving', len(ERR) == before and await ev("S.view") == 'home', str(ERR[before:before+2]))
 
         # 8) Android back button maps to the app's own screens
         await ev("(async()=>{S.prog=await loadProg('dalal');S.kid='dalal';S.prog.scene=0;S.prog.step=0;await go('scene')})()"); await pg.wait_for_timeout(400)

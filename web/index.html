@@ -55,6 +55,7 @@ canvas{width:100%;border:2px dashed var(--amb);border-radius:14px;background:#ff
 input,select,textarea{min-width:0;max-width:100%;box-sizing:border-box}
 .ast{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:6px}.ast th,.ast td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:center}.ast td:first-child{text-align:right;color:var(--mut)}
 .pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.pinpad button{min-height:56px;font-size:1.4rem}
+.hl2{border-bottom:2px dotted var(--g7);padding:0 2px}
 .toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,120px);background:#0f172a;color:#fff;padding:12px 18px;border-radius:14px;font-weight:800;z-index:99;transition:.25s;max-width:92vw;text-align:center;opacity:0;pointer-events:none}
 .toast.on{transform:translate(-50%,0);opacity:1}
 .small{font-size:.85rem;color:var(--mut);line-height:1.7}
@@ -150,7 +151,7 @@ const SCENES=[
  narr:'تَقَدَّمَ بَابَا فِرَاسٌ بِحَذَرٍ، وَأَخَذَ يَتَفَحَّصُ آثَارَ أَقْدَامٍ غَرِيبَةٍ عَلَى التُّرَابِ.',
  lines:[{w:'feras',t:'هَذِهِ الْآثَارُ لَيْسَتْ لِإِنْسَانٍ. دَعُونَا نَتَّبِعْهَا بِهُدُوءٍ.'},{w:'farah',t:'سَأُحْضِرُ عَدَسَتِي الْمُكَبِّرَةَ لِأَتَفَحَّصَهَا مَعَكَ يَا أَبِي!'},{w:'kareem',t:'وَأَنَا سَأَمْشِي خَلْفَكُمْ بِهُدُوءٍ.'}],
  q1:{s:'من يتفحّص شيئًا فهو:',o:[['ينظر فيه بدقة',1],['ينظر إليه بسرعة',0],['يبحث عنه',0]]},
- q2:{s:'أَمْسَكَ فَرَحٌ الْحَجَرَ الْغَرِيبَ وَأَخَذَ ___ بِعَدَسَتِهِ',o:[['يَتَفَحَّصُهُ',1],['يُلَمِّعُهُ',0],['يُرَتِّبُهُ',0]]},
+ q2:{s:'وَقَفَ الْمُعَلِّمُ ___ دَفَاتِرَ التَّلَامِيذِ وَاحِدًا وَاحِدًا لِيَعْرِفَ أَخْطَاءَهُمْ',o:[['يَتَفَحَّصُ',1],['يُوَزِّعُ',0],['يُلَوِّنُ',0]]},
  k:{ph:['🔍','🚶','🙈']}},
 {word:'بَهْجَة',root:'ب ه ج',pattern:'فَعْلَة',meaning:'فرح يظهر على الوجوه',example:'اِبْتَسَمَ الْجَمِيعُ لِلْهَدِيَّةِ فَمَلَأَتِ الْبَيْتَ بَهْجَةً.',family:['بَهِيج','مُبْهِج','ابْتَهَجَ'],intruder:'بَهْلَوَان',
  narr:'الْتَقَطَتْ دَلَالُ زَهْرَةً مُلَوَّنَةً سَقَطَتْ عَلَى الْمَمَرِّ، وَقَدَّمَتْهَا لِأُمِّهَا، فَمَلَأَتِ الْبَهْجَةُ وُجُوهَ الْجَمِيعِ.',
@@ -160,46 +161,46 @@ const SCENES=[
  k:{ph:['😄','📖','🥱']}},
 {word:'ضِفَاف',root:'ض ف ف',pattern:'فِعَال',meaning:'جوانب النهر أو البحيرة حيث تلتقي الأرض بالماء',example:'جَلَسَ الصَّيَّادُ عَلَى ضِفَافِ النَّهْرِ.',family:['ضِفَّة'],intruder:'ضَيْف',
  narr:'عِنْدَ بُحَيْرَةٍ صَغِيرَةٍ، لَمَحَ كَرِيمٌ ضِفْدَعًا أَخْضَرَ يَقْفِزُ عَلَى ضِفَافِ الْمَاءِ بَيْنَ الْأَعْشَابِ.',
- lines:[{w:'kareem',t:'ضِفْدَعٌ! ضِفْدَعٌ أَخْضَرُ!'},{w:'farah',t:'لَا تَقْتَرِبْ مِنَ الضِّفَافِ يَا كَرِيمُ، فَالتُّرَابُ هُنَاكَ مُبَلَّلٌ.'}],
+ lines:[{w:'kareem',t:'ضِفْدَعٌ أَخْضَرُ! يَا لَلْبَهْجَةِ!'},{w:'farah',t:'لَا تَقْتَرِبْ مِنَ الضِّفَافِ يَا كَرِيمُ، فَالتُّرَابُ هُنَاكَ مُبَلَّلٌ.'}],
  q1:{s:'ضفاف النهر هي:',o:[['جوانبه',1],['عمقه',0],['منبعه',0]]},
  q2:{s:'سَارَ الْأَطْفَالُ عَلَى ___ النَّهْرِ يَجْمَعُونَ الْحَصَى',o:[['ضِفَافِ',1],['سَطْحِ',0],['أَمْوَاجِ',0]]},
  k:{ph:['🏞️','🌊','⛰️']}},
 {word:'مَتَاهَة',root:'ت و ه',pattern:'مَفْعَلَة',meaning:'مكان تتفرّع طرقه فيصعب الخروج منه',example:'دَخَلْنَا مَتَاهَةً مِنَ الْمَمَرَّاتِ فَلَمْ نَعْرِفِ الْمَخْرَجَ.',family:['تَاهَ','تَائِه','يَتُوهُ'],intruder:'تَمْر',
  narr:'وَصَلَتِ الْعَائِلَةُ إِلَى مَتَاهَةٍ مِنَ الشُّجَيْرَاتِ الْمُتَشَابِكَةِ، تَتَفَرَّعُ مَمَرَّاتُهَا فِي كُلِّ اتِّجَاهٍ، فَأَخَذَ فَرَحٌ يَتَفَحَّصُ الْمَدَاخِلَ.',
- lines:[{w:'dalal',t:'اتَّبِعُونِي! سَأَضَعُ حَصَاةً عِنْدَ كُلِّ مُنْعَطَفٍ حَتَّى لَا نَضِيعَ فِي الْمَتَاهَةِ.'},{w:'nour',t:'فِكْرَةٌ ذَكِيَّةٌ يَا دَلَالُ.'},{w:'kareem',t:'سَأَحْمِلُ الْحَصَى يَا دَلَالُ!'}],
+ lines:[{w:'dalal',t:'اتَّبِعُونِي! سَأَضَعُ حَصَاةً عِنْدَ كُلِّ مُنْعَطَفٍ حَتَّى لَا نَضِيعَ فِي الْمَتَاهَةِ.'},{w:'nour',t:'فِكْرَةٌ ذَكِيَّةٌ يَا دَلَالُ.'},{w:'kareem',t:'سَأَحْمِلُ الْحَصَى الَّذِي جَمَعَهُ لِي فَرَحٌ مِنْ ضِفَافِ الْبُحَيْرَةِ!'}],
  q1:{s:'المتاهة مكان:',o:[['تتفرّع طرقه ويصعب الخروج منه',1],['طرقه مستقيمة واسعة',0],['لا طرق فيه',0]]},
- q2:{s:'رَسَمَ أَخِي عَلَى الْوَرَقَةِ ___ كَثِيرَةَ الطُّرُقِ، وَطَلَبَ مِنِّي أَنْ أَجِدَ الْمَخْرَجَ',o:[['مَتَاهَةً',1],['شَجَرَةً',0],['سَحَابَةً',0]]},
- k:{ph:['🌀','➡️','🟩']}},
+ q2:{s:'رَسَمَ أَخِي عَلَى الْوَرَقَةِ ___ كَثِيرَةَ الطُّرُقِ، وَطَلَبَ مِنِّي أَنْ أَصِلَ إِلَى الْكَنْزِ فِي وَسَطِهَا',o:[['مَتَاهَةً',1],['شَجَرَةً',0],['سَحَابَةً',0]]},
+ k:{ph:['🔀','➡️','🟩']}},
 {word:'عِمْلَاقَة',root:'ع م ل ق',pattern:'فِعْلَالَة',meaning:'ضخمة جدًا بالنسبة إلى ما حولها',example:'بِجَانِبِ الْفَأْرِ الصَّغِيرِ بَدَا الْفِيلُ عِمْلَاقًا.',family:['عِمْلَاق','عَمَالِقَة'],intruder:'عَمَل',
  narr:'خَرَجُوا مِنَ الْمَتَاهَةِ، فَإِذَا بِشَجَرَةٍ عِمْلَاقَةٍ مُورِقَةٍ تَقِفُ وَسَطَ السَّاحَةِ، تَكَادُ أَغْصَانُهَا تُلَامِسُ السَّحَابَ.',
- lines:[{w:'farah',t:'يَا لَهَا مِنْ شَجَرَةٍ عِمْلَاقَةٍ! أَظُنُّ عُمْرَهَا مِئَةَ سَنَةٍ.'},{w:'kareem',t:'أَنَا صَغِيرٌ جِدًّا بِجَانِبِهَا!'}],
+ lines:[{w:'farah',t:'يَا لَهَا مِنْ شَجَرَةٍ عِمْلَاقَةٍ! أَظُنُّ عُمْرَهَا مِئَةَ سَنَةٍ، وَلَعَلَّ جُذُورَهَا تَصِلُ إِلَى ضِفَافِ الْبُحَيْرَةِ.'},{w:'kareem',t:'أَنَا صَغِيرٌ جِدًّا بِجَانِبِهَا!'}],
  q1:{s:'الشجرة العملاقة شجرة:',o:[['ضخمة جدًا',1],['قصيرة جدًا',0],['يابسة',0]]},
  q2:{s:'فِي الْغَابَةِ شَجَرَةٌ ___ لَا يَسْتَطِيعُ عَشَرَةُ رِجَالٍ أَنْ يُحِيطُوا بِجِذْعِهَا',o:[['عِمْلَاقَةٌ',1],['صَغِيرَةٌ',0],['رَفِيعَةٌ',0]]},
- k:{ph:['🌲','🌳','🌱']}},
+ k:{ph:['🐘','🐈','🐜']}},
 {word:'عَتِيق',root:'ع ت ق',pattern:'فَعِيل',meaning:'قديم جدًا مرّت عليه سنوات طويلة',example:'مَضَتْ مِئَةُ سَنَةٍ عَلَى طِبَاعَةِ الْكِتَابِ، فَهُوَ كِتَابٌ عَتِيقٌ.',family:['عَتُقَ','عَتَاقَة','مُعَتَّق'],intruder:'عَتَبَة',
  narr:'جَاءَ الْعَمُّ صَابِرٌ، حَارِسُ الْحَدِيقَةِ، وَأَخْرَجَ مِنْ تَحْتِ الشَّجَرَةِ صُنْدُوقًا خَشَبِيًّا عَتِيقًا.',
- lines:[{w:'saber',t:'هَذَا الصُّنْدُوقُ عَتِيقٌ، وَرِثْتُهُ عَنْ جَدِّي، وَلَمْ يَفْتَحْهُ أَحَدٌ مُنْذُ سَنَوَاتٍ.'},{w:'feras',t:'هَلْ تَسْمَحُ لَنَا أَنْ نَفْتَحَهُ مَعًا؟'},{w:'kareem',t:'مَاذَا فِي الصُّنْدُوقِ؟'}],
+ lines:[{w:'saber',t:'هَذَا الصُّنْدُوقُ عَتِيقٌ، وَرِثْتُهُ عَنْ جَدِّي. وَرَأَيْتُكُمْ تَتَفَحَّصُونَ آثَارًا قُرْبَ الْبَوَّابَةِ؛ إِنَّهَا آثَارُ غَزَالٍ صَغِيرٍ يَزُورُ الْحَدِيقَةَ كُلَّ صَبَاحٍ.'},{w:'feras',t:'هَلْ تَسْمَحُ لَنَا أَنْ نَتَفَحَّصَهُ مَعًا؟'},{w:'kareem',t:'مَاذَا فِي الصُّنْدُوقِ؟ خَرِيطَةُ الْمَتَاهَةِ؟'}],
  q1:{s:'الشيء العتيق:',o:[['قديم جدًا',1],['لامع',0],['مكسور',0]]},
  q2:{s:'وَجَدْنَا فِي بَيْتِ جَدِّي صُنْدُوقًا صَنَعَهُ جَدُّ أَبِي قَبْلَ زَمَنٍ بَعِيدٍ، فَهُوَ صُنْدُوقٌ ___',o:[['عَتِيقٌ',1],['جَدِيدٌ',0],['ثَقِيلٌ',0]]},
- k:{ph:['🪵','✨','🧸']}},
+ k:{ph:['🏺','✨','🧸']}},
 {word:'مَحْفُوظَة',root:'ح ف ظ',pattern:'مَفْعُولَة',meaning:'موضوعة في مكان آمن فلا تتلف',example:'وَضَعْنَا الصُّوَرَ فِي عُلْبَةٍ مُغْلَقَةٍ لِتَبْقَى مَحْفُوظَةً مِنَ التَّلَفِ.',family:['حَفِظَ','حَافِظ','مَحْفَظَة'],intruder:'حَفْلَة',
  narr:'فَتَحَ الْعَمُّ صَابِرٌ الصُّنْدُوقَ الْعَتِيقَ، فَوَجَدُوا فِيهِ لَفَائِفَ وَرَقٍ قَدِيمَةً مَحْفُوظَةً بِعِنَايَةٍ دَاخِلَ قِمَاشٍ نَاعِمٍ.',
- lines:[{w:'nour',t:'انْظُرُوا كَيْفَ بَقِيَتْ مَحْفُوظَةً كُلَّ هَذِهِ السَّنَوَاتِ!'},{w:'dalal',t:'مَكْتُوبٌ عَلَيْهَا: قِصَّةُ أَوَّلِ شَجَرَةٍ زُرِعَتْ فِي هَذِهِ الْحَدِيقَةِ.'},{w:'kareem',t:'أُرِيدُ أَنْ أَرَى!'}],
+ lines:[{w:'nour',t:'انْظُرُوا كَيْفَ بَقِيَتْ مَحْفُوظَةً كُلَّ هَذِهِ السَّنَوَاتِ!'},{w:'dalal',t:'مَكْتُوبٌ عَلَيْهَا: قِصَّةُ الشَّجَرَةِ الْعِمْلَاقَةِ، أَوَّلِ شَجَرَةٍ زُرِعَتْ فِي هَذِهِ الْحَدِيقَةِ.'},{w:'kareem',t:'أُرِيدُ أَنْ أَرَى!'}],
  q1:{s:'الرسالة المحفوظة:',o:[['مَصُونة في مكان آمن',1],['مكتوبة بخط جميل',0],['مرسلة إلى بعيد',0]]},
  q2:{s:'مَا زَالَتْ شَهَادَةُ مِيلَادِ جَدِّي ___ عِنْدَنَا مُنْذُ سَبْعِينَ سَنَةً، لَمْ يُصِبْهَا تَلَفٌ',o:[['مَحْفُوظَةً',1],['مُبَعْثَرَةً',0],['مُمَزَّقَةً',0]]},
  k:{ph:['📦','💧','🗑️']}},
 {word:'تَتَأَلَّقُ',root:'أ ل ق',pattern:'تَتَفَعَّلُ',meaning:'تلمع وتضيء ببريق',example:'فِي اللَّيْلَةِ الصَّافِيَةِ تَتَأَلَّقُ النُّجُومُ فِي السَّمَاءِ.',family:['أَلَق','تَأَلُّق','مُتَأَلِّق'],intruder:'أَلَم',
- narr:'فَرَدَتْ دَلَالُ اللَّفَائِفَ الْمَحْفُوظَةَ تَحْتَ ضَوْءِ الشَّمْسِ، فَبَدَأَتِ الْحُرُوفُ الذَّهَبِيَّةُ تَتَأَلَّقُ بَيْنَ أَيْدِيهِمْ.',
- lines:[{w:'farah',t:'الْحُرُوفُ تَتَأَلَّقُ كَأَنَّهَا نُجُومٌ صَغِيرَةٌ!'},{w:'kareem',t:'أُرِيدُ أَنْ أَلْمِسَهَا!'},{w:'dalal',t:'مَكْتُوبٌ هُنَا بِخَطٍّ قَدِيمٍ: «زَرَعْتُ هَذِهِ الشَّجَرَةَ مِنْ بَذْرَةٍ وَاحِدَةٍ، وَكَتَبْتُ قِصَّتَهَا لِيَقْرَأَهَا أَحْفَادِي». وَالتَّارِيخُ قَبْلَ مِئَةِ عَامٍ!'}],
+ narr:'بَسَطَتْ دَلَالُ اللَّفَائِفَ الْمَحْفُوظَةَ تَحْتَ ضَوْءِ الشَّمْسِ، فَبَدَأَتِ الْحُرُوفُ الذَّهَبِيَّةُ تَتَأَلَّقُ بَيْنَ أَيْدِيهِمْ.',
+ lines:[{w:'farah',t:'الْحُرُوفُ تَتَأَلَّقُ كَأَنَّهَا نُجُومٌ صَغِيرَةٌ!'},{w:'kareem',t:'أُرِيدُ أَنْ أَلْمِسَهَا!'},{w:'dalal',t:'مَكْتُوبٌ هُنَا بِخَطٍّ عَتِيقٍ: «زَرَعْتُ هَذِهِ الشَّجَرَةَ مِنْ بَذْرَةٍ وَاحِدَةٍ، وَكَتَبْتُ قِصَّتَهَا لِيَقْرَأَهَا أَحْفَادِي». وَالتَّارِيخُ قَبْلَ مِئَةِ عَامٍ!'}],
  q1:{s:'الشيء الذي يتألق:',o:[['يلمع ويضيء',1],['يتحرك بسرعة',0],['يكبر',0]]},
  q2:{s:'لَبِسَتْ أُخْتِي فُسْتَانَ الْعِيدِ اللَّامِعَ، فَأَخَذَتْ ___ تَحْتَ الْأَضْوَاءِ',o:[['تَتَأَلَّقُ',1],['تَنَامُ',0],['تَبْكِي',0]]},
  k:{ph:['✨','📜','🌑']}},
 {word:'خَاتِمَة',root:'خ ت م',pattern:'فَاعِلَة',meaning:'نهاية الشيء وآخر جزء منه',example:'كَتَبَتْ دَلَالُ خَاتِمَةَ الْقِصَّةِ فِي السَّطْرِ الْأَخِيرِ.',family:['خَتَمَ','خَاتَم','خِتَام'],intruder:'خَيْمَة',
  narr:'فِي خَاتِمَةِ الْمُغَامَرَةِ، أَهْدَى الْعَمُّ صَابِرٌ إِلَى الْعَائِلَةِ بَذْرَةً مِنَ الشَّجَرَةِ الْعِمْلَاقَةِ لِيَزْرَعُوهَا فِي بَيْتِهِمْ، فَعَمَّتِ الْبَهْجَةُ الْجَمِيعَ.',
- lines:[{w:'saber',t:'هَذِهِ بَذْرَةٌ مِنَ الشَّجَرَةِ نَفْسِهَا. ازْرَعُوهَا، وَاكْتُبُوا قِصَّتَهَا، لِيَقْرَأَهَا أَحْفَادُكُمْ كَمَا قَرَأْتُمْ قِصَّةَ جَدِّي.'},{w:'kareem',t:'سَأَسْقِيهَا كُلَّ يَوْمٍ!'},{w:'feras',t:'هَذِهِ أَجْمَلُ خَاتِمَةٍ: سِرُّ الْحَدِيقَةِ سَيَكْبُرُ فِي بَيْتِنَا.'},{w:'dalal',t:'وَسَنَكْتُبُ قِصَّتَهَا بِأَنْفُسِنَا!'}],
+ lines:[{w:'saber',t:'هَذِهِ بَذْرَةٌ مِنَ الشَّجَرَةِ نَفْسِهَا. ازْرَعُوهَا، وَاكْتُبُوا قِصَّتَهَا، لِيَقْرَأَهَا أَحْفَادُكُمْ كَمَا قَرَأْتُمْ قِصَّةَ جَدِّي الْمَحْفُوظَةَ.'},{w:'kareem',t:'سَأَسْقِيهَا كُلَّ يَوْمٍ حَتَّى تَصِيرَ مُورِقَةً!'},{w:'feras',t:'هَذِهِ أَجْمَلُ خَاتِمَةٍ: سِرُّ الْحَدِيقَةِ سَيَكْبُرُ فِي بَيْتِنَا، وَعُيُونُكُمْ تَتَأَلَّقُ سُرُورًا.'},{w:'dalal',t:'وَسَنَكْتُبُ قِصَّتَهَا بِأَنْفُسِنَا!'}],
  q1:{s:'خاتمة القصة هي:',o:[['نهايتها',1],['عنوانها',0],['حدثها الأهم',0]]},
  q2:{s:'فِي ___ الْحَفْلِ، شَكَرَ الْمُدِيرُ الْجَمِيعَ وَوَدَّعَهُمْ',o:[['خَاتِمَةِ',1],['بِدَايَةِ',0],['مُنْتَصَفِ',0]]},
- k:{ph:['📕','📖','📘']}}
+ k:{ph:['🔚','▶️','📖']}}
 ];
 const UNLOCKED_SCENES=10;
 const LANE_STEPS={A:['listen','picture','record','produce','create'],B:['listen','understand','record','family','produce','create'],C:['listen','understand','record','family','conj','produce','create']};
@@ -248,7 +249,8 @@ async function micHelp(){if(micHelp.open)return;micHelp.open=1;const v=await mod
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const strip=s=>s.replace(/[\u064B-\u0652\u0640]/g,'');
-function hl(text,word){const w=strip(word).replace(/^ال/,'');const parts=text.split(' ');return parts.map(p=>strip(p).includes(w)?'<span class="hl">'+esc(p)+'</span>':esc(p)).join(' ')}
+const STEMS={'مُورِقَة':'مورق','يَتَفَحَّصُ':'تفحص','بَهْجَة':'بهج','ضِفَاف':'ضفاف','مَتَاهَة':'متاه','عِمْلَاقَة':'عملاق','عَتِيق':'عتيق','مَحْفُوظَة':'محفوظ','تَتَأَلَّقُ':'تألق','خَاتِمَة':'خاتم'};
+function hl(text,word){const w=(STEMS[word]||strip(word).replace(/^ال/,'')).replace(/[أإآ]/g,'ا');const i=SCENES.findIndex(s=>s.word===word);const prev=i>0?SCENES.slice(0,i).map(s=>STEMS[s.word]).filter(Boolean):[];const parts=text.split(' ');return parts.map(p=>{const sp=strip(p).replace(/[أإآ]/g,'ا');if(sp.includes(w))return '<span class="hl">'+esc(p)+'</span>';if(prev.some(x=>sp.includes(x.replace(/[أإآ]/g,'ا'))))return '<span class="hl2" title="كلمة من حديقتك">'+esc(p)+'</span>';return esc(p)}).join(' ')}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.i);toast.i=setTimeout(()=>t.classList.remove('on'),2600)}
 function fmt(s){s=Math.floor(s);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
@@ -364,8 +366,8 @@ async function parent(){setTop('وضع ولي الأمر','النموذج الص
  fx='<div class="card"><button class="b-p b-w" id="inbox">📬 صندوق الوارد'+(inboxN?' ('+ar(inboxN)+')':'')+'</button>'+(star&&best>=3?'<div class="who" style="margin-top:10px">⭐ نجم الأسبوع: '+CH[star].n+' — '+ar(best)+' أيام من ٧ (على المواظبة لا الدرجات)</div>':'')+'</div>'+fx;
  const hasPin=!!(await sget('kv','pin'));let asx='<div class="card"><div class="lab">🔒 رمز ولي الأمر</div><p class="small">'+(hasPin?'الرمز مفعّل: يُطلب لدخول هذا الوضع ولقرارات ولي الأمر.':'بلا رمز يُطلب سؤال ضرب، وقد تحلّه دلال. يُنصح بتعيين رمز من ٤ أرقام.')+'</p><div class="row"><input id="pinIn" inputmode="numeric" maxlength="4" placeholder="٤ أرقام" style="font:inherit;padding:10px;border:2px solid var(--line);border-radius:12px;width:8em"><button class="b-p" id="pinSet">حفظ الرمز</button>'+(hasPin?'<button class="b-s" id="pinDel">إلغاء الرمز</button>':'')+'</div></div>';asx+='<div class="card"><div class="lab">📊 التقييم</div><p class="small">قبلي وختامي وتذكّر بعد أسبوعين؛ ١٠ كلمات من القصة و١٠ كلمات مقارنة لا يعلّمها التطبيق. الإجابات الشفهية تُصحَّح هنا دون معرفة أيّها من البداية وأيّها من النهاية.</p><div class="row"><button class="b-p" id="scOral">🎧 تصحيح الإجابات الشفهية'+((await oralQueue()).length?' ('+ar((await oralQueue()).length)+')':'')+'</button><button class="b-s" id="csvBtn">📤 بيانات التقييم (CSV)</button></div></div>';for(const k of KIDS){const p=await loadProg(k.id);if(p.tests&&(p.tests.pre||p.tests.post))asx+=await assessCard(k.id)}
  $('#view').innerHTML=fx+asx+(await parentExtrasHtml())+'<div class="card"><div class="lab">النموذج الصوتي</div><p class="small">سجّل بصوتك نص الراوي وكل جملة حوار؛ يسمعها الطفل قبل أن يقرأ.</p>'+SCENES.map((s,i)=>'<button class="b-s b-w" data-ps="'+i+'" '+(i>=UNLOCKED_SCENES?'disabled':'')+' style="margin-bottom:8px;text-align:right">المشهد '+ar(i+1)+' — '+esc(s.word)+'</button>').join('')+'</div><div class="card"><div class="lab">الصور</div><p class="small">ارفع الصور بأسمائها (scene01.png، cover.png، k01.png، avatar-dalal.png…). الاسم يحدد مكانها.</p><input type="file" id="imgs" accept="image/*" multiple><div class="small" id="imgSt" style="margin-top:8px"></div></div><div class="card"><div class="lab">استعادة نسخة احتياطية</div><input type="file" id="bkin" accept=".json,application/json,application/octet-stream,text/plain"></div>'+dash;
- $('#inbox').onclick=()=>go('inbox');$('#scOral').onclick=()=>go('score');$('#pinSet').onclick=async()=>{const v=($('#pinIn').value||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));if(!/^\d{4}$/.test(v))return toast('أدخل ٤ أرقام');await sput('kv','pin',v);toast('حُفظ الرمز');go('parent')};if($('#pinDel'))$('#pinDel').onclick=async()=>{await sdel('kv','pin');toast('أُلغي الرمز');go('parent')};$('#csvBtn').onclick=exportAssessCSV;document.querySelectorAll('[data-wl]').forEach(b=>b.onclick=()=>go('wlog',[b.dataset.wl,b.dataset.w]));await wireRec($('#view'));await parentExtrasBind();document.querySelectorAll('[data-book]').forEach(b=>b.onclick=async()=>{toast('جارٍ تجهيز الكتاب…');await exportBook(b.dataset.book)});document.querySelectorAll('[data-bk]').forEach(b=>b.onclick=()=>exportBackup(b.dataset.bk));$('#bkin').onchange=async e=>{if(e.target.files[0]){if(!confirm('الاستعادة تستبدل بيانات الطفل الحالية. متابعة؟'))return;await importBackup(e.target.files[0]);go('parent')}};document.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>go('parentScene',+b.dataset.ps));document.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>go('parentReview',b.dataset.pr));
- document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const k=b.dataset.del;if(!confirm('حذف كل تسجيلات '+CH[k].n+' وتقدمه؟'))return;if(!confirm('تأكيد نهائي؟'))return;for(const key of await skeys('audio')){const x=String(key);if(x.includes(':'+k+':')||x.endsWith(':'+k))await sdel('audio',key)}for(const key of await skeys('img')){const x=String(key);if(x.startsWith('draw:'+k)||x==='photo:'+k||x.startsWith('hunt:'+k+':')||x==='plant:'+k)await sdel('img',key)}await sdel('kv','prog:'+k);await sdel('kv','log:'+k);toast('تم الحذف');go('parent')});
+ $('#inbox').onclick=()=>go('inbox');$('#scOral').onclick=()=>go('score');$('#pinSet').onclick=async()=>{const v=($('#pinIn').value||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));if(!/^\d{4}$/.test(v))return toast('أدخل ٤ أرقام');await sput('kv','pin',v);toast('حُفظ الرمز');go('parent')};if($('#pinDel'))$('#pinDel').onclick=async()=>{await sdel('kv','pin');toast('أُلغي الرمز');go('parent')};$('#csvBtn').onclick=exportAssessCSV;document.querySelectorAll('[data-wl]').forEach(b=>b.onclick=()=>go('wlog',[b.dataset.wl,b.dataset.w]));await wireRec($('#view'));await parentExtrasBind();document.querySelectorAll('[data-book]').forEach(b=>b.onclick=async()=>{toast('جارٍ تجهيز الكتاب…');await exportBook(b.dataset.book)});document.querySelectorAll('[data-bk]').forEach(b=>b.onclick=()=>exportBackup(b.dataset.bk));$('#bkin').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(f&&await importBackup(f,{ask:true}))go('parent')};document.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>go('parentScene',+b.dataset.ps));document.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>go('parentReview',b.dataset.pr));
+ document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const k=b.dataset.del;if(!confirm('حذف كل تسجيلات '+CH[k].n+' وتقدمه؟'))return;if(!confirm('تأكيد نهائي؟'))return;for(const key of await skeys('audio')){const x=String(key);if(x.includes(':'+k+':')||x.endsWith(':'+k))await sdel('audio',key)}for(const key of await skeys('img')){const x=String(key);if(x.startsWith('draw:'+k)||x==='photo:'+k||x.startsWith('hunt:'+k+':')||x==='plant:'+k)await sdel('img',key)}await sdel('kv','prog:'+k);await sdel('kv','log:'+k);const rest=(await allChallenges()).filter(c=>c.from!==k&&c.to!==k);await sput('kv','challenges',rest);toast('تم الحذف');go('parent')});
  $('#imgs').onchange=async e=>{let n=0;for(const f of e.target.files){const name=f.name.replace(/\.[^.]+$/,'');if(IMGB[name]){URL.revokeObjectURL(IMGB[name]);delete IMGB[name]}const blob=await compress(f,name.startsWith('avatar')?400:name.startsWith('k')&&/^k\d\d$/.test(name)?1536:1280);await sput('img',name,blob);n++}$('#imgSt').textContent='✓ حُفظت '+ar(n)+' صورة';const keys=await skeys('img');$('#imgSt').textContent+=' · المتاح: '+keys.filter(k=>!String(k).startsWith('draw:')).join(', ')}}
 function compress(file,max){return new Promise(res=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(b=>res(b||file),'image/webp',.82)};im.onerror=()=>res(file);im.src=URL.createObjectURL(file)})}
 async function parentScene(i){const sc=SCENES[i];setTop('نموذج المشهد '+ar(i+1),sc.word,'🎙️');
@@ -450,7 +452,7 @@ const TEST_B=[
   {s:'صُنْدُوقٌ خَشَبِيٌّ، أَيْ صُنْدُوقٌ:',o:[['مَصْنُوعٌ مِنَ الْخَشَبِ',1],['مَصْنُوعٌ مِنَ الْحَدِيدِ',0],['مَصْنُوعٌ مِنَ الزُّجَاجِ',0],['مَصْنُوعٌ مِنَ الْوَرَقِ',0]]}],
  [{s:'اللَّفَائِفُ هِيَ:',o:[['أَوْرَاقٌ مَطْوِيَّةٌ كَالْأُسْطُوَانَةِ',1],['صَنَادِيقُ صَغِيرَةٌ مُزَخْرَفَةٌ بِالذَّهَبِ',0],['أَقْلَامٌ مُلَوَّنَةٌ طَوِيلَةٌ رَفِيعَةٌ',0],['خَرَائِطُ مُعَلَّقَةٌ عَلَى الْجِدَارِ',0]]},
   {s:'رَتَّبَتْ سَلْمَى كُتُبَهَا بِعِنَايَةٍ، أَيْ:',o:[['بِاهْتِمَامٍ وَحِرْصٍ',1],['بِسُرْعَةٍ قَبْلَ النَّوْمِ',0],['وَهِيَ تَشْعُرُ بِالْمَلَلِ',0],['بِمُسَاعَدَةِ أَخِيهَا الصَّغِيرِ',0]]}],
- [{s:'فَرَدَتْ سَلْمَى السَّجَّادَةَ، أَيْ:',o:[['بَسَطَتْهَا بَعْدَ أَنْ كَانَتْ مَلْفُوفَةً',1],['غَسَلَتْهَا بِالْمَاءِ وَالصَّابُونِ جَيِّدًا',0],['عَلَّقَتْهَا عَلَى الْجِدَارِ',0],['بَاعَتْهَا فِي السُّوقِ',0]]},
+ [{s:'بَسَطَتْ سَلْمَى السَّجَّادَةَ، أَيْ:',o:[['فَرَشَتْهَا بَعْدَ أَنْ كَانَتْ مَلْفُوفَةً',1],['غَسَلَتْهَا بِالْمَاءِ وَالصَّابُونِ جَيِّدًا',0],['عَلَّقَتْهَا عَلَى الْجِدَارِ',0],['بَاعَتْهَا فِي السُّوقِ',0]]},
   {s:'وَرَقَةٌ ذَهَبِيَّةٌ، أَيْ وَرَقَةٌ:',o:[['لَوْنُهَا كَلَوْنِ الذَّهَبِ',1],['مُبَلَّلَةٌ بِالْمَاءِ',0],['مُمَزَّقَةُ الْأَطْرَافِ',0],['مَكْتُوبٌ عَلَيْهَا اسْمِي',0]]}],
  [{s:'أَهْدَى سَامِي كِتَابَهُ، أَيْ:',o:[['أَعْطَاهُ لِغَيْرِهِ بِلَا ثَمَنٍ',1],['بَاعَهُ بِثَمَنٍ قَلِيلٍ جِدًّا',0],['أَضَاعَهُ فِي سَاحَةِ الْمَدْرَسَةِ',0],['قَرَأَهُ مَرَّتَيْنِ كَامِلَتَيْنِ',0]]},
   {s:'عَمَّتِ الْفَرْحَةُ الْبَيْتَ، أَيْ:',o:[['انْتَشَرَتْ فِي كُلِّ أَرْجَائِهِ',1],['خَرَجَتْ مِنْهُ سَرِيعًا جِدًّا',0],['اخْتَبَأَتْ فِي إِحْدَى غُرَفِهِ',0],['بَقِيَتْ عِنْدَ بَابِهِ الْخَارِجِيِّ',0]]}]
@@ -559,24 +561,43 @@ async function orderGame(from,to){const idxs=[];for(let i=from;i<=to;i++)idxs.pu
 async function playFx(kind){const keys=(await skeys('audio')).map(String).filter(k=>k.startsWith('fx:'+kind+':'));if(!keys.length)return;await playKey(keys[Math.floor(Math.random()*keys.length)])}
 
 /* ===================== BACKUP / RESTORE ===================== */
-async function exportBackup(kid){const out={kid,prog:await loadProg(kid),audio:{},draw:{}};const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
- for(const k of (await skeys('audio')).map(String)){if(k.includes(':'+kid+':')||k.endsWith(':'+kid)||k.startsWith('fx:')||k.startsWith('model:')){const r=await sget('audio',k);out.audio[k]={d:await b64(r.blob),mime:r.mime,sec:r.sec,t:r.t}}}
+async function exportBackup(kid){const chs=(await allChallenges()).filter(c=>c.from===kid||c.to===kid);const out={kid,prog:await loadProg(kid),audio:{},draw:{},challenges:chs};const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+ for(const k of (await skeys('audio')).map(String)){if(k.includes(':'+kid+':')||k.endsWith(':'+kid)||k.startsWith('fx:')||k.startsWith('model:')||chs.some(c=>k.startsWith('chal:'+c.id+':'))){const r=await sget('audio',k);out.audio[k]={d:await b64(r.blob),mime:r.mime,sec:r.sec,t:r.t}}}
  for(const k of (await skeys('img')).map(String)){if(k.startsWith('draw:'+kid)||k==='photo:'+kid||k.startsWith('hunt:'+kid+':')||k==='plant:'+kid){out.draw[k]=await b64(await sget('img',k))}}
  out.log=(await sget('kv','log:'+kid))||[];const blob=new Blob([JSON.stringify(out)],{type:'application/json'});dl(blob,'نسخة-'+CH[kid].n+'-'+new Date().toISOString().slice(0,10)+'.json')}
 function dl(blob,name){if(window.AndroidBridge){const f=new FileReader();f.onload=()=>{window.AndroidBridge.saveFile(name,blob.type||'application/octet-stream',f.result.split(',')[1])};f.readAsDataURL(blob);return}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},3000)}
-function progStamp(p){let m=0;const u=x=>{if(typeof x==='number'&&x>m)m=x};Object.values((p&&p.doneT)||{}).forEach(u);Object.values((p&&p.results)||{}).forEach(r=>Object.values(r||{}).forEach(x=>x&&u(x.t)));Object.values((p&&p.tests)||{}).forEach(t=>{if(t){u(t.t);u(t.t0)}});return m}
+function progStamp(p){let m=0;const u=x=>{if(typeof x==='number'&&x>m)m=x};Object.values((p&&p.doneT)||{}).forEach(u);Object.values((p&&p.results)||{}).forEach(r=>Object.entries(r||{}).forEach(([k,x])=>{if(x&&k!=='chal'&&k!=='life')u(x.t)}));Object.values((p&&p.tests)||{}).forEach(t=>{if(t){u(t.t);u(t.t0)}});return m}
 const keyMine=(k,kid)=>k.includes(':'+kid+':')||k.endsWith(':'+kid);
 function validBackup(t){if(!t||typeof t!=='object'||!KIDS.some(k=>k.id===t.kid))return false;const p=t.prog;return !!(p&&typeof p==='object'&&p.done&&typeof p.done==='object'&&p.results&&typeof p.results==='object'&&p.leitner&&typeof p.leitner==='object')}
-async function importBackup(file){let t;try{t=JSON.parse(await file.text())}catch(e){toast('الملف غير صالح');return false}
+const KID_IDS=()=>KIDS.map(k=>k.id);
+function mergeById(a,b,f){const m=new Map((a||[]).filter(x=>x&&typeof x.id==='string').map(x=>[x.id,x]));for(const x of (b||[])){if(!x||typeof x.id!=='string'||!/^[a-z0-9]{1,16}$/.test(x.id))continue;const y=m.get(x.id);m.set(x.id,y?f(y,x):x)}return [...m.values()]}
+const askMerge=(y,x)=>({id:y.id,t:Math.min(+y.t||9e15,+x.t||9e15),answered:(y.answered||x.answered)?1:0,heard:(y.heard||x.heard)?1:0});
+const chalMerge=(y,x)=>({id:y.id,from:y.from,to:y.to,word:y.word,t:y.t||x.t,a:y.a||x.a,judged:(y.judged||x.judged)?1:0,star:y.judged?y.star:x.star});
+function cleanChal(list){return (Array.isArray(list)?list:[]).filter(c=>c&&KID_IDS().includes(c.from)&&KID_IDS().includes(c.to)&&typeof c.word==='string'&&c.word.length<40).map(c=>({id:String(c.id),from:c.from,to:c.to,word:c.word,t:+c.t||0,a:+c.a||0,judged:c.judged?1:0,star:!!c.star}))}
+function cleanAsks(list){return (Array.isArray(list)?list:[]).filter(a=>a&&typeof a.id==='string').map(a=>({id:a.id,t:+a.t||0,answered:a.answered?1:0,heard:a.heard?1:0}))}
+/* يضمّ التحديات وأسئلة الطفل دون أن يمسّ التقدّم؛ ويعيد قائمة التحديات بعد الضمّ */
+async function mergeMessages(t,prog){const chs=mergeById(await allChallenges(),cleanChal(t.challenges),chalMerge);await sput('kv','challenges',chs);
+ if(prog)prog.asks=mergeById(cleanAsks(prog.asks),cleanAsks(t.prog.asks),askMerge);
+ for(const c of chs){if(!(c.judged&&c.star))continue;const mark=p=>{const r=p.results[c.word]=p.results[c.word]||{};if(r.chal)return false;r.chal={first:true,attempts:1,t:Date.now()};return true};
+  if(c.to===t.kid){if(prog)mark(prog)}else if(await sget('kv','prog:'+c.to)){const p=await loadProg(c.to);if(mark(p))await saveProg(c.to,p)}}
+ return chs}
+async function importBackup(file,opt){opt=opt||{};let t;try{t=JSON.parse(await file.text())}catch(e){toast('الملف غير صالح');return false}
  if(!validBackup(t)){toast('هذا ليس ملف بيانات صحيحًا من حديقة الأسرار');return false}
- const cur=await loadProg(t.kid),a=progStamp(cur),b=progStamp(t.prog);const fd=x=>x?new Date(x).toLocaleString('ar-EG'):'—';
- if(a>b+60e3&&!confirm('⚠️ هذا الملف أقدم من بيانات '+CH[t.kid].n+' على هذا الجهاز.\nآخر نشاط هنا: '+fd(a)+'\nآخر نشاط في الملف: '+fd(b)+'\nالاستعادة تمحو التقدّم الأحدث. متابعة؟'))return false;
- try{const toBlob=async d=>await (await fetch(d)).blob();
-  for(const [k,v] of Object.entries(t.audio||{})){if(!v||typeof v.d!=='string'||!v.d.startsWith('data:'))continue;const shared=k.startsWith('model:')||k.startsWith('fx:');if(!shared&&!keyMine(k,t.kid))continue;if(shared&&await hasKey(k))continue;await sput('audio',k,{blob:await toBlob(v.d),mime:String(v.mime||''),sec:+v.sec||0,t:+v.t||Date.now()})}
+ const exists=!!(await sget('kv','prog:'+t.kid));const cur=await loadProg(t.kid),a=progStamp(cur),b=progStamp(t.prog);const fd=x=>x?new Date(x).toLocaleString('ar-EG'):'—';const nm=CH[t.kid].n;
+ const older=a>b+60e3;let mode='full';
+ if(older||opt.ask){mode=await modal('<div class="lab">📦 ملف '+esc(nm)+'</div>'+(older?'<div class="line" style="color:#b45309">⚠️ هذا الملف أقدم من بيانات '+esc(nm)+' على هذا الجهاز.<br><span class="small">آخر نشاط هنا: '+fd(a)+' · في الملف: '+fd(b)+'</span></div>':'')+'<p class="small">«الرسائل والتحديات فقط» تنقل تحدّيات الإخوة وإجابات بابا وماما دون أن تمسّ التقدّم.</p>',[{t:'📨 الرسائل والتحديات فقط',v:'msgs'},{t:(older?'⚠️ ':'')+'استعادة كاملة لبيانات '+esc(nm),v:'full',c:'b-s'},{t:'إلغاء',v:null,c:'b-s'}]);
+  if(!mode)return false;if(mode==='full'&&older&&!confirm('الاستعادة الكاملة تمحو تقدّم '+nm+' الأحدث على هذا الجهاز. متأكد؟'))return false}
+ try{const toBlob=async d=>await (await fetch(d)).blob();const chs=cleanChal(t.challenges);const chalKey=k=>chs.some(c=>k.startsWith('chal:'+c.id+':'));
+  for(const [k,v] of Object.entries(t.audio||{})){if(!v||typeof v.d!=='string'||!v.d.startsWith('data:'))continue;
+   const shared=k.startsWith('model:')||k.startsWith('fx:');const msg=chalKey(k)||((k.startsWith('ask:'+t.kid+':')||k.startsWith('ans:'+t.kid+':'))&&(mode==='full'||exists));
+   if(mode==='msgs'?!msg:(!shared&&!keyMine(k,t.kid)&&!chalKey(k)))continue;
+   if((shared||msg||mode==='msgs')&&await hasKey(k))continue;
+   await sput('audio',k,{blob:await toBlob(v.d),mime:String(v.mime||''),sec:+v.sec||0,t:+v.t||Date.now()})}
+  if(mode==='msgs'){await mergeMessages(t,exists?cur:null);if(exists)await saveProg(t.kid,cur);toast('ضُمّت رسائل '+nm+' وتحدّياته');return true}
   for(const [k,v] of Object.entries(t.draw||{})){if(typeof v!=='string'||!v.startsWith('data:image/')||!keyMine(k,t.kid))continue;await sput('img',k,await toBlob(v))}
   if(Array.isArray(t.log))await sput('kv','log:'+t.kid,t.log.filter(x=>Array.isArray(x)&&typeof x[0]==='number'&&typeof x[1]==='string').slice(-5000));
-  await saveProg(t.kid,t.prog)}catch(e){toast('تعذّرت الاستعادة ('+esc(e&&e.name||'')+')؛ لم تتغيّر بيانات التقدّم');return false}
- toast('استُعيدت بيانات '+CH[t.kid].n);return true}
+  const np=Object.assign({},t.prog);np.asks=cleanAsks(cur.asks);await mergeMessages(t,np);await saveProg(t.kid,np)}catch(e){toast('تعذّرت الاستعادة ('+esc(e&&e.name||'')+')؛ لم تتغيّر بيانات التقدّم');return false}
+ toast('استُعيدت بيانات '+nm);return true}
 
 /* ===================== BOOK EXPORT ===================== */
 async function exportBook(kid){const p=await loadProg(kid);const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
@@ -652,8 +673,8 @@ const EXTRA=[
  {hide:'حَدِيدِيَّةٌ',ant:{s:'ضدّ «مُورِقَة»:',o:[['عَارِيَة',1],['مُثْمِرَة',0],['عَالِيَة',0]]},pat:{s:'مُورِقَة على وزن مُفْعِلَة. ما الكلمة على الوزن نفسه من جذر ث م ر؟',o:[['مُثْمِرَة',1],['ثَمَرَة',0],['ثِمَار',0]]}},
  {hide:'يَأْكُلُ',ant:{s:'ضدّ «يَتَفَحَّصُ»:',o:[['يَتَجَاهَلُ',1],['يُدَقِّقُ',0],['يَنْظُرُ',0]]},pat:{s:'يَتَفَحَّصُ على وزن يَتَفَعَّلُ. ما الكلمة على الوزن نفسه من جذر ع ل م؟',o:[['يَتَعَلَّمُ',1],['يَعْلَمُ',0],['عَالِم',0]]}},
  {hide:'الْكَآبَةُ',ant:{s:'ضدّ «بَهْجَة»:',o:[['حُزْن',1],['فَرَح',0],['سُرُور',0]]},pat:{s:'بَهْجَة على وزن فَعْلَة. ما الكلمة على الوزن نفسه من جذر ض ح ك؟',o:[['ضَحْكَة',1],['ضَاحِك',0],['يَضْحَكُ',0]]}},
- {hide:'قَاعِ',ant:{s:'ضدّ «ضِفَاف»:',o:[['وَسَط النَّهْر',1],['جَوَانِب النَّهْر',0],['شَاطِئ',0]]},pat:{s:'ضِفَاف جمع ضِفَّة على وزن فِعَال. ما جمع «جَبَل» على الوزن نفسه؟',o:[['جِبَال',1],['جَبَلَان',0],['جُبَيْل',0]]}},
- {hide:'سَفِينَةٍ',ant:{s:'ضدّ «مَتَاهَة»:',o:[['طَرِيق مُسْتَقِيم',1],['مَمَرَّات مُتَشَابِكَة',0],['غَابَة',0]]},pat:{s:'مَتَاهَة على وزن مَفْعَلَة. ما الكلمة على الوزن نفسه من جذر د ر س؟',o:[['مَدْرَسَة',1],['دَارِس',0],['دُرُوس',0]]}},
+ {hide:'قَاعِ',ant:{s:'أَيُّ مَكَانٍ هُوَ الْأَبْعَدُ عَنْ ضِفَافِ النَّهْرِ؟',o:[['وَسَط النَّهْر',1],['جَوَانِب النَّهْر',0],['شَاطِئ',0]]},pat:{s:'ضِفَاف جمع ضِفَّة على وزن فِعَال. ما جمع «جَبَل» على الوزن نفسه؟',o:[['جِبَال',1],['جَبَلَان',0],['جُبَيْل',0]]}},
+ {hide:'سَفِينَةٍ',ant:{s:'فِي أَيِّ مَكَانٍ لَا يَضِيعُ أَحَدٌ أَبَدًا، عَكْسَ الْمَتَاهَةِ؟',o:[['طَرِيق مُسْتَقِيم',1],['مَمَرَّات مُتَشَابِكَة',0],['غَابَة',0]]},pat:{s:'مَتَاهَة على وزن مَفْعَلَة. ما الكلمة على الوزن نفسه من جذر د ر س؟',o:[['مَدْرَسَة',1],['دَارِس',0],['دُرُوس',0]]}},
  {hide:'صَغِيرَةٍ',ant:{s:'ضدّ «عِمْلَاقَة»:',o:[['صَغِيرَة جِدًّا',1],['ضَخْمَة',0],['طَوِيلَة',0]]},pat:{s:'عِمْلَاق جمعه عَمَالِقَة. ما جمع «تِلْمِيذ» على الوزن نفسه؟',o:[['تَلَامِذَة',1],['تِلْمِيذَان',0],['تَلْمَذَة',0]]}},
  {hide:'طَائِرًا',ant:{s:'ضدّ «عَتِيق»:',o:[['جَدِيد',1],['قَدِيم',0],['ثَمِين',0]]},pat:{s:'عَتِيق على وزن فَعِيل. ما الكلمة على الوزن نفسه من جذر ك ب ر؟',o:[['كَبِير',1],['أَكْبَر',0],['كِبَار',0]]}},
  {hide:'مُبَلَّلَةً',ant:{s:'ضدّ «مَحْفُوظَة»:',o:[['ضَائِعَة',1],['مَصُونَة',0],['مُغْلَقَة',0]]},pat:{s:'مَحْفُوظَة على وزن مَفْعُولَة. ما الكلمة على الوزن نفسه من جذر ك ت ب؟',o:[['مَكْتُوبَة',1],['كَاتِبَة',0],['كِتَابَة',0]]}},
@@ -798,7 +819,7 @@ async function parentInbox(){setTop('📬 صندوق ولي الأمر','أسئ�
  for(const k of KIDS){const keys=(await skeys('audio')).map(String);const bl=keys.filter(x=>x.startsWith('blind:'+k.id+':'));const hu=keys.filter(x=>x.startsWith('hunt:'+k.id+':'));const rp=keys.filter(x=>x.startsWith('report:'+k.id+':'));if(bl.length+hu.length+rp.length){html+='<div class="card"><div class="who">'+(await avHtml(k.id))+CH[k.id].n+'</div>'+(bl.length?'<div class="lab">🙈 الراوي الأعمى</div>'+bl.map(x=>'<button class="b-s" data-pl="'+x+'" style="margin:3px">م'+ar(+x.split(':s')[1]+1)+'</button>').join(''):'')+(hu.length?'<div class="lab" style="margin-top:8px">🏠 صائد الكلمات</div>'+hu.map(x=>'<button class="b-s" data-pl="'+x+'" style="margin:3px">'+esc(SCENES[+x.split(':').pop()].word)+'</button>').join(''):'')+(rp.length?'<div class="lab" style="margin-top:8px">🎙️ التقارير الأسبوعية</div>'+rp.map(x=>'<button class="b-s" data-pl="'+x+'" style="margin:3px">أسبوع '+ar(+x.split(':').pop())+'</button>').join(''):'')+'</div>'}}
  $('#view').innerHTML=(html||'<div class="card small">لا شيء جديد</div>')+'<div class="row"><button class="b-s b-w" id="bk">⬅️ رجوع</button></div>';$('#bk').onclick=()=>go('parent');document.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>playKey(b.dataset.pl));
  await wireRec($('#view'),async()=>{for(const k of KIDS){const p=await loadProg(k.id);let ch=false;for(const a of (p.asks||[])){if(!a.answered&&await hasKey('ans:'+k.id+':'+a.id)){a.answered=1;ch=true}}if(ch)await saveProg(k.id,p)}});
- document.querySelectorAll('[data-j]').forEach(b=>b.onclick=async()=>{const c=all.find(x=>x.id===b.dataset.j);c.judged=1;c.star=b.dataset.v==='1';await sput('kv','challenges',all);if(c.star){const p=await loadProg(c.to);const r=p.results[c.word]=p.results[c.word]||{};r.chal={first:true,attempts:1,t:Date.now()};await saveProg(c.to,p)}parentInbox()})}
+ document.querySelectorAll('[data-j]').forEach(b=>b.onclick=async()=>{const c=all.find(x=>x.id===b.dataset.j);c.judged=1;c.star=b.dataset.v==='1';await sput('kv','challenges',all);if(c.star&&await sget('kv','prog:'+c.to)){const p=await loadProg(c.to);const r=p.results[c.word]=p.results[c.word]||{};if(!r.chal)r.chal={first:true,attempts:1,t:Date.now()};await saveProg(c.to,p)}parentInbox()})}
 async function wordLog(kid,w){const p=await loadProg(kid);const i=SCENES.findIndex(s=>s.word===w);const r=p.results[w]||{},l=p.leitner[w]||{},T=p.tests||{};setTop('سجل «'+w+'»',CH[kid].n,await avInner(kid));
  const row=(k,v)=>'<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0"><span>'+k+'</span><b>'+v+'</b></div>';
  const names={q1:'سؤال المعنى',q2:'الإكمال',pic:'الصورة',root:'الجذر',family:'عائلة الكلمة',conj:'التصريف',hide:'المختبئة',ant:'الضد',pat:'الوزن',blind:'الراوي الأعمى',chal:'تحدي الأخوة'};
@@ -814,8 +835,9 @@ const pad2=n=>String(n).padStart(2,'0');
 /* --- الصوت المصنَّع: رنين، بريق، فقاعات --- */
 let ACtx=null;function actx(){if(!ACtx){const C=window.AudioContext||window.webkitAudioContext;if(C)ACtx=new C()}if(ACtx&&ACtx.state==='suspended')ACtx.resume();return ACtx}
 let MAGIC_SRC=[];
-function tone(f,when,len,vol,dest){const c=actx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(vol,when+.012);g.gain.exponentialRampToValueAtTime(.0005,when+len);o.connect(g).connect(dest||c.destination);o.start(when);o.stop(when+len+.05);MAGIC_SRC.push(o)}
-function bubble(f,when,dest){const c=actx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(f,when);o.frequency.exponentialRampToValueAtTime(f*2.2,when+.08);g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(.07,when+.01);g.gain.exponentialRampToValueAtTime(.0005,when+.1);o.connect(g).connect(dest);o.start(when);o.stop(when+.12);MAGIC_SRC.push(o)}
+function keepNode(n){MAGIC_SRC.push(n);n.onended=()=>{const k=MAGIC_SRC.indexOf(n);if(k>=0)MAGIC_SRC.splice(k,1)}}
+function tone(f,when,len,vol,dest){const c=actx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(vol,when+.012);g.gain.exponentialRampToValueAtTime(.0005,when+len);o.connect(g).connect(dest||c.destination);o.start(when);o.stop(when+len+.05);keepNode(o)}
+function bubble(f,when,dest){const c=actx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(f,when);o.frequency.exponentialRampToValueAtTime(f*2.2,when+.08);g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(.07,when+.01);g.gain.exponentialRampToValueAtTime(.0005,when+.1);o.connect(g).connect(dest);o.start(when);o.stop(when+.12);keepNode(o)}
 function chime(kind){const c=actx();if(!c)return;const t=c.currentTime+.02;(kind==='big'?[659,784,988,1319]:kind==='spark'?[1568,2093,2637,3136]:[880,1319]).forEach((f,k)=>tone(f,t+k*.11,.9,.15))}
 function confetti(n){const box=document.createElement('div');box.className='cf';const em=['🍃','✨','🌸','⭐','🌿'];for(let k=0;k<(n||26);k++){const s=document.createElement('span');s.textContent=em[k%em.length];s.style.left=(Math.random()*100)+'%';s.style.animationDuration=(2.2+Math.random()*1.8)+'s';s.style.animationDelay=(Math.random()*.6)+'s';box.appendChild(s)}document.body.appendChild(box);setTimeout(()=>box.remove(),4800)}
 
@@ -843,7 +865,7 @@ const BONUS=[
  [['السَّاحَة','مكان واسع مكشوف'],['تُلَامِسُ','تمسّ الشيء برفق']],
  [['حَارِس','من يحفظ المكان ويحميه'],['خَشَبِيّ','مصنوع من الخشب']],
  [['لَفَائِف','أوراق ملفوفة على شكل أسطوانة'],['بِعِنَايَةٍ','باهتمام وحرص شديد']],
- [['فَرَدَتْ','بسطت الشيء الملفوف'],['الذَّهَبِيَّة','لونها كلون الذهب']],
+ [['بَسَطَتْ','نشرت الشيء الملفوف ومدّته'],['الذَّهَبِيَّة','لونها كلون الذهب']],
  [['أَهْدَى','قدّم شيئًا هديةً'],['عَمَّتْ','انتشرت وشملت الجميع']]
 ];
 function dueList(P,L){const t=today();const m=SCENES.map((sc,i)=>({sc,i})).filter(o=>P.leitner[o.sc.word]&&P.leitner[o.sc.word].due<=t);const b=[];if(L==='C')BONUS.forEach((arr,i)=>arr.forEach(([w,mm])=>{const x=(P.bleit||{})[w];if(x&&x.due<=t)b.push({bw:w,bm:mm,i})}));return m.concat(b)}
