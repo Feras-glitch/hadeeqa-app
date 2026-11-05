@@ -43,7 +43,7 @@ async def main():
             else: await pg.click('#tq .opt >> nth=0')
             await pg.wait_for_timeout(600)
         await pg.click('#tpause'); await pg.wait_for_timeout(400)
-        ok('paused test resumes where it stopped', 'أكمل (٧' in await view(pg))
+        ok('paused test resumes where it stopped (counted in words)', 'أكمل (الكلمة ٤ من ٤٠)' in await view(pg), (await view(pg))[:90])
         await pg.click('#pre'); await pg.wait_for_timeout(300)
         n = await take_test(pg)
         pre = await ev("S.prog.tests.pre")
@@ -120,10 +120,12 @@ async def main():
         await pg.click('.bed-x'); await pg.wait_for_timeout(400)
         ok('bedtime closes cleanly', not await pg.query_selector('.ovl.bed') and await ev("S.view") == 'kid')
 
-        # ---------- فرح (المسار الأوسط) ----------
+        # ---------- فرح: صار على مستوى دلال، ونجرّب هنا المستوى الأوسط الذي يبقى خيارًا لولي الأمر ----------
+        await ev("(async()=>{await sput('kv','lanes',{farah:'B'});await applyLanes()})()")
         await pg.click('#homeBtn'); await pg.click('[data-k="farah"]'); await skip_pre(pg)
         await pg.click('button[data-s] >> nth=0'); await pg.wait_for_timeout(400)
         ok('scene 1 (lane B) to celebration', await run_scene(pg, hs=HS))
+        await ev("(async()=>{await sdel('kv','lanes');KIDS.find(k=>k.id==='farah').lane='C'})()")
 
         # ---------- كريم (المسار الأصغر) ----------
         await pg.click('#homeBtn'); await pg.click('[data-k="kareem"]'); await skip_pre(pg)

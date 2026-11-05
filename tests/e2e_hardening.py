@@ -45,7 +45,7 @@ async def main():
         ok('replay keeps the first-attempt result (only counts the replay)', again['first'] == first['first'] is False and again['attempts'] == first['attempts'] and again.get('n') == 2, f"{first} → {again}")
 
         # 2) taps after solving cannot flip a result (root chip, family intruder)
-        await ev("(async()=>{const k=KIDS.find(x=>x.id==='farah');})()")
+        await ev("KIDS.find(x=>x.id==='farah').lane='B'")  # المستوى الأوسط ما زال خيارًا لولي الأمر
         await to_step(pg, 'farah', 0, 4)
         ok('lane B family step shows root chips', bool(await pg.query_selector('[data-r]')))
         if await pg.query_selector('[data-r]'):
@@ -54,6 +54,7 @@ async def main():
             await pg.click(f'[data-r="{root}"]', force=True); await pg.wait_for_timeout(100)
             r = await ev("S.prog.results['مُورِقَة'].root")
             ok('root chip: second tap after solving ignored', r['first'] is True and r['attempts'] == 1, str(r))
+        await ev("KIDS.find(x=>x.id==='farah').lane='C'")
         await to_step(pg, 'dalal', 0, 4)
         fam = await ev("SCENES[0].family"); intr = await ev("SCENES[0].intruder")
         for w in fam:
@@ -91,31 +92,42 @@ async def main():
         h = await ev("S.prog.results['مُورِقَة'].hide")
         ok('hidden word: double tap on the answer keeps first-try', h['first'] is True, str(h))
 
-        # 6) parent mode is gated; a wrong answer locks for 30 s; PIN replaces the sum
-        await pg.click('#pBtn'); await pg.wait_for_timeout(200)
-        ok('parent mode asks the gate', bool(await pg.query_selector('.mdl-c')))
-        btns = await pg.query_selector_all('.mdl-c button')
-        t = await pg.inner_text('.mdl-c'); ar = '٠١٢٣٤٥٦٧٨٩'
-        nums = [int(x) for x in ''.join(str(ar.index(c)) if c in ar else ' ' for c in t).split()]
-        right = ''.join(ar[int(c)] for c in str(nums[0] * nums[1]))
-        for bt in btns:
-            if (await bt.inner_text()).strip() != right:
-                await bt.click(); break
-        await pg.wait_for_timeout(300)
-        ok('wrong answer: stays outside parent mode', await ev("S.view") != 'parent')
+        # 6) parent mode needs the PIN (set at the first gate); wrong PIN locks, and the lock survives a restart
+        ok('PIN was set at the first parent decision', await ev("sget('kv','pin')") == '2468' and bool(await ev("sget('kv','pinrc')")))
         await pg.click('#pBtn'); await pg.wait_for_timeout(300)
-        ok('…and is locked out for a while', not await pg.query_selector('.mdl-c') and await ev("S.view") != 'parent')
-        await ev("parentGate.lock=0")
-        await pg.click('#pBtn'); await pg.wait_for_timeout(200); await answer_gate(pg); await pg.wait_for_timeout(700)
-        await pg.fill('#pinIn', '٢٤٦٨'); await pg.click('#pinSet'); await pg.wait_for_timeout(600)
-        ok('PIN saved (Arabic digits accepted)', await ev("sget('kv','pin')") == '2468')
-        await pg.click('#homeBtn'); await pg.click('#pBtn'); await pg.wait_for_timeout(300)
-        ok('with a PIN the gate is a keypad', bool(await pg.query_selector('.pinpad')))
+        ok('parent mode asks for the PIN', bool(await pg.query_selector('.pinpad')))
+        for d in '1111':
+            await pg.click(f'.pinpad [data-pk="{d}"]')
+        await pg.wait_for_timeout(400)
+        ok('wrong PIN: stays outside parent mode', await ev("S.view") != 'parent')
+        await pg.click('#pBtn'); await pg.wait_for_timeout(300)
+        ok('…and is locked out', not await pg.query_selector('.pinpad') and await ev("S.view") != 'parent')
+        await pg.reload(); await pg.wait_for_timeout(1200)
+        await pg.click('#pBtn'); await pg.wait_for_timeout(400)
+        ok('the lockout survives closing and reopening the app', not await pg.query_selector('.pinpad'))
+        await ev("sput('kv','pinlock',{lock:0,fails:0}).then(()=>{parentGate.lock=undefined})")
+        await pg.click('#pBtn'); await pg.wait_for_timeout(300)
         for d in '2468':
-            await pg.click(f'[data-pk="{d}"]')
-        await pg.wait_for_timeout(700)
+            await pg.click(f'.pinpad [data-pk="{d}"]')
+        await pg.wait_for_timeout(800)
         ok('correct PIN opens parent mode', await ev("S.view") == 'parent')
-        await pg.click('#pinDel'); await pg.wait_for_timeout(500)
+        ok('no way to remove the PIN', not await pg.query_selector('#pinDel'))
+        await pg.click('summary >> text=رمز ولي الأمر'); await pg.fill('#pinIn', '١٣٥٧'); await pg.click('#pinSet'); await pg.wait_for_timeout(700)
+        ok('PIN changed (Arabic digits accepted)', await ev("sget('kv','pin')") == '1357')
+        # forgot the PIN → recovery code → choose a new one
+        rc = await ev("sget('kv','pinrc')")
+        await pg.click('#homeBtn'); await pg.click('#pBtn'); await pg.wait_for_timeout(300)
+        await pg.click('#pinForgot'); await pg.wait_for_timeout(200)
+        await pg.fill('#rcIn', rc); await pg.click('#rcOk'); await pg.wait_for_timeout(300)
+        await answer_gate(pg); await pg.wait_for_timeout(800)
+        ok('forgotten PIN: recovery code lets the parent choose a new one', await ev("sget('kv','pin')") == '2468' and await ev("S.view") == 'parent')
+        # each child's level is a parent setting
+        ok('farah is on dalal\'s level by default', await ev("KIDS.find(k=>k.id==='farah').lane") == 'C')
+        await pg.click('summary >> text=رمز ولي الأمر'); await pg.select_option('[data-lane="farah"]', 'B'); await pg.wait_for_timeout(400)
+        await pg.reload(); await pg.wait_for_timeout(1200)
+        ok('a level change is kept after restart', await ev("KIDS.find(k=>k.id==='farah').lane") == 'B')
+        await ev("sput('kv','lanes',{}).then(()=>{KIDS.find(k=>k.id==='farah').lane='C'})")
+        await pg.click('#pBtn'); await pg.wait_for_timeout(200); await answer_gate(pg); await pg.wait_for_timeout(700)
 
         # 7) restore: older file warns; foreign/malformed files rejected; injected markup inert
         await ev("(async()=>{const p=await loadProg('farah');p.doneT={0:Date.now()};p.done={0:true};await saveProg('farah',p)})()")

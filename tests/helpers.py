@@ -167,19 +167,25 @@ async def run_scene(pg, log=print, hs=None):
     return bool(await pg.query_selector('#mg'))
 
 
-async def answer_gate(pg):
-    """Parent gate: read a × b from the modal and click the right number."""
-    t = await pg.inner_text('.mdl-c')
-    ar = '٠١٢٣٤٥٦٧٨٩'
-    digits = ''.join(str(ar.index(c)) if c in ar else (c if c.isdigit() else ' ') for c in t)
-    nums = [int(x) for x in digits.split() if x]
-    a, b = nums[0], nums[1]
-    target = ''.join(ar[int(c)] for c in str(a * b))
-    for btn in await pg.query_selector_all('.mdl-c button'):
-        if (await btn.inner_text()).strip() == target:
-            await btn.click()
-            return True
-    return False
+TEST_PIN = '2468'
+
+
+async def answer_gate(pg, pin=TEST_PIN):
+    """Parent gate: a PIN is now required. First time: choose it, confirm it, acknowledge the
+    recovery code. Afterwards: type it on the keypad."""
+    await pg.wait_for_timeout(150)
+    for _ in range(6):
+        if await pg.query_selector('.pinpad'):
+            for d in pin:
+                await pg.click(f'.pinpad [data-pk="{d}"]')
+            await pg.wait_for_timeout(250)
+            continue
+        mc = await pg.query_selector('.mdl-c')
+        if mc and 'رمز الاسترجاع' in await mc.inner_text():
+            await pg.click('.mdl-c button >> nth=0'); await pg.wait_for_timeout(250)
+            continue
+        return True
+    return True
 
 
 async def take_test(pg, record_every=2):

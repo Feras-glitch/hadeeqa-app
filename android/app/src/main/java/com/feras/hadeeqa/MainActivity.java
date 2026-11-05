@@ -101,7 +101,8 @@ public class MainActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= 29) {
                     ContentValues cv = new ContentValues();
                     cv.put(MediaStore.Downloads.DISPLAY_NAME, name);
-                    cv.put(MediaStore.Downloads.MIME_TYPE, mime);
+                    String m0 = mime == null ? "application/octet-stream" : mime.split(";")[0].trim();
+                    cv.put(MediaStore.Downloads.MIME_TYPE, m0.isEmpty() ? "application/octet-stream" : m0);
                     cv.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
                     Uri u = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv);
                     if (u == null) throw new java.io.IOException("insert failed");
