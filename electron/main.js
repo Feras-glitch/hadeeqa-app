@@ -5,6 +5,9 @@ function create() {
   const win = new BrowserWindow({ width: 900, height: 760, minWidth: 420, autoHideMenuBar: true, backgroundColor: '#f0fdf4', title: 'حديقة الأسرار', webPreferences: { contextIsolation: true, sandbox: true } });
   session.defaultSession.setPermissionRequestHandler((wc, permission, cb) => cb(['media', 'audioCapture', 'videoCapture', 'mediaKeySystem'].includes(permission)));
   session.defaultSession.setPermissionCheckHandler(() => true);
+  // التطبيق لا ينتقل إلى أي صفحة أخرى أبدًا: سحب ملف إلى النافذة أو رابط عابر لا يستبدل التطبيق
+  win.webContents.on('will-navigate', (e) => e.preventDefault());
+  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.loadFile(path.join(__dirname, 'www', 'index.html'));
 }
 app.whenReady().then(create);
