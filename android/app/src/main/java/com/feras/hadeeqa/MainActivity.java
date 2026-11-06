@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
                 pick.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, p.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE);
                 boolean wantsImage = false;
                 for (String t : p.getAcceptTypes()) if (t != null && t.startsWith("image")) wantsImage = true;
+                // ملف الحقيبة قد يصل باسم أو نوع مختلف (من واتساب أو البريد): لا نخفي أي ملف في منتقي غير الصور
+                if (!wantsImage) { pick.setType("*/*"); pick.addCategory(Intent.CATEGORY_OPENABLE); }
                 Intent cam = null;
                 if (wantsImage && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                     try {

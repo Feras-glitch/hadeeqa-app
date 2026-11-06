@@ -15,12 +15,26 @@ def serve(port):
     return f'http://127.0.0.1:{port}/index.html'
 
 
-async def new_page(b, errs, **ctxkw):
+async def new_page(b, errs, seed_pin=True, **ctxkw):
+    """seed_pin: the parent PIN is chosen on the home page before the children start (as on a real tablet);
+    tests that check that first-time setup pass seed_pin=False."""
     ctx = await b.new_context(viewport={'width': 412, 'height': 900}, permissions=['microphone', 'camera'], accept_downloads=True, **ctxkw)
     pg = await ctx.new_page()
     pg.on('pageerror', lambda e: errs.append('PAGEERROR: ' + str(e)))
     pg.on('console', lambda m: errs.append('CONSOLE: ' + m.text) if m.type == 'error' and 'sw.js' not in m.text else None)
     pg.on('dialog', lambda d: asyncio.ensure_future(d.accept()))
+    if seed_pin:
+        orig = pg.goto
+
+        async def goto(url, **kw):
+            r = await orig(url, **kw)
+            try:
+                await pg.wait_for_selector('[data-k]', timeout=15000)
+                await pg.evaluate("(async()=>{if(!(await sget('kv','pin'))){await sput('kv','pin','%s');await sput('kv','pinrc','123456');await go('home')}})()" % TEST_PIN)
+            except Exception:
+                pass
+            return r
+        pg.goto = goto
     return pg
 
 

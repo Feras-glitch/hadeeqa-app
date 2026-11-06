@@ -92,8 +92,8 @@ async def main():
         h = await ev("S.prog.results['مُورِقَة'].hide")
         ok('hidden word: double tap on the answer keeps first-try', h['first'] is True, str(h))
 
-        # 6) parent mode needs the PIN (set at the first gate); wrong PIN locks, and the lock survives a restart
-        ok('PIN was set at the first parent decision', await ev("sget('kv','pin')") == '2468' and bool(await ev("sget('kv','pinrc')")))
+        # 6) parent mode needs the PIN (chosen on the home page before the children start); wrong PIN locks, and the lock survives a restart
+        ok('PIN exists before the children start', await ev("sget('kv','pin')") == '2468' and bool(await ev("sget('kv','pinrc')")))
         await pg.click('#pBtn'); await pg.wait_for_timeout(300)
         ok('parent mode asks for the PIN', bool(await pg.query_selector('.pinpad')))
         for d in '1111':
@@ -112,7 +112,9 @@ async def main():
         await pg.wait_for_timeout(800)
         ok('correct PIN opens parent mode', await ev("S.view") == 'parent')
         ok('no way to remove the PIN', not await pg.query_selector('#pinDel'))
-        await pg.click('summary >> text=رمز ولي الأمر'); await pg.fill('#pinIn', '١٣٥٧'); await pg.click('#pinSet'); await pg.wait_for_timeout(700)
+        await pg.click('summary >> text=رمز ولي الأمر'); await pg.fill('#pinIn', '١٣٥٧'); await pg.click('#pinSet'); await pg.wait_for_timeout(300)
+        ok('changing the PIN asks for the current one first', bool(await pg.query_selector('.pinpad')))
+        await answer_gate(pg); await pg.wait_for_timeout(500)
         ok('PIN changed (Arabic digits accepted)', await ev("sget('kv','pin')") == '1357')
         # forgot the PIN → recovery code → choose a new one
         rc = await ev("sget('kv','pinrc')")
@@ -198,6 +200,7 @@ async def main():
         pg2 = await ctx.new_page(); pg2.on('dialog', lambda d: asyncio.ensure_future(d.accept()))
         await pg2.add_init_script("if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia=()=>Promise.reject(new DOMException('denied','NotAllowedError'))")
         await pg2.goto(URL); await pg2.wait_for_timeout(900)
+        await pg2.evaluate("sput('kv','pin','2468')")  # the parent chose the PIN on this device already
         await pg2.click('[data-k="kareem"]'); await pg2.wait_for_timeout(300); await skip_pre(pg2)
         await to_step(pg2, 'kareem', 0, 3)
         await pg2.click('[data-rec] >> nth=0'); await pg2.wait_for_timeout(800)

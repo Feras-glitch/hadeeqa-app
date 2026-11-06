@@ -76,7 +76,8 @@ async def main():
         pth = os.path.join(tmp, 'evil.json'); open(pth, 'w', encoding='utf-8').write(json.dumps(evil))
         await pg.set_input_files('#bkin', pth); await pg.wait_for_timeout(800)
         if await pg.query_selector('.mdl-c'):
-            await pg.click('.mdl-c button >> text=استعادة كاملة'); await pg.wait_for_timeout(1200)
+            await pg.click('.mdl-c button >> text=استعادة كاملة'); await pg.wait_for_timeout(300)
+            await answer_gate(pg); await pg.wait_for_timeout(1200)  # an older file needs the parent PIN for a full restore
         await ev("go('parent')"); await pg.wait_for_timeout(1000)
         fp = await ev("loadProg('farah')")
         ok('crafted file: parent page still renders', bool(await pg.query_selector('#csvBtn')))
