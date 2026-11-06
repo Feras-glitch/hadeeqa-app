@@ -215,6 +215,32 @@ async def main():
         await ev("(async()=>{const p=await loadProg('farah');p.done={0:true};p.step=0;p.lastNew=today()+1;await saveProg('farah',p);await go('kid','farah')})()"); await pg.wait_for_timeout(600)
         ok('clock moved back: today\'s new-scene lock still holds', 'غدًا' in await view(pg))
 
+        # ---------- قرارات فراس (٦ نوفمبر) ----------
+        # ١) حدّ أدنى: أقل من ٤ كلمات قصة مجهولة في البداية ⇒ التعرّف والتذكّر غير قابلين للحكم، والحكم بالشفهي
+        r = await ev("""(async()=>{const mk=(ok,dk,sc)=>({rec:{ok,dk:dk?1:0},oral:dk?{dk:1}:{has:1,score:sc}});
+          const pre={v:2,k:999,done:true,t:1,t0:0,resp:{}},post={v:2,k:999,done:true,t:2,t0:0,resp:{}};
+          for(let i=0;i<10;i++){pre.resp['t'+i]=mk(i<8?1:0,i>=8,i<8?1:0);pre.resp['c'+i]=mk(0,1);post.resp['t'+i]=mk(1,0,2);post.resp['c'+i]=mk(0,1)}
+          const p=await loadProg('dalal');p.tests={pre,post};await saveProg('dalal',p);const c=criterion(p);await go('parent');return {recog:c.recog,delay:c.delay,oral:c.oral,status:c.status,pu:c.pu}})()""")
+        await pg.wait_for_timeout(900)
+        ok('child who knew 8 of 10 story words: recognition and delay not judgeable, judged by oral (→ pass)', r['recog'] == 'na' and r['delay'] == 'na' and r['oral'] is True and r['status'] == 'pass', json.dumps(r))
+        ok('…and the report says why', 'غير قابلين للحكم' in await view(pg) and 'الحدّ الأدنى ٤' in await view(pg))
+        r = await ev("""(async()=>{const p=await loadProg('dalal');for(let i=0;i<10;i++){p.tests.pre.resp['t'+i]={rec:{ok:0,dk:1},oral:{dk:1}}}return criterion(p).small})()""")
+        ok('…a child with enough unknown words is judged on recognition as before', r is False)
+        # ٤) «خشبي» و«الذهبية» خارج نسبة الكلمات الإضافية
+        n = await ev("""(()=>{const resp={};for(let i=0;i<10;i++)for(let j=0;j<2;j++)resp['b'+i+'_'+j]={rec:{ok:1,dk:0}};return tSummary({tests:{pre:{v:2,done:true,resp}}},'pre').g.B.n})()""")
+        ok('bonus percentage counts 18 words (the two answerable from the root are left out)', n == 18, str(n))
+        # ٣) «هذا الجهاز لـ…»
+        await pg.click('summary >> text=رمز ولي الأمر'); await pg.select_option('#ownerSel', 'dalal'); await pg.wait_for_timeout(400)
+        await ev("go('home')"); await pg.wait_for_timeout(500)
+        ks = await ev("[...document.querySelectorAll('[data-k]')].map(b=>b.dataset.k)")
+        ok('a tablet set to Dalal shows only Dalal on the home page', ks == ['dalal'], str(ks))
+        await pg.reload(); await pg.wait_for_timeout(1200)
+        ok('…and stays so after restart', await ev("[...document.querySelectorAll('[data-k]')].map(b=>b.dataset.k)") == ['dalal'])
+        await pg.click('#pBtn'); await pg.wait_for_timeout(200); await answer_gate(pg); await pg.wait_for_timeout(800)
+        await pg.click('summary >> text=رمز ولي الأمر'); await pg.select_option('#ownerSel', ''); await pg.wait_for_timeout(400)
+        await ev("go('home')"); await pg.wait_for_timeout(500)
+        ok('…"all" brings the three children back', len(await ev("[...document.querySelectorAll('[data-k]')].map(b=>b.dataset.k)")) == 3)
+
         await b.close()
 
 asyncio.run(main())
