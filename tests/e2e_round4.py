@@ -156,6 +156,90 @@ async def main():
         if mc:
             await pg.click('.mdl-c button >> text=إلغاء'); await pg.wait_for_timeout(300)
 
+
+        # ================= قرارات المراجعة الرابعة (١٣ نوفمبر) =================
+        # ق٣ + ت٥: كلمات المقارنة الجديدة، وأسطر كريم تحمل كلمة المشهد
+        ok('Q3: control words replaced (no roots from juz\' Amma/Tabarak)', await ev("CONTROL.map(c=>strip(c.w))") == ['مكتظ', 'يتلعثم', 'الحنين', 'القبو', 'المرفأ', 'متعرج', 'معتم', 'متراكمة', 'يثرثر', 'الهامش'])
+        ok('T5: Kareem\'s lines now carry the scene word in scenes 1, 6, 8, 9', await ev("[0,5,7,8].every(i=>SCENES[i].lines.some(l=>l.w==='kareem'&&strip(l.t).includes(strip(SCENES[i].word).slice(0,4))))"))
+        # ق٢: الاحتمال الدقيق المجمَّع مقابل حساب مستقل بالتعداد الكامل
+        st = [{'nT': 8, 'nC': 6, 'xT': 4, 'xC': 1}, {'nT': 3, 'nC': 5, 'xT': 2, 'xC': 0}, {'nT': 10, 'nC': 9, 'xT': 1, 'xC': 2}]
+        from math import comb
+        def pmf(q):
+            N, K, n = q['nT'] + q['nC'], q['nT'], q['xT'] + q['xC']
+            return [comb(K, i) * comb(N - K, n - i) / comb(N, n) for i in range(0, min(n, K) + 1)]
+        dist = [1.0]
+        for q in st:
+            f = pmf(q); nd = [0.0] * (len(dist) + len(f) - 1)
+            for i, a in enumerate(dist):
+                for j, b2 in enumerate(f):
+                    nd[i + j] += a * b2
+            dist = nd
+        obs = sum(q['xT'] for q in st); pe = sum(dist[obs:])
+        pj = await ev("st=>strataP(st).p", st)
+        ok('Q2: pooled exact chance probability matches an independent computation', abs(pj - pe) < 1e-12, f'{pj} vs {pe}')
+        ok('…labels: ≤5% evidence, ≤20% suggestive, otherwise none', await ev("[verdictOf(0.05).m,verdictOf(0.2).m,verdictOf(0.21).m].join('')") == '✅🟡❌')
+        # ق٢: لا نتائج ولا CSV قبل اكتمال التذكّر والتصحيح؛ الاستبعاد يُحفظ ويبقى بعد الاستعادة
+        await ev("""(async()=>{for(const k of ['dalal','farah','kareem'])await sdel('kv','prog:'+k);const p=await loadProg('dalal');p.tests={pre:{v:2,k:999,done:true,t:1,t0:1,lane:'C',resp:{t0:{rec:{ok:0,dk:1},oral:{dk:1}},c0:{rec:{ok:0,dk:1},oral:{dk:1}}}},post:{v:2,k:999,done:true,t:2,t0:2,lane:'C',resp:{t0:{rec:{ok:1,dk:0},oral:{dk:1}},c0:{rec:{ok:0,dk:1},oral:{dk:1}}}}};await saveProg('dalal',p);await go('parent')})()""")
+        await pg.wait_for_timeout(900)
+        if await pg.query_selector('.pinpad'):
+            await answer_gate(pg); await pg.wait_for_timeout(900)
+        v = await view(pg)
+        ok('Q2: before the delay test the report shows progress only, no scores', 'النتائج تظهر بعد' in v and 'للمعيار' not in v and '١ من' not in v)
+        await pg.click('#csvBtn'); await pg.wait_for_timeout(300)
+        ok('…and the CSV export is locked', 'تُصدَّر بعد' in await pg.inner_text('#toast'))
+        await ev("document.querySelectorAll('details').forEach(d=>d.open=true)")
+        await pg.check('[data-ex="dalal"][data-id="c0"]'); await pg.wait_for_timeout(400)
+        ex = await ev("loadProg('dalal').then(p=>p.excl&&p.excl.c0&&p.excl.c0.v)")
+        ok('Q10: a word taught outside the app can be excluded for that child', ex == 1)
+        old = {'kid': 'dalal', 'prog': {'scene': 0, 'step': 0, 'done': {}, 'doneT': {}, 'leitner': {}, 'results': {}, 'tests': json.loads(json.dumps(await ev("loadProg('dalal').then(p=>p.tests)")))}, 'audio': {}, 'draw': {}, 'log': [[await ev('Date.now()') + 60000, 'test']]}
+        pth3 = os.path.join(tmp, 'dalal_tab.json'); open(pth3, 'w', encoding='utf-8').write(json.dumps(old))
+        await pg.set_input_files('#bkin', pth3); await pg.wait_for_timeout(700)
+        if await pg.query_selector('.mdl-c'):
+            await pg.click('.mdl-c button >> text=استعادة كاملة'); await pg.wait_for_timeout(900)
+        ok('…and the exclusion survives restoring a bag that does not have it', await ev("loadProg('dalal').then(p=>!!(p.excl&&p.excl.c0&&p.excl.c0.v))"))
+        q = await ev("""(async()=>{const p=await loadProg('dalal');p.tests.delay={v:2,k:999,done:true,t:3,t0:3,lane:'C',resp:{t0:{rec:{ok:1,dk:0},oral:{dk:1}},c0:{rec:{ok:1,dk:0},oral:{dk:1}}}};await saveProg('dalal',p);return stratum(p)})()""")
+        ok('…an excluded word is left out of the count', q['status'] == 'ready' and q['nC'] == 0 and q['ex'] == 1 and q['xT'] == 1, json.dumps({k: q.get(k) for k in ['status', 'nT', 'nC', 'xT', 'ex']}))
+        async with pg.expect_download(timeout=20000) as d:
+            await ev("exportAssessCSV()")
+        rows = open(await (await d.value).path(), encoding='utf-8-sig').read().splitlines()
+        hdr = rows[0].split(',')
+        r0 = [x for x in rows[1:] if x.startswith('dalal,C,pre,t0,')][0].split(',')
+        ok('…after the delay test the CSV opens, with strict-unknown, stable-learning and exclusion columns', all(c in hdr for c in ['unknown_strict', 'learned_stable', 'excluded_outside', 'oral_blind']) and r0[hdr.index('unknown_strict')] == '1' and r0[hdr.index('learned_stable')] == '1' and r0[hdr.index('oral_score')] == '0')
+        # ق٥: «افهم» يسأل قبل أن يعرض المعنى
+        await ev("""(async()=>{const p=await loadProg('dalal');p.tests={pre:""" + PRE_DONE + """};p.done={};p.doneT={};p.scene=0;p.step=0;await saveProg('dalal',p);S.kid='dalal';S.prog=p;S.prog.step=stepsFor(0).indexOf('understand');await go('scene')})()"""); await pg.wait_for_timeout(600)
+        await pg.click('#guess'); await pg.wait_for_timeout(200)
+        ok('Q5: after «خمّنتُ» the meaning question shows, the meaning card does not', await ev("getComputedStyle(document.querySelector('#q1')).display!=='none'&&document.querySelector('#cardBox').style.display==='none'&&document.querySelector('#q2box').style.display==='none'"))
+        await ev("(()=>{const right=strip(SCENES[0].q1.o.find(o=>o[1])[0]);[...document.querySelectorAll('#q1 .opt')].find(b=>strip(b.innerText)===right).click()})()"); await pg.wait_for_timeout(300)
+        ok('…answering it reveals the card, then the second question', await ev("document.querySelector('#cardBox').style.display==='block'&&document.querySelector('#q2box').style.display==='block'"))
+        await ev("(()=>{const right=strip(SCENES[0].q2.o.find(o=>o[1])[0]);[...document.querySelectorAll('#q2 .opt')].find(b=>strip(b.innerText)===right).click()})()"); await pg.wait_for_timeout(300)
+        await pg.click('.bw[data-bk="0"]'); await pg.click('.bw[data-bk="1"]'); await pg.wait_for_timeout(300)
+        ok('…extra words: the question comes before the definition', bool(await pg.query_selector('#qb0')) and await ev("document.querySelector('#bmean').innerText.trim()===''"))
+        # ق٦: اختبار كريم بصوت مسجّل
+        await ev("""(async()=>{for(const k of ktKeys('t0').concat(ktKeys('c0')))await sput('audio',k,""" + AUD + """);const p=await loadProg('kareem');p.tests={};p.done={};await saveProg('kareem',p);await go('parent')})()"""); await pg.wait_for_timeout(900)
+        ok('Q6: parent mode shows the recording count for Kareem\'s test (10 of 100)', '١٠ من ١٠٠' in await view(pg))
+        await pg.click('#ktBtn'); await pg.wait_for_timeout(700)
+        ok('…its page lists the 20 test words, each with the word and four options to record', await ev("document.querySelectorAll('#view details').length") == 20 and await ev("document.querySelectorAll('#view [data-rec^=\"model:tq:\"]').length") == 100)
+        await ev("(async()=>{S.kid='kareem';S.prog=await loadProg('kareem');window.__pk=[];const o=playKey;playKey=k=>{window.__pk.push(k);return o(k)};await go('test','pre')})()"); await pg.wait_for_timeout(500)
+        await ev("(async()=>{S.prog.tests.pre.k=testPlan('kareem','pre','A').findIndex(x=>x[0]==='t0');await saveProg('kareem',S.prog);await go('test','pre')})()"); await pg.wait_for_timeout(900)
+        ok('…the oral question plays the recorded word and offers to replay it', bool(await pg.query_selector('#tw')) and 'model:tq:t0:w' in await ev("window.__pk"))
+        ok('…and tells the parent not to read', 'بصوت مسجّل' in await view(pg))
+        await pg.click('#tdk'); await pg.wait_for_timeout(900)
+        ok('…the choice question has a 🔊 for each option and «hear it all»', await ev("document.querySelectorAll('#tq [data-tp]').length") == 4 and bool(await pg.query_selector('#tall')))
+        await ev("(async()=>{S.prog.tests.pre.k=testPlan('kareem','pre','A').findIndex(x=>x[0]==='c1');await saveProg('kareem',S.prog);await go('test','pre')})()"); await pg.wait_for_timeout(700)
+        ok('…an item without recordings falls back to the parent reading', not await pg.query_selector('#tw') and 'ولي الأمر يقرأ' in await view(pg))
+        await ev("go('ktrec')"); await pg.wait_for_timeout(700)
+        ok('…once Kareem\'s pre-test has started, the recordings are locked', await ev("document.querySelectorAll('#view [data-rec]').length") == 0 and 'لا يُعاد التسجيل' in await view(pg))
+        # ق٨: المسرح والمسابقة على المشاهد التي أنهاها الجميع
+        r = await ev("""(async()=>{const set=async(k,d)=>{const p=await loadProg(k);p.done={};d.forEach(i=>p.done[i]=true);await saveProg(k,p)};await set('dalal',[0,1,2,3]);await set('farah',[0,1,2]);await set('kareem',[0,1]);return [await scenesDoneBy(['dalal','farah','kareem']),await scenesDoneBy(['dalal','farah']),await scenesDoneBy(['feras','nour'])]})()""")
+        ok('Q8: theater and quiz use only scenes every child has finished', r[0] == [0, 1] and r[1] == [0, 1, 2] and len(r[2]) == 10, str(r))
+        await ev("go('theater')"); await pg.wait_for_timeout(600)
+        ok('…and the theater says which scenes it will play', 'أنهاها كل الأطفال: ١، ٢' in await view(pg))
+        qs = await ev("(()=>{const used=new Set();return [...Array(12)].map(()=>quizQ('farah',used,[0,1]).i)})()")
+        ok('…quiz questions come only from those scenes', set(qs) <= {0, 1}, str(qs))
+        # ق١٠: حفظ الحقيبة من شاشة نهاية الاختبار
+        await ev("""(async()=>{const p=await loadProg('farah');p.tests={pre:{v:2,k:999,done:false,t0:1,lane:'C',resp:{}}};await saveProg('farah',p);S.kid='farah';S.prog=p;await go('test','pre')})()"""); await pg.wait_for_timeout(700)
+        ok('Q10: the end-of-test screen offers «save the bag now»', bool(await pg.query_selector('#tbag')) and bool(await pg.query_selector('#h')))
+
         await b.close()
 
 asyncio.run(main())

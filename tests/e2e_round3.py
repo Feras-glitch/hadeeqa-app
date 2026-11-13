@@ -91,6 +91,7 @@ async def main():
         ok('near-synonym bonus definitions never compete in one question', await ev("bonusNear('بِحَذَرٍ','بِعِنَايَةٍ')&&!bonusNear('بِحَذَرٍ','آثَار')"))
 
         # ---------- F1: «من وضع ولي الأمر» في المسرح يمرّ بالرمز ----------
+        await ev("(async()=>{for(const k of ['dalal','farah','kareem']){const p=await loadProg(k);p.done=Object.assign(p.done||{},{0:true,1:true,2:true});await saveProg(k,p)}})()")  # المسرح يعرض ما أنهاه الجميع (في المشهد ٣ سطر لماما)
         await ev("go('theater')"); await pg.wait_for_timeout(600)
         await pg.click('#rehearse'); await pg.wait_for_timeout(1200)
         if await pg.query_selector('[data-pp]'):
@@ -136,21 +137,29 @@ async def main():
 
         # ---------- F4: أسماء الكلمات المتعلَّمة لا تظهر قبل التصحيح الشفهي ----------
         await ev("""(async()=>{const p=await loadProg('dalal');const o={has:1,t:9};const mk=(ok)=>({rec:{ok,dk:0},oral:Object.assign({},o)});
-          p.tests={pre:{v:2,k:999,done:true,t:1,t0:1,resp:{t0:mk(0),c0:mk(0)}},post:{v:2,k:999,done:true,t:2,t0:2,resp:{t0:mk(1),c0:mk(0)}}};await saveProg('dalal',p);await go('parent')})()""")
+          p.tests={pre:{v:2,k:999,done:true,t:1,t0:1,resp:{t0:mk(0),c0:mk(0)}},post:{v:2,k:999,done:true,t:2,t0:2,resp:{t0:mk(1),c0:mk(0)}},delay:{v:2,k:999,done:true,t:3,t0:3,resp:{t0:mk(1),c0:mk(0)}}};await saveProg('dalal',p);await go('parent')})()""")
         await pg.wait_for_timeout(900)
         v = await view(pg)
-        ok('per-word learned list hidden while oral answers wait for blind scoring', 'كلمات قصة تعلّمها' not in v and 'بعد تصحيح الإجابات الشفهية' in v)
-        await ev("(async()=>{const p=await loadProg('dalal');for(const t of [p.tests.pre,p.tests.post])for(const r of Object.values(t.resp))r.oral.score=1;await saveProg('dalal',p);await go('parent')})()"); await pg.wait_for_timeout(900)
-        ok('…and shown once scoring is done', 'كلمات قصة تعلّمها' in await view(pg))
+        ok('results and learned words hidden while oral answers wait for blind scoring', 'من القصة:' not in v and 'النتائج تظهر بعد' in v)
+        await ev("(async()=>{const p=await loadProg('dalal');for(const [kd,t] of Object.entries(p.tests))for(const r of Object.values(t.resp))r.oral.score=kd==='pre'?0:1;await saveProg('dalal',p);await go('parent')})()"); await pg.wait_for_timeout(900)
+        ok('…and shown once the delay test is done and scoring is complete', 'من القصة:' in await view(pg))
 
         # ---------- F15: طفل تخطّى اختبار البداية مستبعد؛ والحكم ❌ حين يستحيل نجاح طفلين ----------
         r = await ev("""(async()=>{const mk=(ok,dk)=>({rec:{ok,dk:dk?1:0},oral:dk?{dk:1}:{has:1,score:ok?2:0}});
           const build=(tPost,cPost)=>{const pre={v:2,k:999,done:true,t:1,t0:0,resp:{}},post={v:2,k:999,done:true,t:2,t0:0,resp:{}};for(let i=0;i<10;i++){pre.resp['t'+i]=mk(0,1);pre.resp['c'+i]=mk(0,1);post.resp['t'+i]=mk(i<tPost?1:0,i>=tPost);post.resp['c'+i]=mk(i<cPost?1:0,i>=cPost)}return {pre,post}};
-          const a=await loadProg('dalal');a.tests=build(1,1);await saveProg('dalal',a);
-          const b=await loadProg('farah');b.tests=build(6,1);b.tests.delay={v:2,k:999,done:true,t:3,t0:0,resp:JSON.parse(JSON.stringify(b.tests.post.resp))};await saveProg('farah',b);
+          const withDelay=t=>{t.delay={v:2,k:999,done:true,t:3,t0:0,resp:JSON.parse(JSON.stringify(t.post.resp))};return t};
+          const a=await loadProg('dalal');a.tests=withDelay(build(1,1));await saveProg('dalal',a);
+          const b=await loadProg('farah');b.tests=withDelay(build(6,1));await saveProg('farah',b);
           const c=await loadProg('kareem');c.tests={pre:{v:2,skipped:1,t:1,resp:{}}};await saveProg('kareem',c);
-          return {k:criterion(c).status,d:criterion(a).status,f:criterion(b).status,v:await familyVerdict()}})()""")
-        ok('skipped pre-test → child excluded; 1 pass + 1 fail + 1 excluded → ❌', r['k'] == 'excluded' and r['d'] == 'fail' and r['f'] == 'pass' and 'لم يتحقق' in r['v'], json.dumps({k: r[k] for k in 'kdf'}))
+          return {k:stratum(c).status,d:stratum(a).status,f:stratum(b).status,p:strataP([stratum(a),stratum(b)]).p,v:await familyVerdict()}})()""")
+        from math import comb
+        def tail(N, K, n, x):
+            return sum(comb(K, i) * comb(N - K, n - i) for i in range(x, min(n, K) + 1)) / comb(N, n)
+        # التوزيع المجمَّع: دلال (٢ متعلَّمة، ١ منها قصة) + فرح (٧ متعلَّمة، ٦ منها قصة) ⇒ مجموع القصة ≥ ٧
+        pmf = lambda N, K, n: [comb(K, i) * comb(N - K, n - i) / comb(N, n) for i in range(0, min(n, K) + 1)]
+        d1, d2 = pmf(20, 10, 2), pmf(20, 10, 7)
+        pe = sum(d1[i] * d2[j] for i in range(len(d1)) for j in range(len(d2)) if i + j >= 7)
+        ok('skipped pre-test → child out of the criterion; the pooled exact test uses the other two', r['k'] == 'excluded' and r['d'] == 'ready' and r['f'] == 'ready' and abs(r['p'] - pe) < 1e-9 and 'مستبعد' in r['v'] and 'احتمال الصدفة' in r['v'], json.dumps({k: r[k] for k in 'kdfp'}) + f' expected {pe}')
 
         # ---------- F5 + F6: المسرح والمسابقة بعد اختبار البداية؛ الرمز يُختار من الصفحة الرئيسية فقط ----------
         pg2 = await new_page(b, ERR, seed_pin=False); ev2 = pg2.evaluate
@@ -218,16 +227,16 @@ async def main():
         ok('clock moved back: today\'s new-scene lock still holds', 'غدًا' in await view(pg))
 
         # ---------- قرارات فراس (٦ نوفمبر) ----------
-        # ١) حدّ أدنى: أقل من ٤ كلمات قصة مجهولة في البداية ⇒ التعرّف والتذكّر غير قابلين للحكم، والحكم بالشفهي
+        # ق٢ (١٣ نوفمبر): لا حدّ أدنى ولا حكم بالشفهي وحده؛ طفل يعرف ٨ من ١٠ يدخل بكلمتيه المجهولتين
         r = await ev("""(async()=>{const mk=(ok,dk,sc)=>({rec:{ok,dk:dk?1:0},oral:dk?{dk:1}:{has:1,score:sc}});
           const pre={v:2,k:999,done:true,t:1,t0:0,resp:{}},post={v:2,k:999,done:true,t:2,t0:0,resp:{}};
           for(let i=0;i<10;i++){pre.resp['t'+i]=mk(i<8?1:0,i>=8,i<8?1:0);pre.resp['c'+i]=mk(0,1);post.resp['t'+i]=mk(1,0,2);post.resp['c'+i]=mk(0,1)}
-          const p=await loadProg('dalal');p.tests={pre,post};await saveProg('dalal',p);const c=criterion(p);await go('parent');return {recog:c.recog,delay:c.delay,oral:c.oral,status:c.status,pu:c.pu}})()""")
+          const delay=JSON.parse(JSON.stringify(post));const p=await loadProg('dalal');p.tests={pre,post,delay};await saveProg('dalal',p);const c=stratum(p);await go('parent');return {status:c.status,nT:c.nT,xT:c.xT,nC:c.nC,xC:c.xC}})()""")
         await pg.wait_for_timeout(900)
-        ok('child who knew 8 of 10 story words: recognition and delay not judgeable, judged by oral (→ pass)', r['recog'] == 'na' and r['delay'] == 'na' and r['oral'] is True and r['status'] == 'pass', json.dumps(r))
-        ok('…and the report says why', 'غير قابلين للحكم' in await view(pg) and 'الحدّ الأدنى ٤' in await view(pg))
-        r = await ev("""(async()=>{const p=await loadProg('dalal');for(let i=0;i<10;i++){p.tests.pre.resp['t'+i]={rec:{ok:0,dk:1},oral:{dk:1}}}return criterion(p).small})()""")
-        ok('…a child with enough unknown words is judged on recognition as before', r is False)
+        ok('child who knew 8 of 10 story words still counts, with his 2 unknown story words (no floor, no oral-only route)', r == {'status': 'ready', 'nT': 2, 'xT': 2, 'nC': 10, 'xC': 0}, json.dumps(r))
+        ok('…and the report shows the counts behind it', '٢ من ٢' in await view(pg) and '٠ من ١٠' in await view(pg))
+        r = await ev("""(async()=>{const p=await loadProg('dalal');p.tests.pre.resp.t0={rec:{ok:0,dk:0},oral:{has:1,score:1}};p.tests.pre.resp.t1={rec:{ok:0,dk:0},oral:{has:1,na:1}};return stratum(p)})()""")
+        ok('…a wrong answer with a partial oral meaning (1) is not «strictly unknown»; an inaudible one is left out', r['nT'] == 2 and r['und'] == 1, json.dumps({k: r[k] for k in ['nT', 'und']}))
         # ٤) «خشبي» و«الذهبية» خارج نسبة الكلمات الإضافية
         n = await ev("""(()=>{const resp={};for(let i=0;i<10;i++)for(let j=0;j<2;j++)resp['b'+i+'_'+j]={rec:{ok:1,dk:0}};return tSummary({tests:{pre:{v:2,done:true,resp}}},'pre').g.B.n})()""")
         ok('bonus percentage counts 18 words (the two answerable from the root are left out)', n == 18, str(n))

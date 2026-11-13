@@ -192,7 +192,7 @@ async def main():
         ok('all oral answers scored', await ev("oralQueue().then(q=>q.length)") == 0)
         await pg.click('#bk'); await pg.wait_for_timeout(700)
         card = await pg.inner_text('#view')
-        ok('report: story vs control words + net effect', 'كلمات المقارنة' in card and 'أثر التطبيق' in card and 'شفهي' in card)
+        ok('report: story vs control words, the strict-unknown counts for the criterion, oral', 'كلمات المقارنة' in card and 'للمعيار' in card and 'شفهي' in card)
         ok('report: usage log (days, minutes, what the child opens)', 'أيام النشاط' in card)
         async with pg.expect_download(timeout=30000) as d:
             await pg.click('#csvBtn')

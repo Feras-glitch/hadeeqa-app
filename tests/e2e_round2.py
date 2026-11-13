@@ -151,8 +151,11 @@ async def main():
           const pre={v:2,k:999,done:true,t:Date.now()-30*864e5,t0:0,resp:{}},post={v:2,k:999,done:true,t:Date.now()-20*864e5,t0:0,resp:{}},dl={v:2,k:999,done:true,t:Date.now(),t0:0,resp:{}};
           for(let i=0;i<10;i++){pre.resp['t'+i]=mk(0,1);pre.resp['c'+i]=mk(0,1);post.resp['t'+i]=mk(i<6?1:0,i>=6);post.resp['c'+i]=mk(i<1?1:0,i>=1);dl.resp['t'+i]=mk(i<5?1:0,i>=5);dl.resp['c'+i]=mk(i<1?1:0,i>=1)}
           p.tests={pre,post,delay:dl};await saveProg('dalal',p)})()""")
-        c = await ev("loadProg('dalal').then(criterion)")
-        ok('criterion: 6 vs 1 learned (post), 5 vs 1 (delay), oral up → pass', c['status'] == 'pass' and c['gap'] == 5 and c['gapD'] == 4, json.dumps(c))
+        c = await ev("loadProg('dalal').then(stratum)")
+        ok('criterion: stable learning (final and delay) of strictly unknown words: 5 of 10 story vs 1 of 10 control', c['status'] == 'ready' and (c['nT'], c['nC'], c['xT'], c['xC']) == (10, 10, 5, 1), json.dumps({k: c.get(k) for k in ['status', 'nT', 'nC', 'xT', 'xC', 'p']}))
+        from math import comb
+        pe = sum(comb(10, x) * comb(10, 6 - x) for x in range(5, 7)) / comb(20, 6)
+        ok('…exact chance probability equals an independent hypergeometric computation', abs(c['p'] - pe) < 1e-9, f"{c['p']} vs {pe}")
         await ev("go('parent')"); await pg.wait_for_timeout(900)
         ok('parent report shows the pre-registered criterion', 'معيار النجاح' in await view(pg) and '🎯' in await view(pg))
         await b.close()
