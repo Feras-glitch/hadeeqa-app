@@ -209,6 +209,10 @@ async def take_test(pg, record_every=2):
     for _ in range(200):
         if await pg.query_selector('#h'):
             return n
+        mc = await pg.query_selector('.mdl-c')
+        if mc and 'لا أعرف' in await mc.inner_text() and await pg.query_selector('.mdl-c button'):
+            await pg.click('.mdl-c button >> nth=0'); await pg.wait_for_timeout(400)  # R4: post/delay intro
+            continue
         if await pg.query_selector('#tdk'):
             oral_i += 1
             if oral_i % record_every == 1 or record_every == 1:
