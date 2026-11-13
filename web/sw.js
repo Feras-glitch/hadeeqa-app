@@ -1,6 +1,6 @@
 // الصفحة نفسها: الشبكة أولًا (لتصل التحديثات والقصص الجديدة تلقائيًا) ثم النسخة المخزّنة إن لم يوجد اتصال.
 // بقية الملفات: المخزَّن أولًا.
-const C='hadeeqa-v5';
+const C='hadeeqa-v6';
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./index.html','./manifest.webmanifest','./icon.svg'])));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener('fetch',e=>{
@@ -10,7 +10,7 @@ self.addEventListener('fetch',e=>{
   if(page){
     // مهلة ٤ ثوانٍ: شبكة بطيئة لا تعلّق التطبيق
     // لا يُخزَّن إلا التطبيق نفسه (لا صفحة دخول شبكة عامة مثلًا)
-    const net=fetch(e.request).then(r=>{if(r.ok){const cp=r.clone();cp.text().then(t=>{if(t.includes('id="assets"'))caches.open(C).then(c=>c.put('./index.html',new Response(t,{headers:{'Content-Type':'text/html; charset=utf-8'}})))})}return r});
+    const net=fetch(e.request).then(r=>r.ok?r.text():Promise.reject(0)).then(t=>{if(!t.includes('id="assets"'))throw 0;const h={headers:{'Content-Type':'text/html; charset=utf-8'}};caches.open(C).then(c=>c.put('./index.html',new Response(t,h)));return new Response(t,h)});
     const slow=new Promise(res=>setTimeout(res,4000)).then(()=>caches.match('./index.html'));
     e.respondWith(Promise.race([net.catch(()=>caches.match('./index.html')),slow.then(r=>r||net)]));
     return;

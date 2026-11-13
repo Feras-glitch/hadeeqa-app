@@ -132,7 +132,10 @@ async def main():
         ok('parent\'s answer arrives; farah\'s newer progress kept', fp['asks'][0].get('answered') == 1 and await ev(f"hasKey('ans:farah:{aid}')") and fp['done'].get('1') is True)
 
         # ================= المسرح سطرًا بسطر =================
-        await pg.click('#homeBtn'); await pg.click('#thBtn'); await pg.click('#play'); await pg.wait_for_timeout(2500)
+        await pg.click('#homeBtn'); await pg.wait_for_timeout(300)
+        ok('R4 H1: a tablet without the siblings\' data hides the theater', not await pg.query_selector('#thBtn'))
+        await ev("(async()=>{await sput('kv','famPre',1);await go('home')})()"); await pg.wait_for_timeout(400)  # ولي الأمر أكّد أن الثلاثة أنهوا اختبار البداية
+        await pg.click('#thBtn'); await pg.click('#play'); await pg.wait_for_timeout(2500)
         t1 = await view(pg)
         await pg.click('#nx'); await pg.wait_for_timeout(900)
         t2 = await view(pg)
