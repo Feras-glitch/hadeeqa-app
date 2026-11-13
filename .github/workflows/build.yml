@@ -2,6 +2,7 @@ name: Build APK and Windows
 on:
   push:
     branches: [main]
+    tags: ['trial-*']   # وسم نسخة تجربة ← إصدار ثابت فيه الـAPK وملف ويندوز
   workflow_dispatch:
     inputs:
       skip_tests:
@@ -53,15 +54,32 @@ jobs:
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
       - name: Copy web app into assets
         run: mkdir -p android/app/src/main/assets/www && cp web/index.html android/app/src/main/assets/www/index.html
-      - name: Build debug APK
+      - name: Signing key
+        env: { SIGNING: '${{ secrets.ANDROID_SIGNING }}' }
+        run: |
+          if [ -n "$SIGNING" ]; then
+            printf '%s' "${SIGNING#*:}" | base64 -d > "$RUNNER_TEMP/hadeeqa.jks"
+            echo "HADEEQA_KEYSTORE=$RUNNER_TEMP/hadeeqa.jks" >> "$GITHUB_ENV"
+            echo "HADEEQA_KEYPASS=${SIGNING%%:*}" >> "$GITHUB_ENV"
+          else
+            echo "::warning::لا يوجد سرّ ANDROID_SIGNING: نسخة debug يتغيّر توقيعها مع كل بناء، فلا تُثبَّت فوق نسخة سابقة"
+          fi
+      - name: Build APK
         working-directory: android
-        run: gradle --no-daemon --stacktrace assembleDebug 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
+        run: |
+          if [ -n "$HADEEQA_KEYSTORE" ]; then T=assembleRelease; else T=assembleDebug; fi
+          gradle --no-daemon --stacktrace $T 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
+          mkdir -p out && cp app/build/outputs/apk/*/app-*.apk out/hadeeqa.apk
       - name: Show error tail
         if: failure()
         working-directory: android
         run: grep -nE "error|wrong|Exception|FAIL" build.log | head -40 || true
+      - name: Signing certificate (must stay the same between builds)
+        run: |
+          AS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)/apksigner
+          "$AS" verify --print-certs android/out/hadeeqa.apk | grep -E "SHA-256|DN" | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
-        with: { name: Hadeeqa-android-apk, path: android/app/build/outputs/apk/debug/app-debug.apk }
+        with: { name: Hadeeqa-android-apk, path: android/out/hadeeqa.apk }
   windows:
     needs: test
     if: ${{ !cancelled() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
@@ -85,7 +103,7 @@ jobs:
         with: { name: Hadeeqa-windows, path: electron/dist/*.exe }
   pages:
     needs: test
-    if: ${{ !cancelled() && vars.ENABLE_PAGES == 'true' && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ !cancelled() && vars.ENABLE_PAGES == 'true' && github.ref == 'refs/heads/main' && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     permissions: { pages: write, id-token: write }
     environment:
@@ -99,3 +117,18 @@ jobs:
         with: { path: web }
       - id: deploy
         uses: actions/deploy-pages@v4
+  # إصدار ثابت لنسخة التجربة: يُنشأ عند دفع وسم trial-* ويبقى بعد انتهاء صلاحية الـArtifacts
+  release:
+    if: ${{ startsWith(github.ref, 'refs/tags/trial-') }}
+    needs: [android, windows]
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist }
+      - name: Create release
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "نسخة التجربة $GITHUB_REF_NAME" \
+            --notes "نسخة التجربة المجمّدة. ثبّتوا hadeeqa.apk على التابلتات وملف ويندوز على الحاسوب، ولا تحدّثوها حتى نهاية اختبار التذكّر." \
+            dist/Hadeeqa-android-apk/hadeeqa.apk dist/Hadeeqa-windows/*.exe

@@ -10,7 +10,15 @@ android {
         versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer)
         versionName "1.0." + (System.getenv('GITHUB_RUN_NUMBER') ?: '0')
     }
-    buildTypes { release { minifyEnabled false; signingConfig signingConfigs.debug } }
+    // مفتاح توقيع ثابت من أسرار GitHub (ANDROID_SIGNING)، فيُثبَّت كل تحديث فوق السابق دون حذف البيانات
+    signingConfigs {
+        family {
+            def ks = System.getenv('HADEEQA_KEYSTORE')
+            if (ks) { storeFile file(ks); storePassword System.getenv('HADEEQA_KEYPASS'); keyAlias 'hadeeqa'; keyPassword System.getenv('HADEEQA_KEYPASS') }
+        }
+    }
+    buildTypes { release { minifyEnabled false; signingConfig System.getenv('HADEEQA_KEYSTORE') ? signingConfigs.family : signingConfigs.debug } }
+    lint { checkReleaseBuilds false; abortOnError false }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 dependencies {
