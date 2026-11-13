@@ -117,6 +117,45 @@ async def main():
         else:
             ok('L9: child-page restore input exists', False)
 
+
+        # ---------- الدفعة ٥: تحسينات لا تحتاج قرارًا ----------
+        bag = await ev("""(async()=>{let got=null;window.AndroidBridge={saveFile:(n,m,b)=>{got=b;return true}};await exportBackup('dalal');delete window.AndroidBridge;return JSON.parse(decodeURIComponent(escape(atob(got)))).build})()""")
+        ok('the bag records which build made it', bag == 'dev', str(bag))
+        ok('step titles are neutral nouns (not masculine imperatives Dalal reads)', await ev("STEP_NAME.understand==='الفهم'&&STEP_NAME.record==='القراءة والتسجيل'"))
+        ok('meanings and meaning questions are fully vowelled', await ev("SCENES.every(s=>/[\u064e-\u0650]/.test(s.meaning)&&s.q1.o.every(o=>/[\u064e-\u0650]/.test(o[0])))"))
+        await ev("go('parent')"); await pg.wait_for_timeout(300)
+        if await pg.query_selector('.pinpad'):
+            await answer_gate(pg); await pg.wait_for_timeout(900)
+        v = await view(pg)
+        ok('parent mode opens with the readiness checklist (device, levels, readings, Saber, pre-tests, bags, build)', bool(await pg.query_selector('#chk')) and all(x in v for x in ['جاهزية التجربة', 'النموذج الصوتي', 'رسائل العم صابر', 'اختبار البداية', 'آخر نقل للحقيبة', 'النسخة: dev']))
+        order = await ev("(()=>{const t=document.querySelector('#view').innerText;return [t.indexOf('جاهزية التجربة'),t.indexOf('صندوق الوارد'),t.indexOf('النموذج الصوتي — سُجِّل'),t.indexOf('صوت التشجيع')]})()")
+        ok('…then inbox, assessment, model readings; encouragement and Saber folded below', order[0] < order[1] < order[2] < order[3], str(order))
+        await pg.click('#cfgOpen'); await pg.wait_for_timeout(300)
+        ok('…«الرمز والمستويات» button opens the device-owner settings', await ev("document.querySelector('#cfgDet').open"))
+        ok('Saber messages carry a suggested script', 'نص مقترح' in await ev("document.querySelector('#view').innerHTML") and 'الْأَشْجَارِ الْمُورِقَةِ' in await ev("document.querySelector('#view').innerHTML"))
+        # كريم: زر النموذج في صندوق التسجيل، والكلمة تُسمع وحدها في سؤال الصورة
+        await ev("""(async()=>{await sput('audio','model:s0:word',""" + AUD + """);await sput('audio','model:s0:l1',""" + AUD + """);const p=await loadProg('kareem');p.tests={pre:{v:2,k:999,done:true,t:1,t0:1,resp:{},lane:'A'}};p.done={};p.doneT={};p.scene=0;p.step=0;p.leitner={};await saveProg('kareem',p);
+            window.__pk=[];const o=playKey;playKey=k=>{window.__pk.push(k);return o(k)};S.kid='kareem';S.prog=p;await go('scene')})()"""); await pg.wait_for_timeout(500)
+        await ev("(async()=>{S.prog.step=stepsFor(0).indexOf('picture');await go('scene')})()"); await pg.wait_for_timeout(1000)
+        ok('Kareem\'s picture step plays the word by itself', 'model:s0:word' in (await ev("window.__pk||[]")))
+        await ev("(async()=>{S.prog.step=stepsFor(0).indexOf('record');await go('scene')})()"); await pg.wait_for_timeout(700)
+        ok('Kareem\'s recording box has a 🔊 model button where a model exists', bool(await pg.query_selector('[data-pm="model:s0:word"]')) and not await pg.query_selector('[data-pm="model:s0:narr"]'))
+        # السقاية قبل المشهد الجديد، والكلمة المختبئة ليست لكريم
+        await ev("""(async()=>{const p=await loadProg('farah');p.tests={pre:""" + PRE_DONE + """};p.done={0:true};p.doneT={0:Date.now()-2*864e5};p.lastNew=today()-2;p.scene=1;p.step=0;p.leitner={[SCENES[0].word]:{box:1,due:today()-1}};await saveProg('farah',p);await go('kid','farah')})()"""); await pg.wait_for_timeout(500)
+        ok('watering comes before the new scene on the child\'s page', await ev("(()=>{const r=document.querySelector('#revBtn'),c=document.querySelector('button[data-s]');return !!(r&&c)&&!!(r.compareDocumentPosition(c)&Node.DOCUMENT_POSITION_FOLLOWING)})()"))
+        await ev("(async()=>{const p=await loadProg('kareem');p.done={0:true};await saveProg('kareem',p);S.kid='kareem';S.prog=p;await go('games')})()"); await pg.wait_for_timeout(400)
+        ok('the hidden-word game (pure reading) is not offered to level A', not await pg.query_selector('[data-g="hide"]'))
+        # استعادة من صفحة الطفل: سؤال واحد يذكر الأصوات
+        await ev("(async()=>{const p=await loadProg('dalal');p.tests={pre:" + PRE_DONE + "};p.done={};p.doneT={};await saveProg('dalal',p);await go('kid','dalal')})()"); await pg.wait_for_timeout(500)
+        newer = {'kid': 'dalal', 'prog': {'scene': 0, 'step': 0, 'done': {'0': True}, 'doneT': {'0': await ev('Date.now()')}, 'leitner': {}, 'results': {}, 'tests': {}}, 'audio': {}, 'draw': {}, 'log': [[await ev('Date.now()'), 'scene']]}
+        pth2 = os.path.join(tmp, 'dalal_new.json'); open(pth2, 'w', encoding='utf-8').write(json.dumps(newer))
+        await pg.set_input_files('#myRs', pth2); await pg.wait_for_timeout(600)
+        mc = await pg.query_selector('.mdl-c')
+        txt = await mc.inner_text() if mc else ''
+        ok('child-page restore asks once, and says messages-only also brings the parents\' recordings', bool(mc) and 'النموذج الصوتي' in txt and 'استعادة كاملة' in txt)
+        if mc:
+            await pg.click('.mdl-c button >> text=إلغاء'); await pg.wait_for_timeout(300)
+
         await b.close()
 
 asyncio.run(main())

@@ -1,5 +1,5 @@
 """اختبارات المتانة: كل خلل وجدته المراجعة الخصمية له هنا فحص يمنع عودته."""
-import asyncio, json, os, sys, tempfile
+import asyncio, re, json, os, sys, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from playwright.async_api import async_playwright
 from helpers import serve, new_page, view, solve_quiz, run_scene, record_all, answer_gate, skip_pre
@@ -32,14 +32,14 @@ async def main():
         for _ in range(3):  # two wrong taps first
             opts = await pg.query_selector_all('#q1 .opt:not([disabled])')
             texts = [await o.inner_text() for o in opts]
-            wrong = [o for o, t in zip(opts, texts) if 'الأوراق' not in t]
+            wrong = [o for o, t in zip(opts, texts) if 'الأوراق' not in re.sub('[\u064b-\u0652]', '', t)]
             if wrong:
                 await wrong[0].click(); await pg.wait_for_timeout(120)
         await solve_quiz(pg, 'q1')
         first = await ev("S.prog.results['مُورِقَة'].q1")
         await to_step(pg, 'dalal', 0, 1); await pg.click('#guess')
         for o in await pg.query_selector_all('#q1 .opt'):
-            if 'الأوراق' in await o.inner_text():
+            if 'الأوراق' in re.sub('[\u064b-\u0652]', '', await o.inner_text()):
                 await o.click(); break
         again = await ev("S.prog.results['مُورِقَة'].q1")
         ok('replay keeps the first-attempt result (only counts the replay)', again['first'] == first['first'] is False and again['attempts'] == first['attempts'] and again.get('n') == 2, f"{first} → {again}")

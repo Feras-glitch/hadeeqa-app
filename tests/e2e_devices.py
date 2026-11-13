@@ -47,7 +47,11 @@ async def main():
         ok('restored garden shows her first word', bool(await pg2.query_selector('.gw[data-gw="0"]')))
         ok('restored voices playable', bool(await ev2("sget('audio','magic:farah:0')")) and bool(await ev2("sget('audio','rec:farah:s0:narr')")))
         # استعادة ثانية من داخل الحقيبة (فوق بيانات موجودة) — تطلب تأكيدًا ثم تنجح
-        await pg2.click('#bag summary'); await pg2.set_input_files('#myRs', path); await pg2.wait_for_timeout(1500)
+        await pg2.click('#bag summary'); await pg2.set_input_files('#myRs', path); await pg2.wait_for_timeout(600)
+        mc = await pg2.query_selector('.mdl-c')
+        ok('R4: restoring over existing data asks one clear question', bool(mc) and 'استعادة كاملة' in await mc.inner_text())
+        if mc:
+            await pg2.click('.mdl-c button >> text=استعادة كاملة'); await pg2.wait_for_timeout(1200)
         ok('second restore from bag keeps one copy', (await ev2("loadProg('farah')"))['done'].get('0') is True and 'المشهد ٢' in await view(pg2))
 
         # ================= ألعاب المراجعة على جهاز ١ =================

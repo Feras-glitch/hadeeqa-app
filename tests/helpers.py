@@ -141,27 +141,28 @@ async def run_scene(pg, log=print, hs=None):
         if await pg.query_selector('.cel, #mg'):
             return True
         step = await pg.inner_text('#topSub')
+        key = await pg.evaluate("t=>{for(const [k,v] of Object.entries(STEP_NAME))if(v===t)return k;return t}", step)
         log('   · ' + step)
         if hs is not None:
             w = await pg.evaluate("[document.documentElement.scrollWidth, document.documentElement.clientWidth]")
             if w[0] > w[1] + 1:
                 hs.append(f'scene step {step}: {w[0]}>{w[1]}')
-        if step == 'اسمع':
+        if key == 'listen':
             pass
-        elif step == 'اختر الصورة':
+        elif key == 'picture':
             for _ in range(3):
                 btns = await pg.query_selector_all('#kg button:not([disabled])')
                 if not btns or not await pg.is_disabled('#next'):
                     break
                 await btns[0].click()
                 await pg.wait_for_timeout(120)
-        elif step == 'افهم':
+        elif key == 'understand':
             await understand(pg)
-        elif step == 'مفاجأة':
+        elif key == 'fun':
             await solve_fun(pg)
-        elif step in ('اقرأ وسجّل', 'أنتج'):
+        elif key in ('record', 'produce'):
             await record_all(pg)
-        elif step == 'عائلة الكلمة':
+        elif key == 'family':
             fam = await pg.evaluate('SCENES[S.prog.scene].family')
             root = await pg.evaluate('SCENES[S.prog.scene].root')
             if await pg.query_selector('[data-r]'):
@@ -169,9 +170,9 @@ async def run_scene(pg, log=print, hs=None):
             else:
                 for w in fam:
                     await pg.click(f'[data-w="{w}"]')
-        elif step in ('صرّف الكلمة', 'صيغة الكلمة'):
+        elif key == 'conj':
             await solve_quiz(pg, 'q3')
-        elif step == 'أبدع':
+        elif key == 'create':
             pass
         await pg.wait_for_timeout(250)
         if await pg.is_disabled('#next'):
