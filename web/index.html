@@ -146,13 +146,13 @@ const roleOf=kid=>{const k=KIDS.find(x=>x.id===kid);if(!k)return kid;if(CH[kid]&
 /* إن وُجد ملف عائلة «واحة اللسان العربي» (kb-family-v1) تُقرأ منه أسماء الأطفال وأعمارهم بدل الثلاثة المثبّتين؛ شخصيات القصة تبقى كما هي */
 function initFamily(){try{const F=JSON.parse(localStorage.getItem('kb-family-v1')||'null');if(!F||!Array.isArray(F.kids)||!F.kids.length)return;const y=new Date().getFullYear();KIDS=F.kids.map(k=>{const age=k.by?Math.max(4,y-k.by):8;const id='kz_'+k.id;CH[id]={n:String(k.name||'').replace(/[<>&"'`]/g,'').slice(0,24)||'طفل',e:k.g==='f'?'👧':'👦',a:null,g:k.g==='f'?'f':'m'};return {id,age,lane:laneOfAge(age)}})}catch(e){}}
 const SCENES=[
-{word:'مُورِقَة',root:'و ر ق',pattern:'مُفْعِلَة',meaning:'كثيرة الأوراق الخضراء',example:'بَعْدَ الْمَطَرِ صَارَتِ الشَّجَرَةُ الْعَارِيَةُ مُورِقَةً.',family:['وَرَقَة','أَوْرَاق','وَرَّاق'],intruder:'رَقِيق',
+{word:'مُورِقَة',root:'و ر ق',pattern:'مُفْعِلَة',meaning:'كثيرة الأوراق الخضراء',example:'بَعْدَ الْمَطَرِ صَارَتِ الشَّجَرَةُ الْعَارِيَةُ مُورِقَةً.',family:['وَرَقَة','أَوْرَاق','وَرَقِيّ'],intruder:'رَقِيق',
  narr:'وَقَفَتْ عَائِلَةُ فِرَاسٍ أَمَامَ بَوَّابَةِ الْحَدِيقَةِ الْكَبِيرَةِ، وَقَدْ أَحَاطَتْ بِهَا أَشْجَارٌ مُورِقَةٌ تَتَمَايَلُ أَغْصَانُهَا فِي الْهَوَاءِ.',
  lines:[{w:'dalal',t:'مَا أَجْمَلَ هَذِهِ الْأَشْجَارَ الْمُورِقَةَ! كَأَنَّهَا تُرَحِّبُ بِنَا.'},{w:'kareem',t:'أُرِيدُ أَنْ أَدْخُلَ الْآنَ!'}],
  q1:{s:'الشجرة المورقة شجرة:',o:[['كثيرة الأوراق',1],['كثيرة الثمار',0],['طويلة الجذع',0]]},
  q2:{s:'سَقَى جَدِّي الشُّجَيْرَةَ كُلَّ يَوْمٍ، فَامْتَلَأَتْ أَغْصَانُهَا بِالْخُضْرَةِ وَصَارَتْ ___',o:[['مُورِقَةً',1],['يَابِسَةً',0],['مَكْسُورَةً',0]]},
  k:{ph:['🌳','🍎','🪵']}},
-{word:'يَتَفَحَّصُ',root:'ف ح ص',pattern:'يَتَفَعَّلُ',meaning:'ينظر في الشيء بدقة ليعرف ما فيه',example:'يَتَفَحَّصُ الطَّبِيبُ الصُّورَةَ قَبْلَ أَنْ يَتَكَلَّمَ.',family:['فَحَصَ','فَحْص','فَاحِص'],intruder:'فَرَح',
+{word:'يَتَفَحَّصُ',root:'ف ح ص',pattern:'يَتَفَعَّلُ',meaning:'ينظر في الشيء بدقة ليعرف ما فيه',example:'يَتَفَحَّصُ الطَّبِيبُ الصُّورَةَ قَبْلَ أَنْ يَتَكَلَّمَ.',family:['فَحَصَ','فَحْص','فَاحِص'],intruder:'فَصْل',
  narr:'تَقَدَّمَ بَابَا فِرَاسٌ بِحَذَرٍ، وَأَخَذَ يَتَفَحَّصُ آثَارَ أَقْدَامٍ غَرِيبَةٍ عَلَى التُّرَابِ.',
  lines:[{w:'feras',t:'هَذِهِ الْآثَارُ لَيْسَتْ لِإِنْسَانٍ. دَعُونَا نَتَّبِعْهَا بِهُدُوءٍ.'},{w:'farah',t:'سَأُحْضِرُ عَدَسَتِي الْمُكَبِّرَةَ لِأَتَفَحَّصَهَا مَعَكَ يَا أَبِي!'},{w:'kareem',t:'وَأَنَا سَأَمْشِي خَلْفَكُمْ بِهُدُوءٍ.'}],
  q1:{s:'من يتفحّص شيئًا فهو:',o:[['ينظر فيه بدقة',1],['ينظر إليه بسرعة',0],['يبحث عنه',0]]},
@@ -199,7 +199,7 @@ const SCENES=[
  lines:[{w:'farah',t:'الْحُرُوفُ تَتَأَلَّقُ كَأَنَّهَا نُجُومٌ صَغِيرَةٌ!'},{w:'kareem',t:'أُرِيدُ أَنْ أَلْمِسَهَا!'},{w:'dalal',t:'مَكْتُوبٌ هُنَا بِخَطٍّ عَتِيقٍ: «زَرَعْتُ هَذِهِ الشَّجَرَةَ مِنْ بَذْرَةٍ وَاحِدَةٍ، وَكَتَبْتُ قِصَّتَهَا لِيَقْرَأَهَا أَحْفَادِي». وَالتَّارِيخُ قَبْلَ مِئَةِ عَامٍ!'}],
  q1:{s:'الشيء الذي يتألق:',o:[['يلمع ويضيء',1],['يتحرك بسرعة',0],['يكبر',0]]},
  q2:{s:'لَبِسَتْ أُخْتِي فُسْتَانَ الْعِيدِ اللَّامِعَ، فَأَخَذَتْ ___ تَحْتَ الْأَضْوَاءِ',o:[['تَتَأَلَّقُ',1],['تَنَامُ',0],['تَبْكِي',0]]},
- k:{ph:['✨','📜','🌑']}},
+ k:{ph:['✨','🧱','🌑']}},
 {word:'خَاتِمَة',root:'خ ت م',pattern:'فَاعِلَة',meaning:'نهاية الشيء وآخر جزء منه',example:'كَتَبَتْ دَلَالُ خَاتِمَةَ الْقِصَّةِ فِي السَّطْرِ الْأَخِيرِ.',family:['خَتَمَ','خَاتَم','خِتَام'],intruder:'خَيْمَة',
  narr:'فِي خَاتِمَةِ الْمُغَامَرَةِ، أَهْدَى الْعَمُّ صَابِرٌ إِلَى الْعَائِلَةِ بَذْرَةً مِنَ الشَّجَرَةِ الْعِمْلَاقَةِ لِيَزْرَعُوهَا فِي بَيْتِهِمْ، فَعَمَّتِ الْبَهْجَةُ الْجَمِيعَ.',
  lines:[{w:'saber',t:'هَذِهِ بَذْرَةٌ مِنَ الشَّجَرَةِ نَفْسِهَا. ازْرَعُوهَا، وَاكْتُبُوا قِصَّتَهَا، لِيَقْرَأَهَا أَحْفَادُكُمْ كَمَا قَرَأْتُمْ قِصَّةَ جَدِّي الْمَحْفُوظَةَ.'},{w:'kareem',t:'سَأَسْقِيهَا كُلَّ يَوْمٍ حَتَّى تَصِيرَ مُورِقَةً!'},{w:'feras',t:'هَذِهِ أَجْمَلُ خَاتِمَةٍ: سِرُّ الْحَدِيقَةِ سَيَكْبُرُ فِي بَيْتِنَا، وَعُيُونُكُمْ تَتَأَلَّقُ سُرُورًا.'},{w:'dalal',t:'وَسَنَكْتُبُ قِصَّتَهَا بِأَنْفُسِنَا!'}],
@@ -310,9 +310,9 @@ async function stListen(sc,i,steps){const L=lane();const hasModel=await hasKey('
 
 /* --- quiz engine: 3 tiers --- */
 function quizHtml(id,q){const opts=shuffle(q.o.map((o,k)=>({t:o[0],c:!!o[1],k})));return {opts,html:'<div class="card"><div class="lab">'+(id==='q1'?'🧩 سؤال المعنى':'🧩 سؤال الإكمال')+'</div><div class="line">'+esc(q.s)+'</div><div class="opts" id="'+id+'">'+opts.map((o,k)=>'<button class="opt" data-i="'+k+'">'+esc(o.t)+'</button>').join('')+'</div><div class="hint" id="'+id+'h" style="display:none"></div><div class="fb" id="'+id+'f"></div></div>'}}
-function bindQuiz(id,opts,sc,onSolved){let attempts=0,solved=false;const box=$('#'+id);box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(solved)return;const o=opts[+b.dataset.i];attempts++;
+function bindQuiz(id,opts,sc,onSolved,kind){const right=()=>{const o=opts.find(x=>x.c);return o?o.t:''};const K=S.kid||'';let attempts=0,solved=false;const box=$('#'+id);box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(solved)return;const o=opts[+b.dataset.i];attempts++;
  if(o.c){solved=true;playFx('ok');b.classList.add('ok');box.querySelectorAll('.opt').forEach(x=>x.disabled=true);$('#'+id+'f').innerHTML=attempts===1?'🌟 أحسنت من المحاولة الأولى':attempts===2?'🌿 صحيح بعد التلميح':'🌱 صحيح بمساعدة';$('#'+id+'f').style.color='#166534';onSolved(attempts)}
- else{playFx('retry');b.classList.add('no');b.disabled=true;const h=$('#'+id+'h');h.style.display='block';if(attempts===1){h.innerHTML='تلميح: تذكّر الجملة من القصة:<br><b>'+hl(sc.narr,sc.word)+'</b>';$('#'+id+'f').textContent='جرّب مرة أخرى'}else{h.innerHTML='الشرح: «'+esc(sc.word)+'» تعني '+esc(sc.meaning)+'.<br>اضغط الآن على الإجابة الصحيحة.';box.querySelectorAll('.opt').forEach(x=>{const oo=opts[+x.dataset.i];if(oo.c)x.classList.add('ok')})}}})}
+ else{playFx('retry');b.classList.add('no');b.disabled=true;const h=$('#'+id+'h');h.style.display='block';if(attempts===1){h.innerHTML=kind==='ant'?G(K,'تذكّر','تذكّري')+': «'+esc(sc.word)+'» تعني: '+esc(sc.meaning)+'. نريد كلمة معناها عكس ذلك.':kind==='pat'?G(K,'قل','قولي')+' «'+esc(sc.word)+'» بصوت عالٍ، ثم كل خيار: أيّها يشبهها في حركاتها وحروفها الزائدة؟':kind==='conj'?G(K,'اقرأ','اقرئي')+' الجملة كلها: هل ينقصها فعل أم اسم؟ مفرد أم جمع؟':'تلميح: '+G(K,'تذكّر','تذكّري')+' الجملة من القصة:<br><b>'+hl(sc.narr,sc.word)+'</b>';$('#'+id+'f').textContent=G(K,'جرّب مرة أخرى','جرّبي مرة أخرى')}else{h.innerHTML=(kind==='ant'?'«'+esc(sc.word)+'» تعني: '+esc(sc.meaning)+'، وضدّها «'+esc(right())+'».':kind==='pat'?'«'+esc(sc.word)+'» على وزن '+esc(sc.pattern||'')+'، ومثلها في الوزن «'+esc(right())+'».':kind==='conj'?'الصيغة التي تناسب هذه الجملة: «'+esc(right())+'».':'الشرح: «'+esc(sc.word)+'» تعني: '+esc(sc.meaning)+'.')+'<br>'+G(K,'اضغط','اضغطي')+' الآن على الإجابة الصحيحة.';box.querySelectorAll('.opt').forEach(x=>{const oo=opts[+x.dataset.i];if(oo.c)x.classList.add('ok')})}}})}
 const BOX_DAYS=[0,1,3,7,14,30];
 function recordResult(word,key,attempts){const r=S.prog.results[word]=S.prog.results[word]||{};if(r[key]){r[key].n=(r[key].n||1)+1}else r[key]={first:attempts===1,attempts,t:Date.now()};if(!S.prog.leitner[word])S.prog.leitner[word]={box:1,due:today()+1}}
 function promote(l,ok){if(ok)l.box=Math.min(5,l.box+1);else l.box=l.box>=5?3:1;l.due=today()+BOX_DAYS[l.box]}
@@ -414,7 +414,7 @@ const CONJ=[
 ];
 async function stConj(sc,i,steps){const q=quizHtml('q3',CONJ[i]);
  $('#view').innerHTML='<div class="card">'+stepsBar(steps,S.prog.step)+'<div class="word">'+esc(sc.word)+'</div><div class="lab">الجذر: '+esc(sc.root)+' — '+G(S.kid,'اختر','اختاري')+' الصيغة التي تناسب الجملة الجديدة</div></div>'+q.html.replace('🧩 سؤال الإكمال','🔧 التصريف')+nav(false);
- bindQuiz('q3',q.opts,sc,a=>{recordResult(sc.word,'conj',a);saveProg(S.kid,S.prog);$('#next').disabled=false});bindNav()}
+ bindQuiz('q3',q.opts,sc,a=>{recordResult(sc.word,'conj',a);saveProg(S.kid,S.prog);$('#next').disabled=false},'conj');bindNav()}
 
 
 /* fresh transfer items: never used in training */
@@ -717,15 +717,15 @@ async function dedication(kid){S.kid=kid;const p=await loadProg(kid);const d=p.d
 /* ===================== EXTRAS DATA ===================== */
 const EXTRA=[
  {hide:'حَدِيدِيَّةٌ',ant:{s:'ضدّ «مُورِقَة»:',o:[['عَارِيَة',1],['مُثْمِرَة',0],['عَالِيَة',0]]},pat:{s:'مُورِقَة على وزن مُفْعِلَة. ما الكلمة على الوزن نفسه من جذر ث م ر؟',o:[['مُثْمِرَة',1],['ثَمَرَة',0],['ثِمَار',0]]}},
- {hide:'يَأْكُلُ',ant:{s:'ضدّ «يَتَفَحَّصُ»:',o:[['يَتَجَاهَلُ',1],['يُدَقِّقُ',0],['يَنْظُرُ',0]]},pat:{s:'يَتَفَحَّصُ على وزن يَتَفَعَّلُ. ما الكلمة على الوزن نفسه من جذر ع ل م؟',o:[['يَتَعَلَّمُ',1],['يَعْلَمُ',0],['عَالِم',0]]}},
- {hide:'الْكَآبَةُ',ant:{s:'ضدّ «بَهْجَة»:',o:[['حُزْن',1],['فَرَح',0],['سُرُور',0]]},pat:{s:'بَهْجَة على وزن فَعْلَة. ما الكلمة على الوزن نفسه من جذر ض ح ك؟',o:[['ضَحْكَة',1],['ضَاحِك',0],['يَضْحَكُ',0]]}},
+ {hide:'يَأْكُلُ',ant:{s:'ضدّ «يَتَفَحَّصُ»:',o:[['يَتَجَاهَلُ',1],['يَرْكُضُ',0],['يُغَنِّي',0]]},pat:{s:'يَتَفَحَّصُ على وزن يَتَفَعَّلُ. ما الكلمة على الوزن نفسه من جذر ع ل م؟',o:[['يَتَعَلَّمُ',1],['يَعْلَمُ',0],['عَالِم',0]]}},
+ {hide:'الْبَطَاطِسُ',ant:{s:'ضدّ «بَهْجَة»:',o:[['حُزْن',1],['جُوع',0],['نَوْم',0]]},pat:{s:'بَهْجَة على وزن فَعْلَة. ما الكلمة على الوزن نفسه من جذر ض ح ك؟',o:[['ضَحْكَة',1],['ضَاحِك',0],['يَضْحَكُ',0]]}},
  {hide:'سِلَالِ',ant:{s:'أَيُّ مَكَانٍ فِي النَّهْرِ هُوَ الْأَبْعَدُ عَنْ ضِفَافِهِ؟',o:[['وَسَط النَّهْر',1],['جَوَانِب النَّهْر',0],['شَاطِئ النَّهْر',0]]},pat:{s:'ضِفَاف جمع ضِفَّة على وزن فِعَال. ما جمع «جَبَل» على الوزن نفسه؟',o:[['جِبَال',1],['جَبَلَان',0],['جُبَيْل',0]]}},
  {hide:'ثَلَّاجَةٍ',ant:{s:'فِي أَيِّ مَكَانٍ لَا يَضِيعُ أَحَدٌ أَبَدًا، عَكْسَ الْمَتَاهَةِ؟',o:[['طَرِيق مُسْتَقِيم',1],['مَمَرَّات مُتَشَابِكَة',0],['غَابَة',0]]},pat:{s:'مَتَاهَة على وزن مَفْعَلَة. ما الكلمة على الوزن نفسه من جذر د ر س؟',o:[['مَدْرَسَة',1],['دَارِس',0],['دُرُوس',0]]}},
- {hide:'صَغِيرَةٍ',ant:{s:'ضدّ «عِمْلَاقَة»:',o:[['صَغِيرَة جِدًّا',1],['ضَخْمَة',0],['طَوِيلَة',0]]},pat:{s:'عِمْلَاق جمعه عَمَالِقَة. ما جمع «تِلْمِيذ» على الوزن نفسه؟',o:[['تَلَامِذَة',1],['تِلْمِيذَان',0],['تَلْمَذَة',0]]}},
- {hide:'مَقْلِيًّا',ant:{s:'ضدّ «عَتِيق»:',o:[['جَدِيد',1],['قَدِيم',0],['ثَمِين',0]]},pat:{s:'عَتِيق على وزن فَعِيل. ما الكلمة على الوزن نفسه من جذر ك ب ر؟',o:[['كَبِير',1],['أَكْبَر',0],['كِبَار',0]]}},
- {hide:'مَشْوِيَّةً',ant:{s:'ضدّ «مَحْفُوظَة»:',o:[['ضَائِعَة',1],['مَصُونَة',0],['مُغْلَقَة',0]]},pat:{s:'مَحْفُوظَة على وزن مَفْعُولَة. ما الكلمة على الوزن نفسه من جذر ك ت ب؟',o:[['مَكْتُوبَة',1],['كَاتِبَة',0],['كِتَابَة',0]]}},
- {hide:'تَنْبَحُ',ant:{s:'ضدّ «تَتَأَلَّقُ»:',o:[['تَنْطَفِئُ',1],['تَلْمَعُ',0],['تُضِيءُ',0]]},pat:{s:'تَتَأَلَّقُ على وزن تَتَفَعَّلُ. ما الكلمة على الوزن نفسه من جذر ك ل م؟',o:[['تَتَكَلَّمُ',1],['تَكَلُّم',0],['كَلِمَة',0]]}},
- {hide:'مِلْعَقَةِ',ant:{s:'ضدّ «خَاتِمَة»:',o:[['مُقَدِّمَة',1],['نِهَايَة',0],['خِتَام',0]]},pat:{s:'خَاتِمَة على وزن فَاعِلَة. ما الكلمة على الوزن نفسه من جذر ف ك ه؟',o:[['فَاكِهَة',1],['فَوَاكِه',0],['تَفَكُّه',0]]}}
+ {hide:'زُجَاجِيَّةٍ',ant:{s:'ضدّ «عِمْلَاقَة»:',o:[['صَغِيرَة جِدًّا',1],['خَضْرَاء جِدًّا',0],['نَظِيفَة جِدًّا',0]]},pat:{s:'عِمْلَاق جمعه عَمَالِقَة. ما جمع «تِلْمِيذ» على الوزن نفسه؟',o:[['تَلَامِذَة',1],['تِلْمِيذَان',0],['تَلْمَذَة',0]]}},
+ {hide:'مَقْلِيًّا',ant:{s:'ضدّ «عَتِيق»:',o:[['جَدِيد',1],['ثَقِيل',0],['ثَمِين',0]]},pat:{s:'عَتِيق على وزن فَعِيل. ما الكلمة على الوزن نفسه من جذر ك ب ر؟',o:[['كَبِير',1],['أَكْبَر',0],['كِبَار',0]]}},
+ {hide:'مَشْوِيَّةً',ant:{s:'ضدّ «مَحْفُوظَة»:',o:[['ضَائِعَة',1],['مُلَوَّنَة',0],['صَغِيرَة',0]]},pat:{s:'مَحْفُوظَة على وزن مَفْعُولَة. ما الكلمة على الوزن نفسه من جذر ك ت ب؟',o:[['مَكْتُوبَة',1],['كَاتِبَة',0],['كِتَابَة',0]]}},
+ {hide:'تَنْبَحُ',ant:{s:'ضدّ «تَتَأَلَّقُ»:',o:[['تَنْطَفِئُ',1],['تَطِيرُ',0],['تَسْقُطُ',0]]},pat:{s:'تَتَأَلَّقُ على وزن تَتَفَعَّلُ. ما الكلمة على الوزن نفسه من جذر ك ل م؟',o:[['تَتَكَلَّمُ',1],['تَكَلُّم',0],['كَلِمَة',0]]}},
+ {hide:'مِلْعَقَةِ',ant:{s:'ضدّ «خَاتِمَة»:',o:[['مُقَدِّمَة',1],['صُورَة',0],['قَلَم',0]]},pat:{s:'خَاتِمَة على وزن فَاعِلَة. ما الكلمة على الوزن نفسه من جذر ف ك ه؟',o:[['فَاكِهَة',1],['فَوَاكِه',0],['تَفَكُّه',0]]}}
 ];
 const SABER_MSG_AFTER=[1,3,5,7,9]; // scene indexes (0-based) after which a message unlocks
 
@@ -775,7 +775,7 @@ async function gHide(){const i=firstUndone('hide');if(i===undefined)return gameD
 /* --- 8 antonym, 9 pattern --- */
 async function gQuiz(kind,title,qf){const i=firstUndone(kind);if(i===undefined)return gameDone('أكملت كل الأسئلة!');const sc=SCENES[i];const q=quizHtml('qx',qf(i));setTop(title,'المشهد '+ar(i+1),await avInner(S.kid));
  $('#view').innerHTML='<div class="card"><div class="word">'+esc(sc.word)+'</div></div>'+q.html.replace(/🧩 سؤال (المعنى|الإكمال)/,title)+'<div class="row"><button class="b-p b-w" id="nx" disabled>التالي</button></div>';
- bindQuiz('qx',q.opts,sc,async a=>{recordResult(sc.word,kind,a);await markG(kind,i);$('#nx').disabled=false});$('#nx').onclick=()=>go('game',kind)}
+ bindQuiz('qx',q.opts,sc,async a=>{recordResult(sc.word,kind,a);await markG(kind,i);$('#nx').disabled=false},kind);$('#nx').onclick=()=>go('game',kind)}
 const gAnt=()=>gQuiz('ant','↔️ ضدّ الكلمة',i=>EXTRA[i].ant);const gPat=()=>gQuiz('pat','⚖️ لعبة الوزن',i=>EXTRA[i].pat);
 
 /* --- 10 fast box (Kareem) --- */
@@ -845,7 +845,7 @@ async function gReport(){const wk=Math.floor(today()/7);const key='report:'+S.ki
 /* --- 2 real plant --- */
 async function gPlant(){const pl=S.prog.plant=S.prog.plant||{log:[]};setTop('🌱 نبتتي','بذرة العم صابر',await avInner(S.kid));
  const ph=await imgTag('plant:'+S.kid,'img');
- $('#view').innerHTML='<div class="card"><div class="hint">أهداك العم صابر بذرة. ازرعها في وعاء حقيقي (فول أو حمص)، واسقِها، وسجّل نموّها هنا.</div>'+(ph||'<div class="ph">🌱 صوّر نبتتك</div>')+'<input type="file" accept="image/*" capture="environment" id="pph" style="display:none"><button class="b-s b-w" id="ppb" style="margin-top:8px">📷 صورة اليوم</button><div class="lab" style="margin-top:12px">كم ورقة اليوم؟</div><div class="row"><input id="lv" type="number" min="0" style="font:inherit;padding:12px;border:2px solid var(--line);border-radius:14px;width:100px;font-size:1.2rem"><button class="b-p" id="lvs">💾</button></div><div class="small" style="margin-top:10px">'+pl.log.slice(-10).map(l=>new Date(l.t).toLocaleDateString('ar-EG')+': '+nn(l.n,'ورقة واحدة','ورقتان','ورقات','ورقةً')).join('<br>')+'</div></div><div class="row"><button class="b-s b-w" id="bk">➡️ رجوع</button></div>';
+ $('#view').innerHTML='<div class="card"><div class="hint">أهدى العم صابر عائلتك بذرة في القصة. '+G(S.kid,'ازرع بذرة حقيقية (فولًا أو حمّصًا) في وعاء، واسقِها، وسجّل نموّها هنا.','ازرعي بذرة حقيقية (فولًا أو حمّصًا) في وعاء، واسقيها، وسجّلي نموّها هنا.')+'</div>'+(ph||'<div class="ph">🌱 صوّر نبتتك</div>')+'<input type="file" accept="image/*" capture="environment" id="pph" style="display:none"><button class="b-s b-w" id="ppb" style="margin-top:8px">📷 صورة اليوم</button><div class="lab" style="margin-top:12px">كم ورقة اليوم؟</div><div class="row"><input id="lv" type="number" min="0" style="font:inherit;padding:12px;border:2px solid var(--line);border-radius:14px;width:100px;font-size:1.2rem"><button class="b-p" id="lvs">💾</button></div><div class="small" style="margin-top:10px">'+pl.log.slice(-10).map(l=>new Date(l.t).toLocaleDateString('ar-EG')+': '+nn(l.n,'ورقة واحدة','ورقتان','ورقات','ورقةً')).join('<br>')+'</div></div><div class="row"><button class="b-s b-w" id="bk">➡️ رجوع</button></div>';
  $('#bk').onclick=()=>go('games');$('#ppb').onclick=()=>$('#pph').click();$('#pph').onchange=async e=>{const f=e.target.files[0];if(!f)return;await sput('img','plant:'+S.kid,await compress(f,900));pl.log.push({t:Date.now(),n:+($('#lv').value||0),photo:1});await saveProg(S.kid,S.prog);gPlant()};
  $('#lvs').onclick=async()=>{pl.log.push({t:Date.now(),n:+($('#lv').value||0)});await saveProg(S.kid,S.prog);toast('سُجّل');gPlant()}}
 
@@ -917,7 +917,7 @@ const BONUS_NEAR=[['بِحَذَرٍ','بِعِنَايَةٍ']];function bonusN
 const BONUS=[
  [['أَحَاطَتْ','كانت حوله من كل جانب'],['تَتَمَايَلُ','تميل يمينًا ويسارًا بلطف']],
  [['بِحَذَرٍ','بانتباه شديد خوفًا من الخطر'],['آثَار','علامات يتركها شيء مرّ من المكان']],
- [['الْتَقَطَتْ','أخذت الشيء من الأرض بيدها'],['الْمَمَرّ','طريق يُمشى فيه']],
+ [['الْتَقَطَتْ','أخذت الشيء من الأرض بيدها'],['الْمَمَرّ','طريق ضيّق يُمشى فيه']],
  [['لَمَحَ','رأى الشيء بنظرة سريعة'],['الْأَعْشَاب','نباتات خضراء صغيرة تنبت على الأرض']],
  [['الْمُتَشَابِكَة','المتداخلة بعضها في بعض'],['تَتَفَرَّعُ','تنقسم إلى طرق كثيرة']],
  [['السَّاحَة','مكان واسع مكشوف'],['تُلَامِسُ','تمسّ الشيء برفق']],
