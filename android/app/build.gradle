@@ -6,8 +6,9 @@ android {
         applicationId "com.feras.hadeeqa"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        // رقم يزيد مع كل بناء في GitHub Actions، فتُعرف النسخة المثبّتة على كل جهاز
+        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer)
+        versionName "1.0." + (System.getenv('GITHUB_RUN_NUMBER') ?: '0')
     }
     buildTypes { release { minifyEnabled false; signingConfig signingConfigs.debug } }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }

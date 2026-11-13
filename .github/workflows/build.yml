@@ -3,11 +3,48 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'تخطّي فحوص المتصفح (للطوارئ فقط)'
+        type: boolean
+        default: false
 jobs:
+  # فحوص المتصفح كلها قبل أي بناء: إن فشل فحص لا تُبنى نسخة جديدة
+  test:
+    if: ${{ !inputs.skip_tests }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install Playwright and Chromium
+        run: pip install playwright==1.56.0 && python -m playwright install --with-deps chromium
+      - name: Browser tests
+        run: |
+          mkdir -p logs
+          pids=""
+          for t in full devices hardening round2 round3 round4; do
+            python tests/e2e_$t.py > logs/$t.log 2>&1 & pids="$pids $!"
+          done
+          fail=0
+          for p in $pids; do wait $p || fail=1; done
+          for t in full devices hardening round2 round3 round4; do
+            echo "== $t: $(grep -c '^✓' logs/$t.log) ok, $(grep -c '^✗' logs/$t.log) failed"
+            grep -E '^✗|=== (FAILED|ERRORS)|Error' logs/$t.log | head -20 || true
+          done
+          exit $fail
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: test-logs, path: logs/ }
   android:
+    needs: test
+    if: ${{ !cancelled() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Stamp build id
+        run: sed -i "s/const BUILD='dev';/const BUILD='${{ github.run_number }}-${GITHUB_SHA::7}';/" web/index.html && grep -q "const BUILD='${{ github.run_number }}-" web/index.html
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
       - uses: gradle/actions/setup-gradle@v4
@@ -26,9 +63,14 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: Hadeeqa-android-apk, path: android/app/build/outputs/apk/debug/app-debug.apk }
   windows:
+    needs: test
+    if: ${{ !cancelled() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Stamp build id
+        shell: bash
+        run: sed -i "s/const BUILD='dev';/const BUILD='${{ github.run_number }}-${GITHUB_SHA::7}';/" web/index.html && grep -q "const BUILD='${{ github.run_number }}-" web/index.html
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - name: Copy web app
@@ -42,7 +84,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: Hadeeqa-windows, path: electron/dist/*.exe }
   pages:
-    if: ${{ vars.ENABLE_PAGES == 'true' }}
+    needs: test
+    if: ${{ !cancelled() && vars.ENABLE_PAGES == 'true' && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     permissions: { pages: write, id-token: write }
     environment:
@@ -50,6 +93,8 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Stamp build id
+        run: sed -i "s/const BUILD='dev';/const BUILD='${{ github.run_number }}-${GITHUB_SHA::7}';/" web/index.html && grep -q "const BUILD='${{ github.run_number }}-" web/index.html
       - uses: actions/upload-pages-artifact@v3
         with: { path: web }
       - id: deploy
