@@ -12,7 +12,7 @@ jobs:
   # فحوص المتصفح كلها قبل أي بناء: إن فشل فحص لا تُبنى نسخة جديدة
   test:
     if: ${{ !inputs.skip_tests }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Playwright 1.56 لا يدعم ubuntu-latest (26.04) بعد
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
